@@ -1,0 +1,208 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      UserRole @default(PLAYER)
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  events        Event[]
+  newsPosts     NewsPost[]
+  lfgPosts      LFGPost[]
+  forumThreads  ForumThread[]
+  forumReplies  ForumReply[]
+  eventRegistrations EventRegistration[]
+
+  @@map("users")
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  fullName    String
+  description String
+  imageUrl    String
+  isActive    Boolean  @default(true)
+  discordUrl  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  events       Event[]
+  newsPosts    NewsPost[]
+  lfgPosts     LFGPost[]
+  forumThreads ForumThread[]
+
+  @@map("games")
+}
+
+model Event {
+  id                  String      @id @default(cuid())
+  title               String
+  description         String
+  gameSlug            String
+  type                EventType
+  status              EventStatus @default(UPCOMING)
+  startDate           DateTime
+  endDate             DateTime
+  location            String?
+  onlineUrl           String?
+  maxParticipants     Int?
+  currentParticipants Int         @default(0)
+  registrationDeadline DateTime?
+  createdById         String
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  // Relations
+  game        Game                @relation(fields: [gameSlug], references: [slug])
+  createdBy   User                @relation(fields: [createdById], references: [id])
+  registrations EventRegistration[]
+
+  @@map("events")
+}
+
+model EventRegistration {
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  createdAt DateTime @default(now())
+
+  // Relations
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, userId])
+  @@map("event_registrations")
+}
+
+model NewsPost {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String
+  gameSlug    String
+  authorId    String
+  publishedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  game   Game @relation(fields: [gameSlug], references: [slug])
+  author User @relation(fields: [authorId], references: [id])
+
+  @@map("news_posts")
+}
+
+model LFGPost {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  gameSlug    String
+  platform    Platform
+  region      Region
+  rank        String?
+  isActive    Boolean  @default(true)
+  authorId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  game   Game @relation(fields: [gameSlug], references: [slug])
+  author User @relation(fields: [authorId], references: [id])
+
+  @@map("lfg_posts")
+}
+
+model ForumThread {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  gameSlug    String
+  authorId    String
+  isPinned    Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+  viewCount   Int      @default(0)
+  replyCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  game    Game         @relation(fields: [gameSlug], references: [slug])
+  author  User         @relation(fields: [authorId], references: [id])
+  replies ForumReply[]
+
+  @@map("forum_threads")
+}
+
+model ForumReply {
+  id        String   @id @default(cuid())
+  content   String
+  threadId  String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author User        @relation(fields: [authorId], references: [id])
+
+  @@map("forum_replies")
+}
+
+// Enums
+enum UserRole {
+  PLAYER
+  MODERATOR
+  ADMIN
+}
+
+enum EventType {
+  TOURNAMENT
+  CASUAL
+  ONLINE
+  OFFLINE
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum Platform {
+  PC
+  PS5
+  PS4
+  XBOX
+  SWITCH
+}
+
+enum Region {
+  TEHRAN
+  ISFAHAN
+  SHIRAZ
+  TABRIZ
+  MASHHAD
+  ONLINE
+}
