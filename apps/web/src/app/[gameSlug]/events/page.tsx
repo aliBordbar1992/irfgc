@@ -1,11 +1,9 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import { notFound } from "next/navigation";
+import { GameSlug } from "@/types";
+import { prisma } from "@/lib/prisma";
+import { EventsList } from "@/features/events/EventsList";
+import { CreateEventButton } from "@/features/events/CreateEventButton";
 
 interface EventsPageProps {
   params: Promise<{
@@ -13,116 +11,61 @@ interface EventsPageProps {
   }>;
 }
 
-// Mock events data - will be replaced with API calls
-const MOCK_EVENTS = [
-  {
-    id: "1",
-    title: "Weekly Tournament",
-    description: "Join our weekly tournament and compete with other players",
-    type: "tournament",
-    status: "upcoming",
-    startDate: "2024-01-15T18:00:00Z",
-    location: "Online",
-    maxParticipants: 32,
-    currentParticipants: 24,
-  },
-  {
-    id: "2",
-    title: "Casual Meetup",
-    description: "Casual play session for all skill levels",
-    type: "casual",
-    status: "upcoming",
-    startDate: "2024-01-20T14:00:00Z",
-    location: "Tehran Gaming Center",
-    maxParticipants: 20,
-    currentParticipants: 12,
-  },
-  {
-    id: "3",
-    title: "Championship Series",
-    description: "Major championship with prize pool",
-    type: "tournament",
-    status: "upcoming",
-    startDate: "2024-02-01T16:00:00Z",
-    location: "Online",
-    maxParticipants: 64,
-    currentParticipants: 45,
-  },
-];
+async function getGame(gameSlug: string) {
+  const game = await prisma.game.findUnique({
+    where: { slug: gameSlug },
+  });
+  return game;
+}
 
 export default async function EventsPage({ params }: EventsPageProps) {
   const { gameSlug } = await params;
 
+  // Validate game slug
+  if (!["mk", "sf", "tk", "gg", "bb", "uni"].includes(gameSlug)) {
+    notFound();
+  }
+
+  const game = await getGame(gameSlug);
+  if (!game) {
+    notFound();
+  }
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 capitalize">
-            {gameSlug} Events
+          <h1 className="text-3xl font-bold text-gray-900">
+            {game.fullName} Events
           </h1>
           <p className="text-gray-600 mt-2">
-            Find tournaments, casual meetups, and competitive events
+            Join tournaments, casual events, and competitions
           </p>
         </div>
-        <Button>Create Event</Button>
+        <CreateEventButton gameSlug={gameSlug as GameSlug} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {MOCK_EVENTS.map((event) => (
-          <Card key={event.id} className="hover:shadow-md transition-shadow">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-lg">{event.title}</CardTitle>
-                  <CardDescription className="mt-2">
-                    {event.description}
-                  </CardDescription>
-                </div>
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    event.type === "tournament"
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-green-100 text-green-800"
-                  }`}
-                >
-                  {event.type}
-                </span>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Date:</span>
-                  <span className="font-medium">
-                    {new Date(event.startDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Location:</span>
-                  <span className="font-medium">{event.location}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Participants:</span>
-                  <span className="font-medium">
-                    {event.currentParticipants}/{event.maxParticipants}
-                  </span>
-                </div>
-                <div className="pt-2">
-                  <Button className="w-full" variant="outline">
-                    View Details
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Suspense fallback={<EventsListSkeleton />}>
+        <EventsList gameSlug={gameSlug as GameSlug} />
+      </Suspense>
+    </div>
+  );
+}
 
-      <div className="text-center py-8">
-        <p className="text-gray-600">
-          More events coming soon! Check back regularly for updates.
-        </p>
-      </div>
+function EventsListSkeleton() {
+  return (
+    <div className="space-y-4">
+      {[...Array(3)].map((_, i) => (
+        <div
+          key={i}
+          className="bg-white rounded-lg p-6 shadow-sm border animate-pulse"
+        >
+          <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      ))}
     </div>
   );
 }

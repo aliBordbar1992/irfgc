@@ -31,6 +31,14 @@ export interface Game {
 export type EventType = "tournament" | "casual" | "online" | "offline";
 export type EventStatus = "upcoming" | "ongoing" | "completed" | "cancelled";
 
+export interface EventRegistration {
+  id: string;
+  eventId: string;
+  userId: string;
+  user: User;
+  createdAt: Date;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -48,6 +56,7 @@ export interface Event {
   createdBy: string;
   createdAt: Date;
   updatedAt: Date;
+  registrations?: EventRegistration[];
 }
 
 // News Types
@@ -65,14 +74,14 @@ export interface NewsPost {
 }
 
 // Matchmaking Types
-export type Platform = "pc" | "ps5" | "ps4" | "xbox" | "switch";
+export type Platform = "PC" | "PS5" | "PS4" | "XBOX" | "SWITCH";
 export type Region =
-  | "tehran"
-  | "isfahan"
-  | "shiraz"
-  | "tabriz"
-  | "mashhad"
-  | "online";
+  | "TEHRAN"
+  | "ISFAHAN"
+  | "SHIRAZ"
+  | "TABRIZ"
+  | "MASHHAD"
+  | "ONLINE";
 
 export interface LFGPost {
   id: string;

@@ -174,17 +174,17 @@ The platform uses wildcard subdomains for game-specific communities:
 - [x] Game context and subdomain routing
 - [x] Basic UI components and layouts
 
-### Phase 2: Authentication & User Management
-- [ ] NextAuth.js setup with credentials provider
-- [ ] User registration and login
-- [ ] Role-based access control
-- [ ] User profiles and settings
+### Phase 2: Authentication & User Management ✅
+- [x] NextAuth.js setup with credentials provider
+- [x] User registration and login
+- [x] Role-based access control
+- [x] User profiles and settings
 
-### Phase 3: Core Features
-- [ ] Events system (tournaments, casual events)
-- [ ] News and articles management
-- [ ] LFG (Looking for Game) system
-- [ ] Forum with basic moderation
+### Phase 3: Core Features ✅
+- [x] Events system (tournaments, casual events)
+- [x] News and articles management
+- [x] LFG (Looking for Game) system
+- [x] Forum with basic moderation
 
 ### Phase 4: Admin Dashboard
 - [ ] Admin panel for content management

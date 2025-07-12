@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             name: user.name,
             role: user.role.toLowerCase() as UserRole,
+            avatar: user.avatar || undefined,
           };
         } catch (error) {
           console.error("Auth error:", error);
@@ -82,6 +83,7 @@ declare module "next-auth" {
       email: string;
       name: string;
       role: UserRole;
+      avatar?: string;
     };
   }
 
@@ -90,6 +92,7 @@ declare module "next-auth" {
     email: string;
     name: string;
     role: UserRole;
+    avatar?: string;
   }
 }
 

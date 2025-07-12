@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/features/games/GameContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { MainNav } from "@/components/MainNav";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,7 +32,10 @@ export default function RootLayout({
     <html lang="fa" dir="rtl">
       <body className={inter.className}>
         <SessionProvider>
-          <GameProvider>{children}</GameProvider>
+          <GameProvider>
+            <MainNav />
+            {children}
+          </GameProvider>
         </SessionProvider>
       </body>
     </html>
