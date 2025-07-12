@@ -41,7 +41,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role.toLowerCase() as UserRole,
+            role: user.role as UserRole,
             avatar: user.avatar || undefined,
           };
         } catch (error) {

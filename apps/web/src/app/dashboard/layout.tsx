@@ -17,12 +17,12 @@ export default async function DashboardLayout({
   // Check if user is authenticated and has admin/moderator role
   if (
     !session ||
-    (session.user.role !== "admin" && session.user.role !== "moderator")
+    (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")
   ) {
     redirect("/auth/signin");
   }
 
-  const isAdmin = session.user.role === "admin";
+  const isAdmin = session.user.role === "ADMIN";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,6 +91,12 @@ export default async function DashboardLayout({
                 <Link href="/dashboard/forum">
                   <Button variant="ghost" className="w-full justify-start">
                     💬 Forum
+                  </Button>
+                </Link>
+
+                <Link href="/dashboard/moderation">
+                  <Button variant="ghost" className="w-full justify-start">
+                    🛡️ Moderation
                   </Button>
                 </Link>
 

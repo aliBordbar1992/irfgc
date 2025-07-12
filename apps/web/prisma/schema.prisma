@@ -30,6 +30,9 @@ model User {
   forumThreads  ForumThread[]
   forumReplies  ForumReply[]
   eventRegistrations EventRegistration[]
+  reports       Report[] @relation("ReportReporter")
+  reportedReports Report[] @relation("ReportReportedUser")
+  moderatedReports Report[] @relation("ReportModerator")
 
   @@map("users")
 }
@@ -169,6 +172,28 @@ model ForumReply {
   @@map("forum_replies")
 }
 
+model Report {
+  id            String       @id @default(cuid())
+  reason        String
+  description   String
+  contentType   ContentType
+  contentId     String
+  reporterId    String
+  reportedUserId String?
+  status        ReportStatus @default(PENDING)
+  moderatorId   String?
+  moderatorNote String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  // Relations
+  reporter      User         @relation("ReportReporter", fields: [reporterId], references: [id])
+  reportedUser  User?        @relation("ReportReportedUser", fields: [reportedUserId], references: [id])
+  moderator     User?        @relation("ReportModerator", fields: [moderatorId], references: [id])
+
+  @@map("reports")
+}
+
 // Enums
 enum UserRole {
   PLAYER
@@ -205,4 +230,18 @@ enum Region {
   TABRIZ
   MASHHAD
   ONLINE
+}
+
+enum ContentType {
+  FORUM_THREAD
+  FORUM_REPLY
+  LFG_POST
+  NEWS_POST
+  USER
+}
+
+enum ReportStatus {
+  PENDING
+  RESOLVED
+  DISMISSED
 }

@@ -1,36 +1,146 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# IRFGC Platform
+
+A community-driven platform for the Iranian Fighting Game Community, built with Next.js, Prisma, and PostgreSQL.
+
+## Project Overview
+
+IRFGC is a comprehensive platform that supports multiple fighting games with game-specific subdomains, featuring tournaments, matchmaking (LFG), news, forums, and admin tools.
+
+## Tech Stack
+
+- **Frontend:** Next.js 14 with App Router, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes, Prisma ORM
+- **Database:** PostgreSQL
+- **Authentication:** NextAuth.js
+- **UI Components:** Radix UI primitives with custom styling
+- **Charts:** Recharts for analytics
+
+## Development Phases
+
+### ✅ Phase 1: Core Infrastructure
+- [x] Next.js project setup with TypeScript
+- [x] Prisma ORM with PostgreSQL
+- [x] Database schema design
+- [x] Basic UI components (Button, Card, Input, etc.)
+- [x] Game context and routing system
+
+### ✅ Phase 2: Authentication System
+- [x] NextAuth.js integration
+- [x] User registration and login
+- [x] Role-based access control (Player, Moderator, Admin)
+- [x] User menu with role-based navigation
+- [x] Main navigation component
+
+### ✅ Phase 3: Community Features
+- [x] Events system (CRUD operations)
+- [x] News management
+- [x] LFG (Looking for Group) system
+- [x] Forum with threads and replies
+- [x] API routes with validation
+- [x] Frontend components for all features
+
+### ✅ Phase 4: Admin Dashboard & Moderation
+- [x] Enhanced admin dashboard with analytics
+- [x] User management system
+- [x] Content moderation system
+- [x] Report management
+- [x] Role-based access control for admin features
+- [x] Moderation API routes for forum and LFG posts
+
+### 🚧 Phase 5: Advanced Features (In Progress)
+- [ ] Strapi CMS integration
+- [ ] Real-time chat system
+- [ ] Discord integration
+- [ ] Advanced analytics and reporting
+- [ ] Mobile app development
+- [ ] Performance optimizations
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- Node.js 18+ 
+- PostgreSQL database
+- npm or yarn
 
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd irfgc/apps/web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Update the `.env` file with your database connection and NextAuth configuration.
 
-## Learn More
+4. Run database migrations:
+```bash
+npx prisma migrate dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. Start the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+apps/web/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API routes
+│   │   ├── auth/              # Authentication pages
+│   │   ├── dashboard/         # Admin dashboard
+│   │   └── [gameSlug]/        # Game-specific pages
+│   ├── components/            # Reusable UI components
+│   ├── features/              # Feature-specific components
+│   ├── lib/                   # Utilities and configurations
+│   └── types/                 # TypeScript type definitions
+├── prisma/                    # Database schema and migrations
+└── public/                    # Static assets
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### For Players
+- Browse and register for tournaments
+- Find players for casual matches (LFG)
+- Read community news
+- Participate in forum discussions
+- Game-specific subdomains
+
+### For Moderators
+- Content moderation tools
+- User management
+- Report handling
+- Forum and LFG post management
+
+### For Admins
+- Full platform management
+- User role management
+- Analytics and statistics
+- System configuration
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
