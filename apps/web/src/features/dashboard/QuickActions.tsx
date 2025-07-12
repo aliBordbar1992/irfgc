@@ -13,6 +13,7 @@ import {
   BarChart3,
   AlertTriangle,
   Plus,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -69,6 +70,14 @@ const adminActions = [
     color: "text-gray-600",
     bgColor: "bg-gray-50 hover:bg-gray-100",
   },
+  {
+    title: "Discord Integration",
+    description: "Send notifications to Discord",
+    icon: MessageCircle,
+    href: "/dashboard/discord",
+    color: "text-indigo-600",
+    bgColor: "bg-indigo-50 hover:bg-indigo-100",
+  },
 ];
 
 const moderatorActions = [
@@ -107,7 +116,7 @@ const moderatorActions = [
 ];
 
 export function QuickActions({ userRole }: QuickActionsProps) {
-  const actions = userRole === "admin" ? adminActions : moderatorActions;
+  const actions = userRole === "ADMIN" ? adminActions : moderatorActions;
 
   return (
     <Card>

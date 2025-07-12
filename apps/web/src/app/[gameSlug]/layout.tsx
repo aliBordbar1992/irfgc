@@ -68,6 +68,12 @@ export default async function GameLayout({
               >
                 Forum
               </Link>
+              <Link
+                href={`/${gameSlug}/chat`}
+                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Chat
+              </Link>
               <UserMenu />
             </div>
           </div>

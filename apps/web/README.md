@@ -47,13 +47,13 @@ IRFGC is a comprehensive platform that supports multiple fighting games with gam
 - [x] Role-based access control for admin features
 - [x] Moderation API routes for forum and LFG posts
 
-### 🚧 Phase 5: Advanced Features (In Progress)
-- [ ] Strapi CMS integration
-- [ ] Real-time chat system
-- [ ] Discord integration
-- [ ] Advanced analytics and reporting
-- [ ] Mobile app development
-- [ ] Performance optimizations
+### ✅ Phase 5: Advanced Features (Completed)
+- [x] Strapi CMS integration (Setup complete)
+- [x] Real-time chat system
+- [x] Discord integration
+- [x] Advanced analytics and reporting (Basic implementation)
+- [ ] Mobile app development (Planned for Phase 6)
+- [x] Performance optimizations (Basic implementation)
 
 ## Getting Started
 

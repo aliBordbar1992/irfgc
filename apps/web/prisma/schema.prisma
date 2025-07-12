@@ -33,6 +33,7 @@ model User {
   reports       Report[] @relation("ReportReporter")
   reportedReports Report[] @relation("ReportReportedUser")
   moderatedReports Report[] @relation("ReportModerator")
+  chatMessages  ChatMessage[]
 
   @@map("users")
 }
@@ -54,6 +55,7 @@ model Game {
   newsPosts    NewsPost[]
   lfgPosts     LFGPost[]
   forumThreads ForumThread[]
+  chatRooms    ChatRoom[]
 
   @@map("games")
 }
@@ -194,6 +196,37 @@ model Report {
   @@map("reports")
 }
 
+model ChatRoom {
+  id          String   @id @default(cuid())
+  name        String
+  gameSlug    String?
+  type        ChatRoomType @default(GENERAL)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  game    Game?       @relation(fields: [gameSlug], references: [slug])
+  messages ChatMessage[]
+
+  @@map("chat_rooms")
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  content   String
+  roomId    String
+  authorId  String
+  messageType MessageType @default(TEXT)
+  createdAt DateTime @default(now())
+
+  // Relations
+  room   ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  author User     @relation(fields: [authorId], references: [id])
+
+  @@map("chat_messages")
+}
+
 // Enums
 enum UserRole {
   PLAYER
@@ -244,4 +277,17 @@ enum ReportStatus {
   PENDING
   RESOLVED
   DISMISSED
+}
+
+enum ChatRoomType {
+  GENERAL
+  GAME_SPECIFIC
+  TOURNAMENT
+  PRIVATE
+}
+
+enum MessageType {
+  TEXT
+  SYSTEM
+  NOTIFICATION
 }

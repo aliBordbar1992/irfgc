@@ -89,12 +89,14 @@ async function main() {
     },
   ];
 
+  const createdUsers = [];
   for (const user of users) {
-    await prisma.user.upsert({
+    const createdUser = await prisma.user.upsert({
       where: { email: user.email },
       update: user,
       create: user,
     });
+    createdUsers.push(createdUser);
     console.log(`✅ Created/updated user: ${user.name}`);
   }
 
@@ -111,7 +113,7 @@ async function main() {
       location: "Online",
       maxParticipants: 32,
       currentParticipants: 24,
-      createdById: "1", // Admin user
+      createdById: createdUsers[0].id, // Admin user
     },
     {
       title: "Casual Meetup",
@@ -124,7 +126,7 @@ async function main() {
       location: "Tehran Gaming Center",
       maxParticipants: 20,
       currentParticipants: 12,
-      createdById: "1", // Admin user
+      createdById: createdUsers[0].id, // Admin user
     },
   ];
 
@@ -144,6 +146,105 @@ async function main() {
       },
     });
     console.log(`✅ Created/updated event: ${event.title}`);
+  }
+
+  // Create chat rooms
+  const chatRooms = [
+    {
+      name: "General Chat",
+      type: "GENERAL" as const,
+    },
+    {
+      name: "Tournament Discussion",
+      type: "TOURNAMENT" as const,
+    },
+    {
+      name: "Strategy & Tips",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "mk",
+    },
+    {
+      name: "Matchmaking",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "mk",
+    },
+    {
+      name: "Strategy & Tips",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "sf",
+    },
+    {
+      name: "Matchmaking",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "sf",
+    },
+    {
+      name: "Strategy & Tips",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "tk",
+    },
+    {
+      name: "Matchmaking",
+      type: "GAME_SPECIFIC" as const,
+      gameSlug: "tk",
+    },
+  ];
+
+  for (const room of chatRooms) {
+    await prisma.chatRoom.upsert({
+      where: {
+        id: `${room.type}-${room.name.toLowerCase().replace(/\s+/g, "-")}`,
+      },
+      update: room,
+      create: {
+        ...room,
+        id: `${room.type}-${room.name.toLowerCase().replace(/\s+/g, "-")}`,
+      },
+    });
+    console.log(`✅ Created/updated chat room: ${room.name}`);
+  }
+
+  // Get the created rooms to use their actual IDs
+  const generalRoom = await prisma.chatRoom.findFirst({
+    where: { name: "General Chat" },
+  });
+  const mkMatchmakingRoom = await prisma.chatRoom.findFirst({
+    where: { name: "Matchmaking", gameSlug: "mk" },
+  });
+  const tournamentRoom = await prisma.chatRoom.findFirst({
+    where: { name: "Tournament Discussion" },
+  });
+
+  if (generalRoom && mkMatchmakingRoom && tournamentRoom) {
+    const messages = [
+      {
+        content: "Welcome to the IRFGC community! 🎮",
+        roomId: generalRoom.id,
+        authorId: createdUsers[0].id, // Admin user
+        messageType: "SYSTEM" as const,
+      },
+      {
+        content: "Anyone up for some casual matches?",
+        roomId: mkMatchmakingRoom.id,
+        authorId: createdUsers[2].id, // Player user
+        messageType: "TEXT" as const,
+      },
+      {
+        content: "Great tournament last week! Looking forward to the next one.",
+        roomId: tournamentRoom.id,
+        authorId: createdUsers[1].id, // Moderator user
+        messageType: "TEXT" as const,
+      },
+    ];
+
+    for (const message of messages) {
+      await prisma.chatMessage.create({
+        data: message,
+      });
+      console.log(
+        `✅ Created chat message: ${message.content.substring(0, 30)}...`
+      );
+    }
   }
 
   console.log("🎉 Database seeded successfully!");
