@@ -1,0 +1,102 @@
+{
+    "kind": "collectionType",
+    "collectionName": "events",
+    "info": {
+        "singularName": "event",
+        "pluralName": "events",
+        "displayName": "Event",
+        "description": "Tournaments and events for fighting games"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "title": {
+            "type": "string",
+            "required": true,
+            "maxLength": 200
+        },
+        "description": {
+            "type": "richtext",
+            "required": true
+        },
+        "game": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::game.game",
+            "inversedBy": "events"
+        },
+        "type": {
+            "type": "enumeration",
+            "enum": [
+                "TOURNAMENT",
+                "CASUAL",
+                "ONLINE",
+                "OFFLINE"
+            ],
+            "required": true
+        },
+        "status": {
+            "type": "enumeration",
+            "enum": [
+                "UPCOMING",
+                "ONGOING",
+                "COMPLETED",
+                "CANCELLED"
+            ],
+            "default": "UPCOMING"
+        },
+        "startDate": {
+            "type": "datetime",
+            "required": true
+        },
+        "endDate": {
+            "type": "datetime",
+            "required": true
+        },
+        "location": {
+            "type": "string"
+        },
+        "onlineUrl": {
+            "type": "string"
+        },
+        "maxParticipants": {
+            "type": "integer",
+            "min": 1
+        },
+        "currentParticipants": {
+            "type": "integer",
+            "default": 0,
+            "min": 0
+        },
+        "registrationDeadline": {
+            "type": "datetime"
+        },
+        "createdBy": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "registrations": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::event-registration.event-registration",
+            "mappedBy": "event"
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "prizePool": {
+            "type": "decimal",
+            "min": 0
+        },
+        "rules": {
+            "type": "richtext"
+        },
+        "bracket": {
+            "type": "json"
+        }
+    }
+}

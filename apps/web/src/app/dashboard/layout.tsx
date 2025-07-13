@@ -102,6 +102,12 @@ export default async function DashboardLayout({
 
                 {isAdmin && (
                   <>
+                    <Link href="/dashboard/cms">
+                      <Button variant="ghost" className="w-full justify-start">
+                        📝 CMS
+                      </Button>
+                    </Link>
+
                     <Link href="/dashboard/games">
                       <Button variant="ghost" className="w-full justify-start">
                         🎮 Games

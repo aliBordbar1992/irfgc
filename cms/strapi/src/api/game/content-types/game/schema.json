@@ -1,0 +1,72 @@
+{
+    "kind": "collectionType",
+    "collectionName": "games",
+    "info": {
+        "singularName": "game",
+        "pluralName": "games",
+        "displayName": "Game",
+        "description": "Fighting games supported by the platform"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "slug": {
+            "type": "string",
+            "required": true,
+            "unique": true,
+            "minLength": 2,
+            "maxLength": 10
+        },
+        "name": {
+            "type": "string",
+            "required": true,
+            "maxLength": 50
+        },
+        "fullName": {
+            "type": "string",
+            "required": true,
+            "maxLength": 100
+        },
+        "description": {
+            "type": "text",
+            "required": true
+        },
+        "imageUrl": {
+            "type": "string",
+            "required": true
+        },
+        "isActive": {
+            "type": "boolean",
+            "default": true
+        },
+        "discordUrl": {
+            "type": "string"
+        },
+        "events": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::event.event",
+            "mappedBy": "game"
+        },
+        "newsPosts": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::news-post.news-post",
+            "mappedBy": "game"
+        },
+        "lfgPosts": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::lfg-post.lfg-post",
+            "mappedBy": "game"
+        },
+        "forumThreads": {
+            "type": "relation",
+            "relation": "oneToMany",
+            "target": "api::forum-thread.forum-thread",
+            "mappedBy": "game"
+        }
+    }
+}

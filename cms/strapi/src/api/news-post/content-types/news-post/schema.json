@@ -1,0 +1,79 @@
+{
+    "kind": "collectionType",
+    "collectionName": "news_posts",
+    "info": {
+        "singularName": "news-post",
+        "pluralName": "news-posts",
+        "displayName": "News Post",
+        "description": "News articles and announcements for the platform"
+    },
+    "options": {
+        "draftAndPublish": true
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "title": {
+            "type": "string",
+            "required": true,
+            "maxLength": 200
+        },
+        "content": {
+            "type": "richtext",
+            "required": true
+        },
+        "excerpt": {
+            "type": "text",
+            "required": true,
+            "maxLength": 500
+        },
+        "game": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::game.game",
+            "inversedBy": "newsPosts"
+        },
+        "author": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "featuredImage": {
+            "type": "media",
+            "multiple": false,
+            "required": false,
+            "allowedTypes": [
+                "images"
+            ]
+        },
+        "tags": {
+            "type": "json"
+        },
+        "category": {
+            "type": "enumeration",
+            "enum": [
+                "ANNOUNCEMENT",
+                "TOURNAMENT",
+                "COMMUNITY",
+                "GAME_UPDATE",
+                "GENERAL"
+            ],
+            "default": "GENERAL"
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "allowComments": {
+            "type": "boolean",
+            "default": true
+        },
+        "seoTitle": {
+            "type": "string",
+            "maxLength": 60
+        },
+        "seoDescription": {
+            "type": "text",
+            "maxLength": 160
+        }
+    }
+}
