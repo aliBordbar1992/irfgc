@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { Game, GameSlug } from "@/types";
 
 interface GameContextType {
@@ -92,10 +93,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const [currentGame, setCurrentGame] = useState<Game | null>(null);
   const [gameSlug, setGameSlug] = useState<GameSlug | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname();
 
   useEffect(() => {
     // Detect game from subdomain or URL
     const detectGameFromUrl = () => {
+      // Check URL path for game slug first (works on both client and server)
+      const pathSegments = pathname.split("/");
+      const pathGameSlug = pathSegments[1];
+      if (pathGameSlug && pathGameSlug in GAMES_DATA) {
+        return pathGameSlug as GameSlug;
+      }
+
+      // Check subdomain only on client side
       if (typeof window !== "undefined") {
         const hostname = window.location.hostname;
         const subdomain = hostname.split(".")[0];
@@ -104,26 +114,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         if (subdomain && subdomain in GAMES_DATA) {
           return subdomain as GameSlug;
         }
-
-        // Check URL path for game slug
-        const pathSegments = window.location.pathname.split("/");
-        const pathGameSlug = pathSegments[1];
-        if (pathGameSlug && pathGameSlug in GAMES_DATA) {
-          return pathGameSlug as GameSlug;
-        }
       }
 
       return null;
     };
 
     const detectedGame = detectGameFromUrl();
+
     if (detectedGame) {
       setGameSlug(detectedGame);
       setCurrentGame(GAMES_DATA[detectedGame]);
+    } else {
+      setGameSlug(null);
+      setCurrentGame(null);
     }
-
     setIsLoading(false);
-  }, []);
+  }, [pathname]);
 
   const handleSetGameSlug = (slug: GameSlug) => {
     setGameSlug(slug);

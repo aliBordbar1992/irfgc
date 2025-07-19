@@ -18,7 +18,7 @@ export function CreateNewsButton({ gameSlug }: CreateNewsButtonProps) {
   // Only show for admins and moderators
   if (
     !session ||
-    (session.user.role !== "admin" && session.user.role !== "moderator")
+    (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")
   ) {
     return null;
   }

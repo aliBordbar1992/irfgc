@@ -62,8 +62,8 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<User[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(false); // Used in handleRoleChange and handleUserAction
 
   useEffect(() => {
     let filtered = users;
@@ -131,9 +131,9 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
 
   const getRoleBadgeColor = (role: UserRole) => {
     switch (role) {
-      case "admin":
+      case "ADMIN":
         return "bg-red-100 text-red-800";
-      case "moderator":
+      case "MODERATOR":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-green-100 text-green-800";
@@ -174,10 +174,10 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Roles</SelectItem>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="moderator">Moderator</SelectItem>
-                <SelectItem value="player">Player</SelectItem>
+                <SelectItem value="all">All Roles</SelectItem>
+                <SelectItem value="ADMIN">Admin</SelectItem>
+                <SelectItem value="MODERATOR">Moderator</SelectItem>
+                <SelectItem value="PLAYER">Player</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex items-center space-x-2">
@@ -185,7 +185,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                 variant="outline"
                 onClick={() => {
                   setSearchQuery("");
-                  setRoleFilter("");
+                  setRoleFilter("all");
                 }}
               >
                 Clear Filters
@@ -256,27 +256,27 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                           <Edit className="w-4 h-4 mr-2" />
                           Edit User
                         </DropdownMenuItem>
-                        {user.role !== "admin" && (
+                        {user.role !== "ADMIN" && (
                           <DropdownMenuItem
-                            onClick={() => handleRoleChange(user.id, "admin")}
+                            onClick={() => handleRoleChange(user.id, "ADMIN")}
                           >
                             <Shield className="w-4 h-4 mr-2" />
                             Make Admin
                           </DropdownMenuItem>
                         )}
-                        {user.role !== "moderator" && (
+                        {user.role !== "MODERATOR" && (
                           <DropdownMenuItem
                             onClick={() =>
-                              handleRoleChange(user.id, "moderator")
+                              handleRoleChange(user.id, "MODERATOR")
                             }
                           >
                             <Shield className="w-4 h-4 mr-2" />
                             Make Moderator
                           </DropdownMenuItem>
                         )}
-                        {user.role !== "player" && (
+                        {user.role !== "PLAYER" && (
                           <DropdownMenuItem
-                            onClick={() => handleRoleChange(user.id, "player")}
+                            onClick={() => handleRoleChange(user.id, "PLAYER")}
                           >
                             <ShieldOff className="w-4 h-4 mr-2" />
                             Make Player

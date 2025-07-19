@@ -79,8 +79,8 @@ export function UserMenu() {
             <span>Profile</span>
           </Link>
         </DropdownMenuItem>
-        {(session.user.role === "admin" ||
-          session.user.role === "moderator") && (
+        {(session.user.role === "ADMIN" ||
+          session.user.role === "MODERATOR") && (
           <DropdownMenuItem asChild>
             <Link href="/dashboard" className="flex items-center">
               <Shield className="mr-2 h-4 w-4" />

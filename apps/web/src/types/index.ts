@@ -28,8 +28,8 @@ export interface Game {
 }
 
 // Event Types
-export type EventType = "tournament" | "casual" | "online" | "offline";
-export type EventStatus = "upcoming" | "ongoing" | "completed" | "cancelled";
+export type EventType = "TOURNAMENT" | "CASUAL" | "ONLINE" | "OFFLINE";
+export type EventStatus = "UPCOMING" | "ONGOING" | "COMPLETED" | "CANCELLED";
 
 export interface EventRegistration {
   id: string;
@@ -53,7 +53,7 @@ export interface Event {
   maxParticipants?: number;
   currentParticipants: number;
   registrationDeadline?: Date;
-  createdBy: string;
+  createdBy: string | { id: string; name: string; email: string };
   createdAt: Date;
   updatedAt: Date;
   registrations?: EventRegistration[];

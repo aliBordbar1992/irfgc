@@ -4,18 +4,40 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-const createEventSchema = z.object({
-  title: z.string().min(1, "Title is required"),
-  description: z.string().min(1, "Description is required"),
-  gameSlug: z.string().min(1, "Game is required"),
-  type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime(),
-  location: z.string().optional(),
-  onlineUrl: z.string().url().optional(),
-  maxParticipants: z.number().positive().optional(),
-  registrationDeadline: z.string().datetime().optional(),
-});
+const createEventSchema = z
+  .object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string().min(1, "Description is required"),
+    gameSlug: z.string().min(1, "Game is required"),
+    type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().min(1, "End date is required"),
+    location: z.string().optional(),
+    onlineUrl: z.string().url().optional(),
+    maxParticipants: z.number().positive().optional(),
+    registrationDeadline: z.string().optional(),
+  })
+  .transform((data) => {
+    // Convert datetime-local format to ISO datetime
+    const convertToISO = (dateString: string) => {
+      if (!dateString) return dateString;
+      // If it's already in ISO format, return as is
+      if (dateString.includes("Z") || dateString.includes("+")) {
+        return dateString;
+      }
+      // Convert datetime-local format (YYYY-MM-DDTHH:MM) to ISO format
+      return new Date(dateString).toISOString();
+    };
+
+    return {
+      ...data,
+      startDate: convertToISO(data.startDate),
+      endDate: convertToISO(data.endDate),
+      registrationDeadline: data.registrationDeadline
+        ? convertToISO(data.registrationDeadline)
+        : undefined,
+    };
+  });
 
 export async function GET(request: NextRequest) {
   try {
@@ -95,7 +117,7 @@ export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions);
     if (
       !session ||
-      (session.user.role !== "admin" && session.user.role !== "moderator")
+      (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR")
     ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

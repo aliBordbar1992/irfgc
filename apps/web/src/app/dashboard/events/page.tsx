@@ -1,64 +1,85 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-
-// Mock events data - will be replaced with API calls
-const MOCK_EVENTS = [
-  {
-    id: "1",
-    title: "Weekly Tournament",
-    gameSlug: "mk",
-    type: "tournament",
-    status: "upcoming",
-    startDate: "2024-01-15T18:00:00Z",
-    location: "Online",
-    maxParticipants: 32,
-    currentParticipants: 24,
-    createdBy: "Admin User",
-    createdAt: "2024-01-10T10:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Casual Meetup",
-    gameSlug: "sf",
-    type: "casual",
-    status: "upcoming",
-    startDate: "2024-01-20T14:00:00Z",
-    location: "Tehran Gaming Center",
-    maxParticipants: 20,
-    currentParticipants: 12,
-    createdBy: "Moderator User",
-    createdAt: "2024-01-08T15:30:00Z",
-  },
-  {
-    id: "3",
-    title: "Championship Series",
-    gameSlug: "tk",
-    type: "tournament",
-    status: "ongoing",
-    startDate: "2024-01-12T16:00:00Z",
-    location: "Online",
-    maxParticipants: 64,
-    currentParticipants: 45,
-    createdBy: "Admin User",
-    createdAt: "2024-01-05T12:00:00Z",
-  },
-  {
-    id: "4",
-    title: "Beginner Friendly Tournament",
-    gameSlug: "gg",
-    type: "tournament",
-    status: "completed",
-    startDate: "2024-01-01T14:00:00Z",
-    location: "Online",
-    maxParticipants: 16,
-    currentParticipants: 16,
-    createdBy: "Moderator User",
-    createdAt: "2023-12-28T09:00:00Z",
-  },
-];
+import { CreateEventDialog } from "@/features/events/CreateEventDialog";
+import { Event } from "@/types";
 
 export default function EventsPage() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/events");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+
+      const data = await response.json();
+      setEvents(data.data || []);
+    } catch (err) {
+      setError("Failed to load events");
+      console.error("Error fetching events:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewEvent = (eventId: string) => {
+    // For now, show event details in an alert. In a real app, you'd navigate to a details page
+    const event = events.find((e) => e.id === eventId);
+    if (event) {
+      alert(
+        `Event Details:\n\nTitle: ${event.title}\nDescription: ${
+          event.description
+        }\nType: ${event.type}\nStatus: ${event.status}\nStart Date: ${new Date(
+          event.startDate
+        ).toLocaleString()}\nLocation: ${event.location || "N/A"}`
+      );
+    }
+  };
+
+  const handleEditEvent = (eventId: string) => {
+    // For now, just show an alert. In a real app, you'd open an edit dialog
+    alert(`Edit event ${eventId} - This feature is not yet implemented`);
+  };
+
+  const handleDeleteEvent = async (eventId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this event? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/events/${eventId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete event");
+      }
+
+      // Refresh the events list
+      fetchEvents();
+    } catch (err) {
+      alert("Failed to delete event. Please try again.");
+      console.error("Error deleting event:", err);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -71,10 +92,15 @@ export default function EventsPage() {
             Manage tournaments, casual meetups, and community events
           </p>
         </div>
-        <Link href="/dashboard/events/new">
-          <Button>Create New Event</Button>
-        </Link>
+        <Button onClick={() => setIsDialogOpen(true)}>Create New Event</Button>
       </div>
+
+      {/* Create Event Dialog */}
+      <CreateEventDialog
+        gameSlug="mk"
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
 
       {/* Filters */}
       <Card>
@@ -103,10 +129,10 @@ export default function EventsPage() {
               </label>
               <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="">All Status</option>
-                <option value="upcoming">Upcoming</option>
-                <option value="ongoing">Ongoing</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
+                <option value="UPCOMING">Upcoming</option>
+                <option value="ONGOING">Ongoing</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
               </select>
             </div>
             <div>
@@ -115,10 +141,10 @@ export default function EventsPage() {
               </label>
               <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="">All Types</option>
-                <option value="tournament">Tournament</option>
-                <option value="casual">Casual</option>
-                <option value="online">Online</option>
-                <option value="offline">Offline</option>
+                <option value="TOURNAMENT">Tournament</option>
+                <option value="CASUAL">Casual</option>
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -136,108 +162,137 @@ export default function EventsPage() {
           <CardTitle>All Events</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Event</th>
-                  <th className="text-left py-3 px-4 font-medium">Game</th>
-                  <th className="text-left py-3 px-4 font-medium">Type</th>
-                  <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 font-medium">Date</th>
-                  <th className="text-left py-3 px-4 font-medium">
-                    Participants
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium">
-                    Created By
-                  </th>
-                  <th className="text-left py-3 px-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_EVENTS.map((event) => (
-                  <tr key={event.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">
-                      <div>
-                        <div className="font-medium">{event.title}</div>
-                        <div className="text-sm text-gray-600">
-                          {event.location}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="capitalize">{event.gameSlug}</span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          event.type === "tournament"
-                            ? "bg-blue-100 text-blue-800"
-                            : "bg-green-100 text-green-800"
-                        }`}
-                      >
-                        {event.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          event.status === "upcoming"
-                            ? "bg-blue-100 text-blue-800"
-                            : event.status === "ongoing"
-                            ? "bg-green-100 text-green-800"
-                            : event.status === "completed"
-                            ? "bg-gray-100 text-gray-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {event.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        {new Date(event.startDate).toLocaleDateString()}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        {event.currentParticipants}/{event.maxParticipants}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm text-gray-600">
-                        {event.createdBy}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
-                          Edit
-                        </Button>
-                        <Button size="sm" variant="outline">
-                          View
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
+          {loading ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Loading events...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-600">{error}</p>
+              <Button onClick={fetchEvents} className="mt-4">
+                Try Again
+              </Button>
+            </div>
+          ) : events.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No events found.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-4 font-medium">Event</th>
+                    <th className="text-left py-3 px-4 font-medium">Game</th>
+                    <th className="text-left py-3 px-4 font-medium">Type</th>
+                    <th className="text-left py-3 px-4 font-medium">Status</th>
+                    <th className="text-left py-3 px-4 font-medium">Date</th>
+                    <th className="text-left py-3 px-4 font-medium">
+                      Participants
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium">
+                      Created By
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {events.map((event) => (
+                    <tr key={event.id} className="border-b hover:bg-gray-50">
+                      <td className="py-3 px-4">
+                        <div>
+                          <div className="font-medium">{event.title}</div>
+                          <div className="text-sm text-gray-600">
+                            {event.location}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="capitalize">{event.gameSlug}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            event.type === "TOURNAMENT"
+                              ? "bg-blue-100 text-blue-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          {event.type}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            event.status === "UPCOMING"
+                              ? "bg-blue-100 text-blue-800"
+                              : event.status === "ONGOING"
+                              ? "bg-green-100 text-green-800"
+                              : event.status === "COMPLETED"
+                              ? "bg-gray-100 text-gray-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {event.status}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">
+                          {new Date(event.startDate).toLocaleDateString()}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm">
+                          {event.currentParticipants}/{event.maxParticipants}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="text-sm text-gray-600">
+                          {typeof event.createdBy === "object" &&
+                          event.createdBy !== null
+                            ? event.createdBy.name
+                            : event.createdBy}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex space-x-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEditEvent(event.id)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleViewEvent(event.id)}
+                          >
+                            View
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700"
+                            onClick={() => handleDeleteEvent(event.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Pagination */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-600">
-          Showing 1 to {MOCK_EVENTS.length} of {MOCK_EVENTS.length} events
+          Showing 1 to {events.length} of {events.length} events
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" disabled>

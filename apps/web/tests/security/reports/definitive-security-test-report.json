@@ -1,0 +1,268 @@
+[
+  {
+    "test": "Role Bypass - User role management endpoint",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: All role variations properly blocked (401/403 responses)",
+    "timestamp": "2025-07-18T21:15:29.362Z"
+  },
+  {
+    "test": "Role Bypass - Report resolution endpoint",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: All role variations properly blocked (401/403 responses)",
+    "timestamp": "2025-07-18T21:15:29.658Z"
+  },
+  {
+    "test": "Role Bypass - Forum thread pin endpoint",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: All role variations properly blocked (401/403 responses)",
+    "timestamp": "2025-07-18T21:15:30.014Z"
+  },
+  {
+    "test": "Role Bypass - News creation endpoint",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: All role variations properly blocked (401/403 responses)",
+    "timestamp": "2025-07-18T21:15:30.339Z"
+  },
+  {
+    "test": "Role Bypass - Event creation endpoint",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: All role variations properly blocked (401/403 responses)",
+    "timestamp": "2025-07-18T21:15:30.591Z"
+  },
+  {
+    "test": "Authentication Bypass - /api/dashboard/users",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: Unexpected response 404 for unauthenticated access to /api/dashboard/users",
+    "timestamp": "2025-07-18T21:15:30.719Z"
+  },
+  {
+    "test": "Authentication Bypass - /api/moderation/forum",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: Unexpected response 404 for unauthenticated access to /api/moderation/forum",
+    "timestamp": "2025-07-18T21:15:30.825Z"
+  },
+  {
+    "test": "Authentication Bypass - /api/cms/events",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: Unexpected response 500 for unauthenticated access to /api/cms/events",
+    "timestamp": "2025-07-18T21:15:31.002Z"
+  },
+  {
+    "test": "Authentication Bypass - /api/discord",
+    "severity": "INFO",
+    "status": "PASSED",
+    "details": "DEFINITIVE: Authentication required for /api/discord (401)",
+    "timestamp": "2025-07-18T21:15:31.103Z"
+  },
+  {
+    "test": "SQL Injection - /api/events?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"' OR 1=1 --\" on /api/events?search=",
+    "timestamp": "2025-07-18T21:15:35.339Z"
+  },
+  {
+    "test": "SQL Injection - /api/events?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"'; DROP TABLE users; --\" on /api/events?search=",
+    "timestamp": "2025-07-18T21:15:39.634Z"
+  },
+  {
+    "test": "SQL Injection - /api/events?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"' UNION SELECT * FROM users --\" on /api/events?search=",
+    "timestamp": "2025-07-18T21:15:43.876Z"
+  },
+  {
+    "test": "SQL Injection - /api/events?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"admin'--\" on /api/events?search=",
+    "timestamp": "2025-07-18T21:15:48.119Z"
+  },
+  {
+    "test": "SQL Injection - /api/forum?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"' OR 1=1 --\" on /api/forum?search=",
+    "timestamp": "2025-07-18T21:15:52.405Z"
+  },
+  {
+    "test": "SQL Injection - /api/forum?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"'; DROP TABLE users; --\" on /api/forum?search=",
+    "timestamp": "2025-07-18T21:15:56.636Z"
+  },
+  {
+    "test": "SQL Injection - /api/forum?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"' UNION SELECT * FROM users --\" on /api/forum?search=",
+    "timestamp": "2025-07-18T21:16:00.889Z"
+  },
+  {
+    "test": "SQL Injection - /api/forum?search=",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: SQL injection caused server error (500) with payload \"admin'--\" on /api/forum?search=",
+    "timestamp": "2025-07-18T21:16:05.133Z"
+  },
+  {
+    "test": "SQL Injection - /api/users?search=",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test SQL injection - Request failed with status code 404",
+    "timestamp": "2025-07-18T21:16:05.281Z"
+  },
+  {
+    "test": "SQL Injection - /api/users?search=",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test SQL injection - Request failed with status code 404",
+    "timestamp": "2025-07-18T21:16:05.387Z"
+  },
+  {
+    "test": "SQL Injection - /api/users?search=",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test SQL injection - Request failed with status code 404",
+    "timestamp": "2025-07-18T21:16:05.492Z"
+  },
+  {
+    "test": "SQL Injection - /api/users?search=",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test SQL injection - Request failed with status code 404",
+    "timestamp": "2025-07-18T21:16:05.587Z"
+  },
+  {
+    "test": "XSS Protection - /api/forum",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.673Z"
+  },
+  {
+    "test": "XSS Protection - /api/forum",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.740Z"
+  },
+  {
+    "test": "XSS Protection - /api/forum",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.802Z"
+  },
+  {
+    "test": "XSS Protection - /api/forum",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.870Z"
+  },
+  {
+    "test": "XSS Protection - /api/news",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.933Z"
+  },
+  {
+    "test": "XSS Protection - /api/news",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:05.991Z"
+  },
+  {
+    "test": "XSS Protection - /api/news",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.052Z"
+  },
+  {
+    "test": "XSS Protection - /api/news",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.107Z"
+  },
+  {
+    "test": "XSS Protection - /api/events",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.168Z"
+  },
+  {
+    "test": "XSS Protection - /api/events",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.226Z"
+  },
+  {
+    "test": "XSS Protection - /api/events",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.282Z"
+  },
+  {
+    "test": "XSS Protection - /api/events",
+    "severity": "ERROR",
+    "status": "ERROR",
+    "details": "DEFINITIVE: Cannot test XSS protection - Request failed with status code 401",
+    "timestamp": "2025-07-18T21:16:06.339Z"
+  },
+  {
+    "test": "Rate Limiting - /api/auth/signin",
+    "severity": "HIGH",
+    "status": "FAILED",
+    "details": "DEFINITIVE: Rate limiting ineffective - 20/20 requests succeeded",
+    "timestamp": "2025-07-18T21:16:08.970Z"
+  },
+  {
+    "test": "Rate Limiting - /api/auth/register",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: No rate limiting detected - 0/20 requests succeeded",
+    "timestamp": "2025-07-18T21:16:09.579Z"
+  },
+  {
+    "test": "Rate Limiting - /api/events",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: No rate limiting detected - 0/20 requests succeeded",
+    "timestamp": "2025-07-18T21:16:14.587Z"
+  },
+  {
+    "test": "Rate Limiting - /api/forum",
+    "severity": "MEDIUM",
+    "status": "FAILED",
+    "details": "DEFINITIVE: No rate limiting detected - 0/20 requests succeeded",
+    "timestamp": "2025-07-18T21:16:19.608Z"
+  },
+  {
+    "test": "Security Headers",
+    "severity": "HIGH",
+    "status": "FAILED",
+    "details": "DEFINITIVE: Missing security headers: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Strict-Transport-Security, Content-Security-Policy",
+    "timestamp": "2025-07-18T21:16:19.745Z"
+  }
+]

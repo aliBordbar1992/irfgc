@@ -12,7 +12,7 @@ export default async function UsersPage() {
     redirect("/auth/signin");
   }
 
-  if (session.user.role !== "admin") {
+  if (session.user.role !== "ADMIN") {
     notFound();
   }
 

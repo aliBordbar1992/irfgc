@@ -15,7 +15,7 @@ export default async function DashboardPage() {
     redirect("/auth/signin");
   }
 
-  if (session.user.role !== "admin" && session.user.role !== "moderator") {
+  if (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR") {
     notFound();
   }
 

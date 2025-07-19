@@ -38,7 +38,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Handle main domain (irfgc.ir) - show game selection or main hub
-  if (hostname === "irfgc.ir" || hostname === "localhost") {
+  if (hostname === "irfgc.ir") {
     // If accessing a game-specific path without subdomain, redirect to main hub
     if (SUPPORTED_GAMES.some((game) => pathname.startsWith(`/${game}`))) {
       const url = request.nextUrl.clone();

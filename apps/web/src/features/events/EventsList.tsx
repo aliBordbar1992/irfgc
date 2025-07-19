@@ -102,8 +102,8 @@ export function EventsList({ gameSlug }: EventsListProps) {
       <Card>
         <CardContent className="p-6 text-center">
           <p className="text-gray-600">No events found for this game.</p>
-          {(session?.user.role === "admin" ||
-            session?.user.role === "moderator") && (
+          {(session?.user.role === "ADMIN" ||
+            session?.user.role === "MODERATOR") && (
             <p className="text-sm text-gray-500 mt-2">
               Create the first event to get started!
             </p>
@@ -122,8 +122,8 @@ export function EventsList({ gameSlug }: EventsListProps) {
             event={event}
             onRegister={handleRegister}
             canRegister={
-              session?.user.role === "player" ||
-              session?.user.role === "moderator"
+              session?.user.role === "PLAYER" ||
+              session?.user.role === "MODERATOR"
             }
           />
         ))}

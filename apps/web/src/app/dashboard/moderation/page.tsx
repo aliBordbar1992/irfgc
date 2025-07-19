@@ -12,7 +12,7 @@ export default async function ModerationPage() {
     redirect("/auth/signin");
   }
 
-  if (session.user.role !== "admin" && session.user.role !== "moderator") {
+  if (session.user.role !== "ADMIN" && session.user.role !== "MODERATOR") {
     notFound();
   }
 

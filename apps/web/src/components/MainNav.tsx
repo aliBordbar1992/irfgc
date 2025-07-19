@@ -57,14 +57,14 @@ export function MainNav() {
           {/* Game-specific Navigation */}
           {gameSlug && (
             <div className="hidden md:flex items-center space-x-1">
+              <Link href={`/${gameSlug}`}>
+                <Button variant="ghost" size="sm">
+                  Home
+                </Button>
+              </Link>
               <Link href={`/${gameSlug}/events`}>
                 <Button variant="ghost" size="sm">
                   Events
-                </Button>
-              </Link>
-              <Link href={`/${gameSlug}/matchmaking`}>
-                <Button variant="ghost" size="sm">
-                  Matchmaking
                 </Button>
               </Link>
               <Link href={`/${gameSlug}/news`}>
@@ -72,9 +72,19 @@ export function MainNav() {
                   News
                 </Button>
               </Link>
+              <Link href={`/${gameSlug}/matchmaking`}>
+                <Button variant="ghost" size="sm">
+                  LFG
+                </Button>
+              </Link>
               <Link href={`/${gameSlug}/forum`}>
                 <Button variant="ghost" size="sm">
                   Forum
+                </Button>
+              </Link>
+              <Link href={`/${gameSlug}/chat`}>
+                <Button variant="ghost" size="sm">
+                  Chat
                 </Button>
               </Link>
             </div>

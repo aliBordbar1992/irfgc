@@ -29,7 +29,7 @@ const createEventSchema = z
   .object({
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
-    type: z.enum(["tournament", "casual", "online", "offline"]),
+    type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().optional(),
@@ -76,7 +76,7 @@ export function CreateEventDialog({
   } = useForm<CreateEventFormData>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
-      type: "casual",
+      type: "CASUAL",
     },
   });
 
@@ -166,10 +166,10 @@ export function CreateEventDialog({
                   <SelectValue placeholder="Select event type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="tournament">Tournament</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                  <SelectItem value="online">Online</SelectItem>
-                  <SelectItem value="offline">Offline</SelectItem>
+                  <SelectItem value="TOURNAMENT">Tournament</SelectItem>
+                  <SelectItem value="CASUAL">Casual</SelectItem>
+                  <SelectItem value="ONLINE">Online</SelectItem>
+                  <SelectItem value="OFFLINE">Offline</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -241,7 +241,7 @@ export function CreateEventDialog({
             </div>
           </div>
 
-          {(eventType === "online" || eventType === "casual") && (
+          {(eventType === "ONLINE" || eventType === "CASUAL") && (
             <div className="space-y-2">
               <Label htmlFor="onlineUrl">Online URL</Label>
               <Input

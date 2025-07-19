@@ -36,9 +36,9 @@ export function LFGList({ gameSlug }: LFGListProps) {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [filters, setFilters] = useState({
-    platform: "",
-    region: "",
-    rank: "",
+    platform: "all",
+    region: "all",
+    rank: "all",
   });
 
   useEffect(() => {
@@ -54,9 +54,12 @@ export function LFGList({ gameSlug }: LFGListProps) {
         limit: "10",
       });
 
-      if (filters.platform) params.append("platform", filters.platform);
-      if (filters.region) params.append("region", filters.region);
-      if (filters.rank) params.append("rank", filters.rank);
+      if (filters.platform && filters.platform !== "all")
+        params.append("platform", filters.platform);
+      if (filters.region && filters.region !== "all")
+        params.append("region", filters.region);
+      if (filters.rank && filters.rank !== "all")
+        params.append("rank", filters.rank);
 
       const response = await fetch(`/api/lfg?${params}`);
 
@@ -87,7 +90,7 @@ export function LFGList({ gameSlug }: LFGListProps) {
   };
 
   const clearFilters = () => {
-    setFilters({ platform: "", region: "", rank: "" });
+    setFilters({ platform: "all", region: "all", rank: "all" });
     setPage(1);
   };
 
@@ -123,7 +126,7 @@ export function LFGList({ gameSlug }: LFGListProps) {
                   <SelectValue placeholder="All Platforms" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Platforms</SelectItem>
+                  <SelectItem value="all">All Platforms</SelectItem>
                   <SelectItem value="PC">PC</SelectItem>
                   <SelectItem value="PS5">PS5</SelectItem>
                   <SelectItem value="PS4">PS4</SelectItem>
@@ -145,7 +148,7 @@ export function LFGList({ gameSlug }: LFGListProps) {
                   <SelectValue placeholder="All Regions" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">All Regions</SelectItem>
+                  <SelectItem value="all">All Regions</SelectItem>
                   <SelectItem value="TEHRAN">Tehran</SelectItem>
                   <SelectItem value="ISFAHAN">Isfahan</SelectItem>
                   <SelectItem value="SHIRAZ">Shiraz</SelectItem>
@@ -168,7 +171,7 @@ export function LFGList({ gameSlug }: LFGListProps) {
                   <SelectValue placeholder="Any Level" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Any Level</SelectItem>
+                  <SelectItem value="all">Any Level</SelectItem>
                   <SelectItem value="Beginner">Beginner</SelectItem>
                   <SelectItem value="Intermediate">Intermediate</SelectItem>
                   <SelectItem value="Advanced">Advanced</SelectItem>

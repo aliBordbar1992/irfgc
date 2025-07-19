@@ -18,30 +18,30 @@ interface EventCardProps {
 }
 
 const EVENT_TYPE_ICONS = {
-  tournament: Trophy,
-  casual: GamepadIcon,
-  online: GamepadIcon,
-  offline: MapPin,
+  TOURNAMENT: Trophy,
+  CASUAL: GamepadIcon,
+  ONLINE: GamepadIcon,
+  OFFLINE: MapPin,
 };
 
 const EVENT_TYPE_COLORS = {
-  tournament: "bg-blue-100 text-blue-800",
-  casual: "bg-green-100 text-green-800",
-  online: "bg-purple-100 text-purple-800",
-  offline: "bg-orange-100 text-orange-800",
+  TOURNAMENT: "bg-blue-100 text-blue-800",
+  CASUAL: "bg-green-100 text-green-800",
+  ONLINE: "bg-purple-100 text-purple-800",
+  OFFLINE: "bg-orange-100 text-orange-800",
 };
 
 const EVENT_STATUS_COLORS = {
-  upcoming: "bg-yellow-100 text-yellow-800",
-  ongoing: "bg-green-100 text-green-800",
-  completed: "bg-gray-100 text-gray-800",
-  cancelled: "bg-red-100 text-red-800",
+  UPCOMING: "bg-yellow-100 text-yellow-800",
+  ONGOING: "bg-green-100 text-green-800",
+  COMPLETED: "bg-gray-100 text-gray-800",
+  CANCELLED: "bg-red-100 text-red-800",
 };
 
 export function EventCard({ event, onRegister, canRegister }: EventCardProps) {
   const TypeIcon = EVENT_TYPE_ICONS[event.type] || GamepadIcon;
   const isRegistrationOpen =
-    event.status === "upcoming" &&
+    event.status === "UPCOMING" &&
     (!event.registrationDeadline ||
       new Date(event.registrationDeadline) > new Date());
   const isFull =
