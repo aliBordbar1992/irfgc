@@ -12,7 +12,7 @@ export interface User {
 }
 
 // Game Types
-export type GameSlug = "mk" | "sf" | "tk" | "gg" | "bb" | "uni";
+export type GameSlug = string; // Made dynamic instead of hardcoded
 
 export interface Game {
   id: string;
@@ -25,6 +25,12 @@ export interface Game {
   discordUrl?: string;
   createdAt: Date;
   updatedAt: Date;
+  _count?: {
+    events: number;
+    newsPosts: number;
+    lfgPosts: number;
+    forumThreads: number;
+  };
 }
 
 // Event Types

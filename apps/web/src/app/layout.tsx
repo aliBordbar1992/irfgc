@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/features/games/GameContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { MainNav } from "@/components/MainNav";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "IRFGC - Iranian Fighting Game Community",
@@ -30,7 +27,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <body className={inter.className}>
+      <body className="font-sans">
         <SessionProvider>
           <GameProvider>
             <MainNav />

@@ -8,31 +8,34 @@ interface ChatPageProps {
 }
 
 async function getGame(gameSlug: string) {
-  // This would typically fetch from the database
-  // For now, we'll use a simple check
-  const games = ["mk", "sf", "tk", "gg", "bb", "uni"];
-  if (!games.includes(gameSlug)) {
+  try {
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      }/api/games?slug=${gameSlug}`
+    );
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    const game = data.data?.[0];
+
+    if (!game) {
+      return null;
+    }
+
+    return {
+      id: game.id,
+      slug: game.slug,
+      name: game.name,
+      fullName: game.fullName,
+    };
+  } catch (error) {
+    console.error("Error fetching game:", error);
     return null;
   }
-
-  return {
-    id: "1",
-    slug: gameSlug,
-    name: gameSlug.toUpperCase(),
-    fullName: getGameFullName(gameSlug),
-  };
-}
-
-function getGameFullName(slug: string): string {
-  const gameNames: Record<string, string> = {
-    mk: "Mortal Kombat",
-    sf: "Street Fighter",
-    tk: "Tekken",
-    gg: "Guilty Gear",
-    bb: "BlazBlue",
-    uni: "Under Night In-Birth",
-  };
-  return gameNames[slug] || slug;
 }
 
 function ChatPageSkeleton() {
@@ -51,10 +54,7 @@ function ChatPageSkeleton() {
 export default async function ChatPage({ params }: ChatPageProps) {
   const { gameSlug } = await params;
 
-  // Validate game slug
-  if (!["mk", "sf", "tk", "gg", "bb", "uni"].includes(gameSlug)) {
-    notFound();
-  }
+  // Validate game slug - we'll let the API handle validation
 
   const game = await getGame(gameSlug);
   if (!game) {

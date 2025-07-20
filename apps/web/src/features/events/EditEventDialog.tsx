@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { EventType } from "@/types";
+import { Event, EventType, EventStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,11 +25,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const createEventSchema = z
+const editEventSchema = z
   .object({
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
     type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
+    status: z.enum(["UPCOMING", "ONGOING", "COMPLETED", "CANCELLED"]),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().optional(),
@@ -50,21 +51,21 @@ const createEventSchema = z
     }
   );
 
-type CreateEventFormData = z.infer<typeof createEventSchema>;
+type EditEventFormData = z.infer<typeof editEventSchema>;
 
-interface CreateEventDialogProps {
-  gameSlug: string;
+interface EditEventDialogProps {
+  event: Event | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEventCreated?: () => void;
+  onEventUpdated: () => void;
 }
 
-export function CreateEventDialog({
-  gameSlug,
+export function EditEventDialog({
+  event,
   open,
   onOpenChange,
-  onEventCreated,
-}: CreateEventDialogProps) {
+  onEventUpdated,
+}: EditEventDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -75,51 +76,69 @@ export function CreateEventDialog({
     reset,
     setValue,
     watch,
-  } = useForm<CreateEventFormData>({
-    resolver: zodResolver(createEventSchema),
-    defaultValues: {
-      type: "CASUAL",
-    },
+  } = useForm<EditEventFormData>({
+    resolver: zodResolver(editEventSchema),
   });
 
   const eventType = watch("type");
 
-  const onSubmit = async (data: CreateEventFormData) => {
+  // Reset form when event changes
+  useEffect(() => {
+    if (event && open) {
+      reset({
+        title: event.title,
+        description: event.description,
+        type: event.type,
+        status: event.status,
+        startDate: new Date(event.startDate).toISOString().slice(0, 16),
+        endDate: new Date(event.endDate).toISOString().slice(0, 16),
+        location: event.location || "",
+        onlineUrl: event.onlineUrl || "",
+        maxParticipants: event.maxParticipants?.toString() || "",
+        registrationDeadline: event.registrationDeadline
+          ? new Date(event.registrationDeadline).toISOString().slice(0, 16)
+          : "",
+      });
+    }
+  }, [event, open, reset]);
+
+  const onSubmit = async (data: EditEventFormData) => {
+    if (!event) return;
+
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch("/api/events", {
-        method: "POST",
+      const response = await fetch(`/api/events/${event.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           ...data,
-          gameSlug,
           maxParticipants: data.maxParticipants
             ? parseInt(data.maxParticipants)
             : undefined,
           onlineUrl: data.onlineUrl || undefined,
+          registrationDeadline: data.registrationDeadline
+            ? new Date(data.registrationDeadline).toISOString()
+            : undefined,
         }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || "Failed to create event");
+        setError(result.error || "Failed to update event");
         return;
       }
 
-      // Reset form and close dialog
-      reset();
+      // Close dialog and refresh events
       onOpenChange(false);
-
-      // Call the callback to refresh events
-      onEventCreated?.();
+      onEventUpdated();
     } catch (err) {
       setError("An error occurred. Please try again.");
-      console.error("Error creating event:", err);
+      console.error("Error updating event:", err);
     } finally {
       setIsLoading(false);
     }
@@ -133,13 +152,15 @@ export function CreateEventDialog({
     onOpenChange(newOpen);
   };
 
+  if (!event) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Event</DialogTitle>
+          <DialogTitle>Edit Event</DialogTitle>
           <DialogDescription>
-            Create a new event for the {gameSlug.toUpperCase()} community.
+            Update the event details for &quot;{event.title}&quot;.
           </DialogDescription>
         </DialogHeader>
 
@@ -194,6 +215,37 @@ export function CreateEventDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <Select
+                onValueChange={(value: EventStatus) =>
+                  setValue("status", value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="UPCOMING">Upcoming</SelectItem>
+                  <SelectItem value="ONGOING">Ongoing</SelectItem>
+                  <SelectItem value="COMPLETED">Completed</SelectItem>
+                  <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="maxParticipants">Max Participants</Label>
+              <Input
+                id="maxParticipants"
+                type="number"
+                placeholder="Optional"
+                {...register("maxParticipants")}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
               <Label htmlFor="startDate">Start Date & Time</Label>
               <Input
                 id="startDate"
@@ -233,12 +285,13 @@ export function CreateEventDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="maxParticipants">Max Participants</Label>
+              <Label htmlFor="registrationDeadline">
+                Registration Deadline
+              </Label>
               <Input
-                id="maxParticipants"
-                type="number"
-                placeholder="Optional"
-                {...register("maxParticipants")}
+                id="registrationDeadline"
+                type="datetime-local"
+                {...register("registrationDeadline")}
               />
             </div>
           </div>
@@ -251,28 +304,13 @@ export function CreateEventDialog({
                 type="url"
                 placeholder="https://..."
                 {...register("onlineUrl")}
-                className={errors.onlineUrl ? "border-red-500" : ""}
               />
-              {errors.onlineUrl && (
-                <p className="text-sm text-red-500">
-                  {errors.onlineUrl.message}
-                </p>
-              )}
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="registrationDeadline">Registration Deadline</Label>
-            <Input
-              id="registrationDeadline"
-              type="datetime-local"
-              {...register("registrationDeadline")}
-            />
-          </div>
-
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="text-sm text-red-500 bg-red-50 p-3 rounded-md">
+              {error}
             </div>
           )}
 
@@ -286,7 +324,7 @@ export function CreateEventDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Event"}
+              {isLoading ? "Updating..." : "Update Event"}
             </Button>
           </DialogFooter>
         </form>

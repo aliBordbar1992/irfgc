@@ -4,7 +4,7 @@
   "description": "Iranian Fighting Game Community Platform - A scalable, community-driven platform for Iran's FGC with centralized infrastructure and game-specific subdomains",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",

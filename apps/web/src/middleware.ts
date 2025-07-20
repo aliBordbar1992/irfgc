@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Supported game slugs
+// This will be replaced with dynamic game fetching
+// For now, we'll keep a fallback list for middleware
 const SUPPORTED_GAMES = ["mk", "sf", "tk", "gg", "bb", "uni"];
 
 export function middleware(request: NextRequest) {

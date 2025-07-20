@@ -4,13 +4,24 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreateEventDialog } from "@/features/events/CreateEventDialog";
+import { EventDetailsDialog } from "@/features/events/EventDetailsDialog";
+import { EditEventDialog } from "@/features/events/EditEventDialog";
+import { DeleteConfirmationDialog } from "@/features/events/DeleteConfirmationDialog";
 import { Event } from "@/types";
+import { useGames } from "@/hooks/useGames";
 
 export default function EventsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { games, loading: gamesLoading } = useGames({ isActive: true });
+  const [selectedGameSlug, setSelectedGameSlug] = useState<string>("");
 
   useEffect(() => {
     fetchEvents();
@@ -36,35 +47,39 @@ export default function EventsPage() {
   };
 
   const handleViewEvent = (eventId: string) => {
-    // For now, show event details in an alert. In a real app, you'd navigate to a details page
     const event = events.find((e) => e.id === eventId);
     if (event) {
-      alert(
-        `Event Details:\n\nTitle: ${event.title}\nDescription: ${
-          event.description
-        }\nType: ${event.type}\nStatus: ${event.status}\nStart Date: ${new Date(
-          event.startDate
-        ).toLocaleString()}\nLocation: ${event.location || "N/A"}`
-      );
+      setSelectedEvent(event);
+      setIsDetailsDialogOpen(true);
     }
   };
 
   const handleEditEvent = (eventId: string) => {
-    // For now, just show an alert. In a real app, you'd open an edit dialog
-    alert(`Edit event ${eventId} - This feature is not yet implemented`);
+    const event = events.find((e) => e.id === eventId);
+    if (event) {
+      setSelectedEvent(event);
+      setIsEditDialogOpen(true);
+    }
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (
-      !confirm(
-        "Are you sure you want to delete this event? This action cannot be undone."
-      )
-    ) {
-      return;
-    }
+  const handleEventUpdated = () => {
+    fetchEvents();
+  };
 
+  const handleDeleteEvent = (eventId: string) => {
+    const event = events.find((e) => e.id === eventId);
+    if (event) {
+      setSelectedEvent(event);
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
+  const confirmDeleteEvent = async () => {
+    if (!selectedEvent) return;
+
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/events/${eventId}`, {
+      const response = await fetch(`/api/events/${selectedEvent.id}`, {
         method: "DELETE",
       });
 
@@ -74,9 +89,13 @@ export default function EventsPage() {
 
       // Refresh the events list
       fetchEvents();
+      setIsDeleteDialogOpen(false);
+      setSelectedEvent(null);
     } catch (err) {
-      alert("Failed to delete event. Please try again.");
       console.error("Error deleting event:", err);
+      // You could add a toast notification here instead of alert
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -92,14 +111,64 @@ export default function EventsPage() {
             Manage tournaments, casual meetups, and community events
           </p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)}>Create New Event</Button>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Create for Game:
+            </label>
+            <select
+              value={selectedGameSlug}
+              onChange={(e) => setSelectedGameSlug(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 text-sm"
+              disabled={gamesLoading}
+            >
+              <option value="">Select a game</option>
+              {games.map((game) => (
+                <option key={game.slug} value={game.slug}>
+                  {game.fullName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <Button onClick={() => setIsDialogOpen(true)}>
+            Create New Event
+          </Button>
+        </div>
       </div>
 
       {/* Create Event Dialog */}
-      <CreateEventDialog
-        gameSlug="mk"
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+      {selectedGameSlug && (
+        <CreateEventDialog
+          gameSlug={selectedGameSlug}
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onEventCreated={handleEventUpdated}
+        />
+      )}
+
+      {/* Event Details Dialog */}
+      <EventDetailsDialog
+        event={selectedEvent}
+        open={isDetailsDialogOpen}
+        onOpenChange={setIsDetailsDialogOpen}
+        onEdit={handleEditEvent}
+      />
+
+      {/* Edit Event Dialog */}
+      <EditEventDialog
+        event={selectedEvent}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onEventUpdated={handleEventUpdated}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        eventTitle={selectedEvent?.title || ""}
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={confirmDeleteEvent}
+        isLoading={isDeleting}
       />
 
       {/* Filters */}
@@ -115,12 +184,11 @@ export default function EventsPage() {
               </label>
               <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="">All Games</option>
-                <option value="mk">Mortal Kombat</option>
-                <option value="sf">Street Fighter</option>
-                <option value="tk">Tekken</option>
-                <option value="gg">Guilty Gear</option>
-                <option value="bb">BlazBlue</option>
-                <option value="uni">Under Night In-Birth</option>
+                {games.map((game) => (
+                  <option key={game.slug} value={game.slug}>
+                    {game.fullName}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
