@@ -7,15 +7,35 @@ interface GameLayoutProps {
   };
 }
 
+async function validateGame(gameSlug: string) {
+  try {
+    const response = await fetch(
+      `${
+        process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      }/api/games?slug=${gameSlug}`
+    );
+
+    if (!response.ok) {
+      return false;
+    }
+
+    const data = await response.json();
+    return data.data && data.data.length > 0;
+  } catch (error) {
+    console.error("Error validating game:", error);
+    return false;
+  }
+}
+
 export default async function GameLayout({
   children,
   params,
 }: GameLayoutProps) {
   const { gameSlug } = await params;
 
-  // Validate game slug
-  const validGames = ["mk", "sf", "tk", "gg", "bb", "uni"];
-  if (!validGames.includes(gameSlug)) {
+  // Validate game slug through API
+  const isValidGame = await validateGame(gameSlug);
+  if (!isValidGame) {
     notFound();
   }
 

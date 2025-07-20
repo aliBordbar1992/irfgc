@@ -21,10 +21,7 @@ async function getGame(gameSlug: string) {
 export default async function ForumPage({ params }: ForumPageProps) {
   const { gameSlug } = await params;
 
-  // Validate game slug
-  if (!["mk", "sf", "tk", "gg", "bb", "uni"].includes(gameSlug)) {
-    notFound();
-  }
+  // Validate game slug - we'll let the API handle validation
 
   const game = await getGame(gameSlug);
   if (!game) {

@@ -15,6 +15,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { useGames } from "@/hooks/useGames";
 
 // Mock data for charts - in real app, this would come from API
 const userGrowthData = [
@@ -24,14 +25,6 @@ const userGrowthData = [
   { month: "Apr", users: 320, events: 18, posts: 112 },
   { month: "May", users: 410, events: 22, posts: 145 },
   { month: "Jun", users: 520, events: 25, posts: 178 },
-];
-
-const gameDistributionData = [
-  { name: "Mortal Kombat", value: 35, color: "#3B82F6" },
-  { name: "Street Fighter", value: 28, color: "#10B981" },
-  { name: "Tekken", value: 22, color: "#F59E0B" },
-  { name: "Guilty Gear", value: 10, color: "#8B5CF6" },
-  { name: "BlazBlue", value: 5, color: "#EF4444" },
 ];
 
 const activityData = [
@@ -44,7 +37,26 @@ const activityData = [
   { day: "Sun", events: 7, posts: 28, users: 72 },
 ];
 
+// Colors for game distribution chart
+const gameColors = [
+  "#3B82F6",
+  "#10B981",
+  "#F59E0B",
+  "#8B5CF6",
+  "#EF4444",
+  "#06B6D4",
+];
+
 export function DashboardOverview() {
+  const { games } = useGames({ isActive: true });
+
+  // Generate game distribution data from actual games
+  const gameDistributionData = games.map((game, index) => ({
+    name: game.fullName,
+    value: game._count?.events || 0,
+    color: gameColors[index % gameColors.length],
+  }));
+
   return (
     <div className="space-y-6">
       {/* User Growth Chart */}
@@ -97,7 +109,7 @@ export function DashboardOverview() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${((percent || 0) * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"

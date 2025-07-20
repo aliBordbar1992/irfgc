@@ -1,56 +1,59 @@
+"use client";
+
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { useGames } from "@/hooks/useGames";
 
-// Mock news data - will be replaced with API calls
+// Mock data - in real app, this would come from API
 const MOCK_NEWS = [
   {
     id: "1",
-    title: "New Tournament Series Announced",
+    title: "IRFGC Championship 2024 Announced",
     gameSlug: "mk",
     status: "published",
     author: "Admin User",
-    publishedAt: "2024-01-10T12:00:00Z",
-    views: 1247,
+    publishedAt: "2024-01-15T10:00:00Z",
+    views: 15420,
     featured: true,
     excerpt:
       "Exciting news for the Mortal Kombat community! We are proud to announce a new tournament series...",
   },
   {
     id: "2",
-    title: "Community Spotlight: Top Players",
+    title: "New Community Guidelines",
+    gameSlug: null,
+    status: "published",
+    author: "Admin User",
+    publishedAt: "2024-01-12T14:30:00Z",
+    views: 8920,
+    featured: true,
+    excerpt:
+      "To ensure a positive and inclusive environment for all members, we've updated our community guidelines...",
+  },
+  {
+    id: "3",
+    title: "Street Fighter Tournament Results",
     gameSlug: "sf",
     status: "published",
-    author: "Moderator User",
-    publishedAt: "2024-01-08T15:30:00Z",
-    views: 892,
+    author: "Tournament Admin",
+    publishedAt: "2024-01-10T16:45:00Z",
+    views: 5670,
     featured: false,
     excerpt:
       "This month we shine the spotlight on some of our most dedicated Street Fighter players...",
   },
   {
-    id: "3",
-    title: "Upcoming Balance Patch Discussion",
+    id: "4",
+    title: "Tekken Community Spotlight",
     gameSlug: "tk",
     status: "draft",
-    author: "Admin User",
+    author: "Content Team",
     publishedAt: null,
     views: 0,
     featured: false,
     excerpt:
-      "Let&apos;s discuss the upcoming balance changes and how they might affect the meta...",
-  },
-  {
-    id: "4",
-    title: "Weekly Community Roundup",
-    gameSlug: "gg",
-    status: "published",
-    author: "Moderator User",
-    publishedAt: "2024-01-05T10:00:00Z",
-    views: 567,
-    featured: false,
-    excerpt:
-      "Here&apos;s what happened in the Guilty Gear community this week...",
+      "Meet the players who are making waves in the Tekken community and learn about their journey...",
   },
   {
     id: "5",
@@ -67,6 +70,8 @@ const MOCK_NEWS = [
 ];
 
 export default function NewsPage() {
+  const { games } = useGames({ isActive: true });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -95,12 +100,11 @@ export default function NewsPage() {
               </label>
               <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="">All Games</option>
-                <option value="mk">Mortal Kombat</option>
-                <option value="sf">Street Fighter</option>
-                <option value="tk">Tekken</option>
-                <option value="gg">Guilty Gear</option>
-                <option value="bb">BlazBlue</option>
-                <option value="uni">Under Night In-Birth</option>
+                {games.map((game) => (
+                  <option key={game.slug} value={game.slug}>
+                    {game.fullName}
+                  </option>
+                ))}
                 <option value="general">General</option>
               </select>
             </div>

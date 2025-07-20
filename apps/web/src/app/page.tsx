@@ -1,58 +1,21 @@
-import Link from "next/link";
-import { GameSlug } from "@/types";
+"use client";
 
-const GAMES: Array<{
-  slug: GameSlug;
-  name: string;
-  fullName: string;
-  description: string;
-  color: string;
-}> = [
-  {
-    slug: "mk",
-    name: "MK",
-    fullName: "Mortal Kombat",
-    description: "Mortal Kombat community for Iranian players",
-    color: "bg-red-600 hover:bg-red-700",
-  },
-  {
-    slug: "sf",
-    name: "SF",
-    fullName: "Street Fighter",
-    description: "Street Fighter community for Iranian players",
-    color: "bg-blue-600 hover:bg-blue-700",
-  },
-  {
-    slug: "tk",
-    name: "TK",
-    fullName: "Tekken",
-    description: "Tekken community for Iranian players",
-    color: "bg-purple-600 hover:bg-purple-700",
-  },
-  {
-    slug: "gg",
-    name: "GG",
-    fullName: "Guilty Gear",
-    description: "Guilty Gear community for Iranian players",
-    color: "bg-green-600 hover:bg-green-700",
-  },
-  {
-    slug: "bb",
-    name: "BB",
-    fullName: "BlazBlue",
-    description: "BlazBlue community for Iranian players",
-    color: "bg-indigo-600 hover:bg-indigo-700",
-  },
-  {
-    slug: "uni",
-    name: "UNI",
-    fullName: "Under Night In-Birth",
-    description: "Under Night In-Birth community for Iranian players",
-    color: "bg-pink-600 hover:bg-pink-700",
-  },
+import Link from "next/link";
+import { useGames } from "@/hooks/useGames";
+
+// Colors for game cards
+const gameColors = [
+  "bg-red-600 hover:bg-red-700",
+  "bg-blue-600 hover:bg-blue-700",
+  "bg-purple-600 hover:bg-purple-700",
+  "bg-green-600 hover:bg-green-700",
+  "bg-indigo-600 hover:bg-indigo-700",
+  "bg-pink-600 hover:bg-pink-700",
 ];
 
 export default function HomePage() {
+  const { games } = useGames({ isActive: true });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
       <div className="container mx-auto px-4 py-16">
@@ -71,11 +34,13 @@ export default function HomePage() {
 
         {/* Game Selection */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {GAMES.map((game) => (
+          {games.map((game, index) => (
             <Link
               key={game.slug}
               href={`/${game.slug}`}
-              className={`${game.color} rounded-lg p-6 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-2xl`}
+              className={`${
+                gameColors[index % gameColors.length]
+              } rounded-lg p-6 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-2xl`}
             >
               <div className="text-center">
                 <h2 className="text-3xl font-bold mb-2">{game.name}</h2>

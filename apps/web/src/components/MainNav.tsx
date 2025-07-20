@@ -4,23 +4,11 @@ import Link from "next/link";
 import { useGame } from "@/features/games/GameContext";
 import { UserMenu } from "@/components/UserMenu";
 import { Button } from "@/components/ui/button";
-import { GameSlug } from "@/types";
-
-const GAMES: Array<{
-  slug: GameSlug;
-  name: string;
-  fullName: string;
-}> = [
-  { slug: "mk", name: "MK", fullName: "Mortal Kombat" },
-  { slug: "sf", name: "SF", fullName: "Street Fighter" },
-  { slug: "tk", name: "TK", fullName: "Tekken" },
-  { slug: "gg", name: "GG", fullName: "Guilty Gear" },
-  { slug: "bb", name: "BB", fullName: "BlazBlue" },
-  { slug: "uni", name: "UNI", fullName: "Under Night In-Birth" },
-];
+import { useGames } from "@/hooks/useGames";
 
 export function MainNav() {
   const { currentGame, gameSlug } = useGame();
+  const { games } = useGames({ isActive: true });
 
   return (
     <nav className="bg-white shadow-sm border-b">
@@ -44,7 +32,7 @@ export function MainNav() {
           {/* Game Navigation */}
           {!gameSlug && (
             <div className="hidden md:flex items-center space-x-1">
-              {GAMES.map((game) => (
+              {games.map((game) => (
                 <Link key={game.slug} href={`/${game.slug}`}>
                   <Button variant="ghost" size="sm">
                     {game.name}
