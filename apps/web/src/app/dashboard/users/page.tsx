@@ -37,6 +37,15 @@ export default async function UsersPage() {
     },
   });
 
+  console.log("Fetched users:", users.length, users);
+
+  // Add a simple check to ensure users are being passed correctly
+  if (users.length === 0) {
+    console.log("No users found in database");
+  } else {
+    console.log("Users will be passed to UserManagement component");
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -47,7 +56,18 @@ export default async function UsersPage() {
       </div>
 
       <Suspense fallback={<UserManagementSkeleton />}>
-        <UserManagement initialUsers={users} />
+        {users.length > 0 ? (
+          <UserManagement initialUsers={users} />
+        ) : (
+          <div className="bg-white rounded-lg p-6 shadow-sm border">
+            <div className="text-center py-8">
+              <p className="text-gray-500">No users found in the database.</p>
+              <p className="text-sm text-gray-400 mt-2">
+                Try running the database seed: npm run db:seed
+              </p>
+            </div>
+          </div>
+        )}
       </Suspense>
     </div>
   );

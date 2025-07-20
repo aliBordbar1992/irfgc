@@ -59,6 +59,12 @@ interface UserManagementProps {
 }
 
 export function UserManagement({ initialUsers }: UserManagementProps) {
+  console.log(
+    "UserManagement received initialUsers:",
+    initialUsers.length,
+    initialUsers
+  );
+
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [filteredUsers, setFilteredUsers] = useState<User[]>(initialUsers);
   const [searchQuery, setSearchQuery] = useState("");
@@ -78,12 +84,25 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
     }
 
     // Apply role filter
-    if (roleFilter) {
+    if (roleFilter && roleFilter !== "all") {
       filtered = filtered.filter((user) => user.role === roleFilter);
     }
 
     setFilteredUsers(filtered);
   }, [users, searchQuery, roleFilter]);
+
+  // Add error handling for invalid initialUsers
+  if (!Array.isArray(initialUsers)) {
+    console.error(
+      "UserManagement: initialUsers is not an array:",
+      initialUsers
+    );
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <p className="text-red-800">Error: Invalid user data received</p>
+      </div>
+    );
+  }
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     setIsLoading(true);
@@ -150,6 +169,12 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
 
   return (
     <div className="space-y-6">
+      {/* Debug info - remove this after fixing */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p className="text-blue-800 text-sm">
+          Debug: {users.length} users loaded, {filteredUsers.length} filtered
+        </p>
+      </div>
       {/* Filters */}
       <Card>
         <CardHeader>
@@ -212,95 +237,114 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{user.name}</div>
-                      <div className="text-sm text-gray-600">{user.email}</div>
+              {filteredUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-8">
+                    <div className="text-gray-500">
+                      {users.length === 0
+                        ? "No users found"
+                        : "No users match your filters"}
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getRoleBadgeColor(user.role)}>
-                      {user.role}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm">{formatDate(user.createdAt)}</div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="text-sm space-y-1">
-                      <div>{user._count.events} events</div>
-                      <div>{user._count.newsPosts} news</div>
-                      <div>{user._count.lfgPosts} LFG posts</div>
-                      <div>{user._count.forumThreads} forum threads</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          View Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Mail className="w-4 h-4 mr-2" />
-                          Send Message
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit User
-                        </DropdownMenuItem>
-                        {user.role !== "ADMIN" && (
-                          <DropdownMenuItem
-                            onClick={() => handleRoleChange(user.id, "ADMIN")}
-                          >
-                            <Shield className="w-4 h-4 mr-2" />
-                            Make Admin
-                          </DropdownMenuItem>
-                        )}
-                        {user.role !== "MODERATOR" && (
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleRoleChange(user.id, "MODERATOR")
-                            }
-                          >
-                            <Shield className="w-4 h-4 mr-2" />
-                            Make Moderator
-                          </DropdownMenuItem>
-                        )}
-                        {user.role !== "PLAYER" && (
-                          <DropdownMenuItem
-                            onClick={() => handleRoleChange(user.id, "PLAYER")}
-                          >
-                            <ShieldOff className="w-4 h-4 mr-2" />
-                            Make Player
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => handleUserAction(user.id, "suspend")}
-                          className="text-yellow-600"
-                        >
-                          <UserX className="w-4 h-4 mr-2" />
-                          Suspend User
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleUserAction(user.id, "ban")}
-                          className="text-red-600"
-                        >
-                          <UserX className="w-4 h-4 mr-2" />
-                          Ban User
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filteredUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div>
+                        <div className="font-medium">{user.name}</div>
+                        <div className="text-sm text-gray-600">
+                          {user.email}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getRoleBadgeColor(user.role)}>
+                        {user.role}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        {formatDate(user.createdAt)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm space-y-1">
+                        <div>{user._count.events} events</div>
+                        <div>{user._count.newsPosts} news</div>
+                        <div>{user._count.lfgPosts} LFG posts</div>
+                        <div>{user._count.forumThreads} forum threads</div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="w-4 h-4 mr-2" />
+                            View Profile
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Mail className="w-4 h-4 mr-2" />
+                            Send Message
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit User
+                          </DropdownMenuItem>
+                          {user.role !== "ADMIN" && (
+                            <DropdownMenuItem
+                              onClick={() => handleRoleChange(user.id, "ADMIN")}
+                              disabled={isLoading}
+                            >
+                              <Shield className="w-4 h-4 mr-2" />
+                              {isLoading ? "Updating..." : "Make Admin"}
+                            </DropdownMenuItem>
+                          )}
+                          {user.role !== "MODERATOR" && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleRoleChange(user.id, "MODERATOR")
+                              }
+                            >
+                              <Shield className="w-4 h-4 mr-2" />
+                              Make Moderator
+                            </DropdownMenuItem>
+                          )}
+                          {user.role !== "PLAYER" && (
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleRoleChange(user.id, "PLAYER")
+                              }
+                            >
+                              <ShieldOff className="w-4 h-4 mr-2" />
+                              Make Player
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem
+                            onClick={() => handleUserAction(user.id, "suspend")}
+                            className="text-yellow-600"
+                          >
+                            <UserX className="w-4 h-4 mr-2" />
+                            Suspend User
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleUserAction(user.id, "ban")}
+                            className="text-red-600"
+                          >
+                            <UserX className="w-4 h-4 mr-2" />
+                            Ban User
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
