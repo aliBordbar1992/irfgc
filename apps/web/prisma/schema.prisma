@@ -67,6 +67,7 @@ model Event {
   gameSlug            String
   type                EventType
   status              EventStatus @default(UPCOMING)
+  statusOverride      EventStatus? // Manual override of automatic status
   startDate           DateTime
   endDate             DateTime
   location            String?

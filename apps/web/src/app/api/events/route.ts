@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { getEffectiveEventStatus } from "@/lib/eventStatus";
 
 const createEventSchema = z
   .object({
@@ -98,8 +99,18 @@ export async function GET(request: NextRequest) {
       prisma.event.count({ where }),
     ]);
 
+    // Apply automatic status logic to events
+    const eventsWithEffectiveStatus = events.map((event) => ({
+      ...event,
+      status: getEffectiveEventStatus(
+        event.startDate,
+        event.endDate,
+        event.statusOverride
+      ),
+    }));
+
     return NextResponse.json({
-      data: events,
+      data: eventsWithEffectiveStatus,
       pagination: {
         page,
         limit,

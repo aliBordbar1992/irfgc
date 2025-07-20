@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Event, EventType, EventStatus } from "@/types";
+import { Event, EventType } from "@/types";
+import { StatusOverrideType } from "@/lib/eventStatus";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,7 +31,9 @@ const editEventSchema = z
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
     type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
-    status: z.enum(["UPCOMING", "ONGOING", "COMPLETED", "CANCELLED"]),
+    statusOverride: z
+      .enum(["AUTO", "UPCOMING", "ONGOING", "COMPLETED", "CANCELLED"])
+      .optional(),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
     location: z.string().optional(),
@@ -81,7 +84,7 @@ export function EditEventDialog({
   });
 
   const eventType = watch("type");
-  const eventStatus = watch("status");
+  const statusOverride = watch("statusOverride");
 
   // Reset form when event changes
   useEffect(() => {
@@ -90,7 +93,9 @@ export function EditEventDialog({
         title: event.title,
         description: event.description,
         type: event.type,
-        status: event.status,
+        statusOverride:
+          (event as Event & { statusOverride?: StatusOverrideType })
+            .statusOverride || "AUTO",
         startDate: new Date(event.startDate).toISOString().slice(0, 16),
         endDate: new Date(event.endDate).toISOString().slice(0, 16),
         location: event.location || "",
@@ -117,6 +122,8 @@ export function EditEventDialog({
         },
         body: JSON.stringify({
           ...data,
+          statusOverride:
+            data.statusOverride === "AUTO" ? null : data.statusOverride,
           maxParticipants: data.maxParticipants
             ? parseInt(data.maxParticipants)
             : undefined,
@@ -216,23 +223,32 @@ export function EditEventDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="statusOverride">Status Override (Optional)</Label>
               <Select
-                value={eventStatus}
-                onValueChange={(value: EventStatus) =>
-                  setValue("status", value)
-                }
+                value={statusOverride || "AUTO"}
+                onValueChange={(
+                  value:
+                    | "AUTO"
+                    | "UPCOMING"
+                    | "ONGOING"
+                    | "COMPLETED"
+                    | "CANCELLED"
+                ) => setValue("statusOverride", value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder="Auto-determined (recommended)" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="AUTO">Auto-determined</SelectItem>
                   <SelectItem value="UPCOMING">Upcoming</SelectItem>
                   <SelectItem value="ONGOING">Ongoing</SelectItem>
                   <SelectItem value="COMPLETED">Completed</SelectItem>
                   <SelectItem value="CANCELLED">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
+              <p className="text-xs text-gray-500">
+                Leave empty to automatically determine status based on dates
+              </p>
             </div>
 
             <div className="space-y-2">

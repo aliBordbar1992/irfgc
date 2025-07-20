@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getEffectiveEventStatus } from "@/lib/eventStatus";
 
 export async function DELETE(
   request: NextRequest,
@@ -77,7 +78,8 @@ export async function PUT(
         title: body.title,
         description: body.description,
         type: body.type,
-        status: body.status,
+        statusOverride:
+          body.statusOverride === "AUTO" ? null : body.statusOverride || null,
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
         location: body.location,
@@ -99,8 +101,18 @@ export async function PUT(
       },
     });
 
+    // Apply effective status
+    const eventWithEffectiveStatus = {
+      ...updatedEvent,
+      status: getEffectiveEventStatus(
+        updatedEvent.startDate,
+        updatedEvent.endDate,
+        updatedEvent.statusOverride
+      ),
+    };
+
     return NextResponse.json(
-      { data: updatedEvent, message: "Event updated successfully" },
+      { data: eventWithEffectiveStatus, message: "Event updated successfully" },
       { status: 200 }
     );
   } catch (error) {
@@ -147,7 +159,17 @@ export async function GET(
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ data: event });
+    // Apply effective status
+    const eventWithEffectiveStatus = {
+      ...event,
+      status: getEffectiveEventStatus(
+        event.startDate,
+        event.endDate,
+        (event as any).statusOverride
+      ),
+    };
+
+    return NextResponse.json({ data: eventWithEffectiveStatus });
   } catch (error) {
     console.error("Error fetching event:", error);
     return NextResponse.json(
