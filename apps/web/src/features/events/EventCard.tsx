@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Calendar, MapPin, Users, Trophy, GamepadIcon } from "lucide-react";
+import Link from "next/link";
 
 interface EventCardProps {
   event: Event;
@@ -61,11 +62,13 @@ export function EventCard({ event, onRegister, canRegister }: EventCardProps) {
   };
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className="hover:shadow-md transition-shadow group relative">
       <CardHeader>
         <div className="flex justify-between items-start">
           <div className="flex-1">
-            <CardTitle className="text-lg">{event.title}</CardTitle>
+            <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+              {event.title}
+            </CardTitle>
             <CardDescription className="mt-2">
               {event.description}
             </CardDescription>
@@ -132,17 +135,36 @@ export function EventCard({ event, onRegister, canRegister }: EventCardProps) {
                 Event Full
               </Button>
             ) : canRegister ? (
-              <Button className="w-full" onClick={() => onRegister(event.id)}>
+              <Button
+                className="w-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onRegister(event.id);
+                }}
+              >
                 Register for Event
               </Button>
             ) : (
-              <Button className="w-full" variant="outline">
-                View Details
+              <Button className="w-full" variant="outline" asChild>
+                <Link
+                  href={`/${event.gameSlug}/events/${event.id}`}
+                  className="flex items-center justify-center gap-1"
+                >
+                  View Details
+                </Link>
               </Button>
             )}
           </div>
         </div>
       </CardContent>
+
+      {/* Clickable overlay for the entire card */}
+      <Link
+        href={`/${event.gameSlug}/events/${event.id}`}
+        className="absolute inset-0 z-10"
+        aria-label={`View details for ${event.title}`}
+      />
     </Card>
   );
 }

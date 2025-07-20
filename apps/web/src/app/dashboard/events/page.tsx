@@ -1,14 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CreateEventDialog } from "@/features/events/CreateEventDialog";
-import { EventDetailsDialog } from "@/features/events/EventDetailsDialog";
 import { EditEventDialog } from "@/features/events/EditEventDialog";
 import { DeleteConfirmationDialog } from "@/features/events/DeleteConfirmationDialog";
 import { Event } from "@/types";
 import { useGames } from "@/hooks/useGames";
+import { ExternalLink } from "lucide-react";
 
 export default function EventsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -16,7 +17,6 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -42,14 +42,6 @@ export default function EventsPage() {
       console.error("Error fetching events:", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleViewEvent = (eventId: string) => {
-    const event = events.find((e) => e.id === eventId);
-    if (event) {
-      setSelectedEvent(event);
-      setIsDetailsDialogOpen(true);
     }
   };
 
@@ -118,14 +110,6 @@ export default function EventsPage() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onEventCreated={handleEventUpdated}
-      />
-
-      {/* Event Details Dialog */}
-      <EventDetailsDialog
-        event={selectedEvent}
-        open={isDetailsDialogOpen}
-        onOpenChange={setIsDetailsDialogOpen}
-        onEdit={handleEditEvent}
       />
 
       {/* Edit Event Dialog */}
@@ -305,12 +289,16 @@ export default function EventsPage() {
                           >
                             Edit
                           </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleViewEvent(event.id)}
-                          >
-                            View
+                          <Button size="sm" variant="outline" asChild>
+                            <Link
+                              href={`/${event.gameSlug}/events/${event.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center gap-1"
+                            >
+                              <ExternalLink className="h-3 w-3" />
+                              View
+                            </Link>
                           </Button>
                           <Button
                             size="sm"
