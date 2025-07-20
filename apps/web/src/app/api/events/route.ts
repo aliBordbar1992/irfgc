@@ -51,6 +51,7 @@ export async function GET(request: NextRequest) {
     const where: {
       gameSlug?: string;
       status?: "UPCOMING" | "ONGOING" | "COMPLETED" | "CANCELLED";
+      endDate?: { gte: Date };
     } = {};
     if (gameSlug) where.gameSlug = gameSlug;
     if (
@@ -63,6 +64,9 @@ export async function GET(request: NextRequest) {
         | "COMPLETED"
         | "CANCELLED";
     }
+
+    // Filter out events with passed end dates (only show current and future events)
+    where.endDate = { gte: new Date() };
 
     const [events, total] = await Promise.all([
       prisma.event.findMany({

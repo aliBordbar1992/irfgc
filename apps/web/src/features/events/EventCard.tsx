@@ -44,7 +44,8 @@ export function EventCard({ event, onRegister, canRegister }: EventCardProps) {
   const isRegistrationOpen =
     event.status === "UPCOMING" &&
     (!event.registrationDeadline ||
-      new Date(event.registrationDeadline) > new Date());
+      new Date(event.registrationDeadline) > new Date()) &&
+    new Date(event.startDate) > new Date();
   const isFull =
     event.maxParticipants && event.currentParticipants >= event.maxParticipants;
   const isRegistered = event.registrations?.some(

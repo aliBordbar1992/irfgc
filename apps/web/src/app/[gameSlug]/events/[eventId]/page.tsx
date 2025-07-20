@@ -192,19 +192,22 @@ export default function EventDetailPage() {
           </div>
 
           <div className="flex gap-2">
-            {event.status === "UPCOMING" && (
-              <Button
-                onClick={isRegistered ? handleUnregister : handleRegister}
-                disabled={isRegistering}
-                variant={isRegistered ? "outline" : "default"}
-              >
-                {isRegistering
-                  ? "Processing..."
-                  : isRegistered
-                  ? "Unregister"
-                  : "Register"}
-              </Button>
-            )}
+            {event.status === "UPCOMING" &&
+              new Date(event.startDate) > new Date() &&
+              (!event.registrationDeadline ||
+                new Date(event.registrationDeadline) > new Date()) && (
+                <Button
+                  onClick={isRegistered ? handleUnregister : handleRegister}
+                  disabled={isRegistering}
+                  variant={isRegistered ? "outline" : "default"}
+                >
+                  {isRegistering
+                    ? "Processing..."
+                    : isRegistered
+                    ? "Unregister"
+                    : "Register"}
+                </Button>
+              )}
             {event.onlineUrl && (
               <Button variant="outline" asChild>
                 <a
@@ -379,7 +382,14 @@ export default function EventDetailPage() {
                   <div>
                     <p className="text-sm text-gray-600">Status</p>
                     <p className="font-medium">
-                      {isRegistered ? "Registered" : "Not Registered"}
+                      {new Date(event.startDate) <= new Date()
+                        ? "Event Started"
+                        : event.registrationDeadline &&
+                          new Date(event.registrationDeadline) <= new Date()
+                        ? "Registration Closed"
+                        : isRegistered
+                        ? "Registered"
+                        : "Not Registered"}
                     </p>
                   </div>
 
@@ -389,6 +399,23 @@ export default function EventDetailPage() {
                       <p className="font-medium">
                         {event.maxParticipants - event.currentParticipants}{" "}
                         remaining
+                      </p>
+                    </div>
+                  )}
+
+                  {event.registrationDeadline && (
+                    <div>
+                      <p className="text-sm text-gray-600">
+                        Registration Deadline
+                      </p>
+                      <p className="font-medium">
+                        {new Date(
+                          event.registrationDeadline
+                        ).toLocaleDateString()}{" "}
+                        at{" "}
+                        {new Date(
+                          event.registrationDeadline
+                        ).toLocaleTimeString()}
                       </p>
                     </div>
                   )}
