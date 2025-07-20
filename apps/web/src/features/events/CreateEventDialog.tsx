@@ -24,9 +24,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useGames } from "@/hooks/useGames";
 
 const createEventSchema = z
   .object({
+    gameSlug: z.string().min(1, "Game is required"),
     title: z.string().min(1, "Title is required"),
     description: z.string().min(1, "Description is required"),
     type: z.enum(["TOURNAMENT", "CASUAL", "ONLINE", "OFFLINE"]),
@@ -53,20 +55,19 @@ const createEventSchema = z
 type CreateEventFormData = z.infer<typeof createEventSchema>;
 
 interface CreateEventDialogProps {
-  gameSlug: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEventCreated?: () => void;
 }
 
 export function CreateEventDialog({
-  gameSlug,
   open,
   onOpenChange,
   onEventCreated,
 }: CreateEventDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const { games, loading: gamesLoading } = useGames({ isActive: true });
 
   const {
     register,
@@ -83,6 +84,7 @@ export function CreateEventDialog({
   });
 
   const eventType = watch("type");
+  const selectedGameSlug = watch("gameSlug");
 
   const onSubmit = async (data: CreateEventFormData) => {
     setIsLoading(true);
@@ -96,7 +98,6 @@ export function CreateEventDialog({
         },
         body: JSON.stringify({
           ...data,
-          gameSlug,
           maxParticipants: data.maxParticipants
             ? parseInt(data.maxParticipants)
             : undefined,
@@ -139,11 +140,34 @@ export function CreateEventDialog({
         <DialogHeader>
           <DialogTitle>Create New Event</DialogTitle>
           <DialogDescription>
-            Create a new event for the {gameSlug.toUpperCase()} community.
+            Create a new event for your gaming community.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="gameSlug">Game</Label>
+            <Select
+              value={selectedGameSlug}
+              onValueChange={(value) => setValue("gameSlug", value)}
+              disabled={gamesLoading}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a game" />
+              </SelectTrigger>
+              <SelectContent>
+                {games.map((game) => (
+                  <SelectItem key={game.slug} value={game.slug}>
+                    {game.fullName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.gameSlug && (
+              <p className="text-sm text-red-500">{errors.gameSlug.message}</p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="title">Event Title</Label>

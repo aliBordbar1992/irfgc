@@ -77,6 +77,7 @@ export async function PUT(
         title: body.title,
         description: body.description,
         type: body.type,
+        status: body.status,
         startDate: new Date(body.startDate),
         endDate: new Date(body.endDate),
         location: body.location,

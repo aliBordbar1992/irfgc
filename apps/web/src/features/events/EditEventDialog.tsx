@@ -81,6 +81,7 @@ export function EditEventDialog({
   });
 
   const eventType = watch("type");
+  const eventStatus = watch("status");
 
   // Reset form when event changes
   useEffect(() => {
@@ -217,6 +218,7 @@ export function EditEventDialog({
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
               <Select
+                value={eventStatus}
                 onValueChange={(value: EventStatus) =>
                   setValue("status", value)
                 }

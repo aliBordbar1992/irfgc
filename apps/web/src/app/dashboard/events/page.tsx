@@ -20,8 +20,7 @@ export default function EventsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { games, loading: gamesLoading } = useGames({ isActive: true });
-  const [selectedGameSlug, setSelectedGameSlug] = useState<string>("");
+  const { games } = useGames({ isActive: true });
 
   useEffect(() => {
     fetchEvents();
@@ -111,40 +110,15 @@ export default function EventsPage() {
             Manage tournaments, casual meetups, and community events
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700">
-              Create for Game:
-            </label>
-            <select
-              value={selectedGameSlug}
-              onChange={(e) => setSelectedGameSlug(e.target.value)}
-              className="border border-gray-300 rounded-md px-3 py-2 text-sm"
-              disabled={gamesLoading}
-            >
-              <option value="">Select a game</option>
-              {games.map((game) => (
-                <option key={game.slug} value={game.slug}>
-                  {game.fullName}
-                </option>
-              ))}
-            </select>
-          </div>
-          <Button onClick={() => setIsDialogOpen(true)}>
-            Create New Event
-          </Button>
-        </div>
+        <Button onClick={() => setIsDialogOpen(true)}>Create New Event</Button>
       </div>
 
       {/* Create Event Dialog */}
-      {selectedGameSlug && (
-        <CreateEventDialog
-          gameSlug={selectedGameSlug}
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          onEventCreated={handleEventUpdated}
-        />
-      )}
+      <CreateEventDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        onEventCreated={handleEventUpdated}
+      />
 
       {/* Event Details Dialog */}
       <EventDetailsDialog
