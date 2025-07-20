@@ -54,15 +54,35 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
         token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        token.role = user.role;
+        token.avatar = user.avatar;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as UserRole;
+        // Fetch fresh user data from database
+        const user = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            avatar: true,
+          },
+        });
+
+        if (user) {
+          session.user.id = user.id;
+          session.user.email = user.email;
+          session.user.name = user.name;
+          session.user.role = user.role as UserRole;
+          session.user.avatar = user.avatar || undefined;
+        }
       }
       return session;
     },
@@ -99,6 +119,9 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    email: string;
+    name: string;
     role: UserRole;
+    avatar?: string;
   }
 }

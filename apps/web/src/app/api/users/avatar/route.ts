@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { existsSync } from "fs";
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,11 +37,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, we'll use a placeholder URL
-    // In a real app, you'd upload to a service like Cloudinary, AWS S3, or similar
-    const avatarUrl = `https://via.placeholder.com/150x150/007bff/ffffff?text=${encodeURIComponent(
-      session.user.name.charAt(0).toUpperCase()
-    )}`;
+    // Create uploads directory if it doesn't exist
+    const uploadsDir = join(process.cwd(), "public", "uploads", "avatars");
+    if (!existsSync(uploadsDir)) {
+      await mkdir(uploadsDir, { recursive: true });
+    }
+
+    // Generate unique filename
+    const fileExtension = file.name.split(".").pop();
+    const fileName = `${session.user.id}-${Date.now()}.${fileExtension}`;
+    const filePath = join(uploadsDir, fileName);
+
+    // Convert file to buffer and save
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    await writeFile(filePath, buffer);
+
+    // Generate the public URL
+    const avatarUrl = `/uploads/avatars/${fileName}`;
 
     // Update user's avatar in database
     await prisma.user.update({

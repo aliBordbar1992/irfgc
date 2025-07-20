@@ -51,8 +51,10 @@ export function ProfileForm({ user }: ProfileFormProps) {
       });
 
       if (response.ok) {
-        // Update session with new data
-        await update();
+        // Small delay to ensure database update is complete
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        // Force session refresh to get updated data
+        await update({ force: true });
         setMessage({ type: "success", text: "Profile updated successfully!" });
         // Clear message after 3 seconds
         setTimeout(() => setMessage(null), 3000);
@@ -87,12 +89,15 @@ export function ProfileForm({ user }: ProfileFormProps) {
 
         if (response.ok) {
           const data = await response.json();
+          const newAvatarUrl = data.data.avatarUrl;
           setFormData((prev) => ({
             ...prev,
-            avatar: data.data.avatarUrl,
+            avatar: newAvatarUrl,
           }));
-          // Update session to reflect new avatar
-          await update();
+          // Small delay to ensure database update is complete
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          // Force session refresh to reflect new avatar
+          await update({ force: true });
           setMessage({ type: "success", text: "Avatar updated successfully!" });
           setTimeout(() => setMessage(null), 3000);
         } else {
