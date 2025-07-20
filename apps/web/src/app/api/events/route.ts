@@ -45,6 +45,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const gameSlug = searchParams.get("gameSlug");
     const status = searchParams.get("status");
+    const includeEnded = searchParams.get("includeEnded") === "true";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
@@ -66,8 +67,10 @@ export async function GET(request: NextRequest) {
         | "CANCELLED";
     }
 
-    // Filter out events with passed end dates (only show current and future events)
-    where.endDate = { gte: new Date() };
+    // Only filter out ended events if includeEnded is false (default behavior for public pages)
+    if (!includeEnded) {
+      where.endDate = { gte: new Date() };
+    }
 
     const [events, total] = await Promise.all([
       prisma.event.findMany({

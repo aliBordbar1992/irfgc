@@ -9,7 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar, MapPin, Users, Trophy, GamepadIcon } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  Trophy,
+  GamepadIcon,
+  ArrowRight,
+} from "lucide-react";
 import Link from "next/link";
 
 interface EventCardProps {
@@ -144,6 +151,7 @@ export function EventCard({ event, onRegister, canRegister }: EventCardProps) {
                   onRegister(event.id);
                 }}
               >
+                <ArrowRight className="w-4 h-4 mr-2" />
                 Register for Event
               </Button>
             ) : (

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface EventsListProps {
   gameSlug: GameSlug;
+  includeEnded?: boolean;
 }
 
 interface EventsResponse {
@@ -21,7 +22,10 @@ interface EventsResponse {
   };
 }
 
-export function EventsList({ gameSlug }: EventsListProps) {
+export function EventsList({
+  gameSlug,
+  includeEnded = false,
+}: EventsListProps) {
   const { data: session } = useSession();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,13 +35,13 @@ export function EventsList({ gameSlug }: EventsListProps) {
 
   useEffect(() => {
     fetchEvents();
-  }, [gameSlug, page]);
+  }, [gameSlug, page, includeEnded]);
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/events?gameSlug=${gameSlug}&page=${page}&limit=10`
+        `/api/events?gameSlug=${gameSlug}&page=${page}&limit=10&includeEnded=${includeEnded}`
       );
 
       if (!response.ok) {

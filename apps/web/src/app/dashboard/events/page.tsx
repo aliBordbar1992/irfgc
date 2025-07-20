@@ -29,7 +29,7 @@ export default function EventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/events");
+      const response = await fetch("/api/events?includeEnded=true");
 
       if (!response.ok) {
         throw new Error("Failed to fetch events");
