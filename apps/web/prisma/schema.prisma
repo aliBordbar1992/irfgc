@@ -21,7 +21,7 @@ model User {
   role      UserRole @default(PLAYER)
   avatar    String?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime?
 
   // Relations
   events        Event[]
@@ -48,7 +48,7 @@ model Game {
   isActive    Boolean  @default(true)
   discordUrl  String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   // Relations
   events       Event[]
@@ -78,7 +78,7 @@ model Event {
   deletedAt           DateTime?   // Soft delete timestamp
   createdById         String
   createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  updatedAt           DateTime?
 
   // Relations
   game        Game                @relation(fields: [gameSlug], references: [slug])
@@ -111,7 +111,7 @@ model NewsPost {
   authorId    String
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   // Relations
   game   Game @relation(fields: [gameSlug], references: [slug])
@@ -131,7 +131,7 @@ model LFGPost {
   isActive    Boolean  @default(true)
   authorId    String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   // Relations
   game   Game @relation(fields: [gameSlug], references: [slug])
@@ -151,7 +151,7 @@ model ForumThread {
   viewCount   Int      @default(0)
   replyCount  Int      @default(0)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   // Relations
   game    Game         @relation(fields: [gameSlug], references: [slug])
@@ -167,7 +167,7 @@ model ForumReply {
   threadId  String
   authorId  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime?
 
   // Relations
   thread ForumThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
@@ -188,7 +188,7 @@ model Report {
   moderatorId   String?
   moderatorNote String?
   createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  updatedAt     DateTime?
 
   // Relations
   reporter      User         @relation("ReportReporter", fields: [reporterId], references: [id])
@@ -205,7 +205,7 @@ model ChatRoom {
   type        ChatRoomType @default(GENERAL)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime?
 
   // Relations
   game    Game?       @relation(fields: [gameSlug], references: [slug])

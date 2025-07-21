@@ -11,6 +11,8 @@ import {
   MessageSquare,
   Eye,
   Clock,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -27,7 +29,10 @@ interface RecentActivityProps {
       id: string;
       title: string;
       game: { slug: string; fullName: string };
+      createdBy: { id: string; name: string };
       createdAt: Date;
+      updatedAt: Date;
+      deletedAt?: Date;
     }>;
     news: Array<{
       id: string;
@@ -56,6 +61,8 @@ interface RecentActivityProps {
 const activityIcons = {
   user: Users,
   event: Calendar,
+  eventUpdated: Edit,
+  eventDeleted: Trash2,
   news: Newspaper,
   lfg: Gamepad2,
   forum: MessageSquare,
@@ -64,6 +71,8 @@ const activityIcons = {
 const activityColors = {
   user: "bg-blue-100 text-blue-800",
   event: "bg-green-100 text-green-800",
+  eventUpdated: "bg-yellow-100 text-yellow-800",
+  eventDeleted: "bg-red-100 text-red-800",
   news: "bg-purple-100 text-purple-800",
   lfg: "bg-orange-100 text-orange-800",
   forum: "bg-indigo-100 text-indigo-800",
@@ -103,17 +112,55 @@ export function RecentActivity({ data }: RecentActivityProps) {
       date: user.createdAt,
       href: `/dashboard/users/${user.id}`,
     })),
-    ...data.events.map((event) => ({
-      type: "event" as const,
-      id: event.id,
-      title: event.title,
-      subtitle: `Event created`,
-      game: event.game,
-      author: null,
-      role: null,
-      date: event.createdAt,
-      href: `/dashboard/events/${event.id}`,
-    })),
+    // Event activities - create separate entries for created, updated, and deleted
+    ...data.events.flatMap((event) => {
+      const activities = [];
+
+      // Event created
+      activities.push({
+        type: "event" as const,
+        id: `${event.id}-created`,
+        title: event.title,
+        subtitle: `Event created by ${event.createdBy.name}`,
+        game: event.game,
+        author: event.createdBy,
+        role: null,
+        date: event.createdAt,
+        href: `/dashboard/events`,
+      });
+
+      // Event updated (only if updated after creation)
+      if (event.updatedAt > event.createdAt) {
+        activities.push({
+          type: "eventUpdated" as const,
+          id: `${event.id}-updated`,
+          title: event.title,
+          subtitle: `Event updated by ${event.createdBy.name}`,
+          game: event.game,
+          author: event.createdBy,
+          role: null,
+          date: event.updatedAt,
+          href: `/dashboard/events`,
+        });
+      }
+
+      // Event deleted
+      if (event.deletedAt) {
+        activities.push({
+          type: "eventDeleted" as const,
+          id: `${event.id}-deleted`,
+          title: event.title,
+          subtitle: `Event deleted by ${event.createdBy.name}`,
+          game: event.game,
+          author: event.createdBy,
+          role: null,
+          date: event.deletedAt,
+          href: `/dashboard/events`,
+        });
+      }
+
+      return activities;
+    }),
     ...data.news.map((article) => ({
       type: "news" as const,
       id: article.id,

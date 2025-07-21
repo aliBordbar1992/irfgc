@@ -49,10 +49,16 @@ export default async function DashboardPage() {
       },
     }),
     prisma.event.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
+      take: 10,
+      orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
       include: {
         game: true,
+        createdBy: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     }),
     prisma.newsPost.findMany({
@@ -103,7 +109,18 @@ export default async function DashboardPage() {
     },
     recentActivity: {
       users: recentUsers,
-      events: recentEvents,
+      events: recentEvents.map((event) => ({
+        id: event.id,
+        title: event.title,
+        game: {
+          slug: event.game.slug,
+          fullName: event.game.fullName,
+        },
+        createdBy: event.createdBy,
+        createdAt: event.createdAt,
+        updatedAt: event.updatedAt || event.createdAt, // Fallback to createdAt if updatedAt is null
+        deletedAt: event.deletedAt || undefined, // Convert null to undefined
+      })),
       news: recentNews,
       lfg: recentLFG,
       forumThreads: recentForumThreads,
@@ -115,8 +132,8 @@ export default async function DashboardPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
         <p className="text-gray-600 mt-2">
-          Welcome back, {session.user.name}. Here's what's happening across the
-          platform.
+          Welcome back, {session.user.name}. Here&apos;s what&apos;s happening
+          across the platform.
         </p>
       </div>
 
