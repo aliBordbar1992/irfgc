@@ -9,7 +9,7 @@ import { EditEventDialog } from "@/features/events/EditEventDialog";
 import { DeleteConfirmationDialog } from "@/features/events/DeleteConfirmationDialog";
 import { Event } from "@/types";
 import { useGames } from "@/hooks/useGames";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Copy } from "lucide-react";
 
 export default function EventsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -20,6 +20,8 @@ export default function EventsPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
+  const [eventToDuplicate, setEventToDuplicate] = useState<Event | null>(null);
   const { games } = useGames({ isActive: true });
 
   useEffect(() => {
@@ -90,6 +92,14 @@ export default function EventsPage() {
     }
   };
 
+  const handleDuplicateEvent = (eventId: string) => {
+    const event = events.find((e) => e.id === eventId);
+    if (event) {
+      setEventToDuplicate(event);
+      setIsDuplicateDialogOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -110,6 +120,27 @@ export default function EventsPage() {
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onEventCreated={handleEventUpdated}
+      />
+
+      {/* Duplicate Event Dialog */}
+      <CreateEventDialog
+        open={isDuplicateDialogOpen}
+        onOpenChange={setIsDuplicateDialogOpen}
+        onEventCreated={handleEventUpdated}
+        initialValues={
+          eventToDuplicate
+            ? {
+                gameSlug: eventToDuplicate.gameSlug,
+                title: `${eventToDuplicate.title}`,
+                description: eventToDuplicate.description,
+                type: eventToDuplicate.type,
+                location: eventToDuplicate.location || "",
+                onlineUrl: eventToDuplicate.onlineUrl || "",
+                maxParticipants:
+                  eventToDuplicate.maxParticipants?.toString() || "",
+              }
+            : undefined
+        }
       />
 
       {/* Edit Event Dialog */}
@@ -299,6 +330,15 @@ export default function EventsPage() {
                               <ExternalLink className="h-3 w-3" />
                               View
                             </Link>
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDuplicateEvent(event.id)}
+                            className="flex items-center gap-1"
+                          >
+                            <Copy className="h-3 w-3" />
+                            Duplicate
                           </Button>
                           <Button
                             size="sm"

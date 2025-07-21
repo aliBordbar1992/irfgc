@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -58,12 +58,22 @@ interface CreateEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEventCreated?: () => void;
+  initialValues?: {
+    gameSlug: string;
+    title: string;
+    description: string;
+    type: EventType;
+    location?: string;
+    onlineUrl?: string;
+    maxParticipants?: string;
+  };
 }
 
 export function CreateEventDialog({
   open,
   onOpenChange,
   onEventCreated,
+  initialValues,
 }: CreateEventDialogProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -79,9 +89,20 @@ export function CreateEventDialog({
   } = useForm<CreateEventFormData>({
     resolver: zodResolver(createEventSchema),
     defaultValues: {
-      type: "CASUAL",
+      ...initialValues,
+      type: initialValues?.type || "CASUAL",
     },
   });
+
+  // Reset form when initialValues change
+  useEffect(() => {
+    if (initialValues && open) {
+      reset({
+        ...initialValues,
+        type: initialValues.type || "CASUAL",
+      });
+    }
+  }, [initialValues, open, reset]);
 
   const eventType = watch("type");
   const selectedGameSlug = watch("gameSlug");
@@ -138,9 +159,13 @@ export function CreateEventDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create New Event</DialogTitle>
+          <DialogTitle>
+            {initialValues ? "Duplicate Event" : "Create New Event"}
+          </DialogTitle>
           <DialogDescription>
-            Create a new event for your gaming community.
+            {initialValues
+              ? "Create a new event based on the selected event. You can modify the details as needed."
+              : "Create a new event for your gaming community."}
           </DialogDescription>
         </DialogHeader>
 
@@ -310,7 +335,11 @@ export function CreateEventDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create Event"}
+              {isLoading
+                ? "Creating..."
+                : initialValues
+                ? "Duplicate Event"
+                : "Create Event"}
             </Button>
           </DialogFooter>
         </form>
