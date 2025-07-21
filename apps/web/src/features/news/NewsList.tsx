@@ -78,9 +78,13 @@ export function NewsList({ gameSlug }: NewsListProps) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-gray-600">No news articles found for this game.</p>
-          {(session?.user.role === "admin" ||
-            session?.user.role === "moderator") && (
+          <p className="text-gray-600">
+            {gameSlug === "general"
+              ? "No news articles found."
+              : "No news articles found for this game."}
+          </p>
+          {(session?.user.role === "ADMIN" ||
+            session?.user.role === "MODERATOR") && (
             <p className="text-sm text-gray-500 mt-2">
               Create the first news article to get started!
             </p>

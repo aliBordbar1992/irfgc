@@ -100,12 +100,12 @@ export default function NewsPage() {
               </label>
               <select className="w-full border border-gray-300 rounded-md px-3 py-2">
                 <option value="">All Games</option>
+                <option value="general">General (All Games)</option>
                 {games.map((game) => (
                   <option key={game.slug} value={game.slug}>
                     {game.fullName}
                   </option>
                 ))}
-                <option value="general">General</option>
               </select>
             </div>
             <div>
@@ -171,7 +171,9 @@ export default function NewsPage() {
                     </td>
                     <td className="py-3 px-4">
                       <span className="capitalize">
-                        {post.gameSlug || "General"}
+                        {post.gameSlug === "general"
+                          ? "General"
+                          : post.gameSlug || "General"}
                       </span>
                     </td>
                     <td className="py-3 px-4">

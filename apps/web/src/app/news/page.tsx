@@ -1,53 +1,22 @@
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
-import { GameSlug } from "@/types";
-import { prisma } from "@/lib/prisma";
 import { NewsList } from "@/features/news/NewsList";
 import { CreateNewsButton } from "@/features/news/CreateNewsButton";
 
-interface NewsPageProps {
-  params: Promise<{
-    gameSlug: string;
-  }>;
-}
-
-async function getGame(gameSlug: string) {
-  const game = await prisma.game.findUnique({
-    where: { slug: gameSlug },
-  });
-  return game;
-}
-
-export default async function NewsPage({ params }: NewsPageProps) {
-  const { gameSlug } = await params;
-
-  // Redirect general to the main news page
-  if (gameSlug === "general") {
-    return redirect("/news");
-  }
-
-  // Validate game slug - we'll let the API handle validation
-  const game = await getGame(gameSlug);
-  if (!game) {
-    notFound();
-  }
-
+export default function GeneralNewsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            {game.fullName} News
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900">All News</h1>
           <p className="text-gray-600 mt-2">
-            Latest updates, announcements, and community news
+            Latest updates, announcements, and community news from all games
           </p>
         </div>
-        <CreateNewsButton gameSlug={gameSlug as GameSlug} />
+        <CreateNewsButton gameSlug="general" />
       </div>
 
       <Suspense fallback={<NewsListSkeleton />}>
-        <NewsList gameSlug={gameSlug as GameSlug} />
+        <NewsList gameSlug="general" />
       </Suspense>
     </div>
   );

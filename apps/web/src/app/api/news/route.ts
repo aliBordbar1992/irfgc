@@ -20,7 +20,9 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     const where: { gameSlug?: string } = {};
-    if (gameSlug) where.gameSlug = gameSlug;
+    if (gameSlug && gameSlug !== "general") {
+      where.gameSlug = gameSlug;
+    }
 
     const [newsPosts, total] = await Promise.all([
       prisma.newsPost.findMany({
@@ -73,13 +75,15 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createNewsSchema.parse(body);
 
-    // Check if game exists
-    const game = await prisma.game.findUnique({
-      where: { slug: validatedData.gameSlug },
-    });
+    // Check if game exists (skip validation for "general")
+    if (validatedData.gameSlug !== "general") {
+      const game = await prisma.game.findUnique({
+        where: { slug: validatedData.gameSlug },
+      });
 
-    if (!game) {
-      return NextResponse.json({ error: "Game not found" }, { status: 404 });
+      if (!game) {
+        return NextResponse.json({ error: "Game not found" }, { status: 404 });
+      }
     }
 
     const newsPost = await prisma.newsPost.create({

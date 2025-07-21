@@ -103,7 +103,11 @@ export function CreateNewsDialog({
         <DialogHeader>
           <DialogTitle>Create News Article</DialogTitle>
           <DialogDescription>
-            Write a news article for the {gameSlug.toUpperCase()} community.
+            Write a news article for the{" "}
+            {gameSlug === "general"
+              ? "entire community"
+              : `${gameSlug.toUpperCase()} community`}
+            .
           </DialogDescription>
         </DialogHeader>
 
