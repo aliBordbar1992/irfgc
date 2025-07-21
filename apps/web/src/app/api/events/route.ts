@@ -46,6 +46,7 @@ export async function GET(request: NextRequest) {
     const gameSlug = searchParams.get("gameSlug");
     const status = searchParams.get("status");
     const includeEnded = searchParams.get("includeEnded") === "true";
+    const includeDeleted = searchParams.get("includeDeleted") === "true";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
@@ -54,7 +55,9 @@ export async function GET(request: NextRequest) {
       gameSlug?: string;
       status?: "UPCOMING" | "ONGOING" | "COMPLETED" | "CANCELLED";
       endDate?: { gte: Date };
+      deletedAt?: null | { not: null };
     } = {};
+
     if (gameSlug) where.gameSlug = gameSlug;
     if (
       status &&
@@ -70,6 +73,11 @@ export async function GET(request: NextRequest) {
     // Only filter out ended events if includeEnded is false (default behavior for public pages)
     if (!includeEnded) {
       where.endDate = { gte: new Date() };
+    }
+
+    // Filter out soft-deleted events unless explicitly requested
+    if (!includeDeleted) {
+      where.deletedAt = null;
     }
 
     const [events, total] = await Promise.all([

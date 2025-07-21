@@ -22,16 +22,19 @@ export default function EventsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
   const [eventToDuplicate, setEventToDuplicate] = useState<Event | null>(null);
+  const [includeDeleted, setIncludeDeleted] = useState(false);
   const { games } = useGames({ isActive: true });
 
   useEffect(() => {
     fetchEvents();
-  }, []);
+  }, [includeDeleted]);
 
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/events?includeEnded=true");
+      const response = await fetch(
+        `/api/events?includeEnded=true&includeDeleted=${includeDeleted}`
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch events");
@@ -210,6 +213,25 @@ export default function EventsPage() {
               </Button>
             </div>
           </div>
+
+          {/* Deleted Events Filter */}
+          <div className="mt-4 pt-4 border-t">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="includeDeleted"
+                checked={includeDeleted}
+                onChange={(e) => setIncludeDeleted(e.target.checked)}
+                className="rounded border-gray-300"
+              />
+              <label
+                htmlFor="includeDeleted"
+                className="text-sm font-medium text-gray-700"
+              >
+                Show deleted events
+              </label>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -255,10 +277,22 @@ export default function EventsPage() {
                 </thead>
                 <tbody>
                   {events.map((event) => (
-                    <tr key={event.id} className="border-b hover:bg-gray-50">
+                    <tr
+                      key={event.id}
+                      className={`border-b hover:bg-gray-50 ${
+                        event.deletedAt ? "bg-red-50 opacity-75" : ""
+                      }`}
+                    >
                       <td className="py-3 px-4">
                         <div>
-                          <div className="font-medium">{event.title}</div>
+                          <div className="font-medium">
+                            {event.title}
+                            {event.deletedAt && (
+                              <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                DELETED
+                              </span>
+                            )}
+                          </div>
                           <div className="text-sm text-gray-600">
                             {event.location}
                           </div>
@@ -317,6 +351,7 @@ export default function EventsPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEditEvent(event.id)}
+                            disabled={!!event.deletedAt}
                           >
                             Edit
                           </Button>
@@ -345,8 +380,9 @@ export default function EventsPage() {
                             variant="outline"
                             className="text-red-600 hover:text-red-700"
                             onClick={() => handleDeleteEvent(event.id)}
+                            disabled={!!event.deletedAt}
                           >
-                            Delete
+                            {event.deletedAt ? "Deleted" : "Delete"}
                           </Button>
                         </div>
                       </td>

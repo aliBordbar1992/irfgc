@@ -75,6 +75,7 @@ model Event {
   maxParticipants     Int?
   currentParticipants Int         @default(0)
   registrationDeadline DateTime?
+  deletedAt           DateTime?   // Soft delete timestamp
   createdById         String
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt

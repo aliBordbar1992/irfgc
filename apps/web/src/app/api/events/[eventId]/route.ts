@@ -28,9 +28,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Event not found" }, { status: 404 });
     }
 
-    // Delete the event
-    await prisma.event.delete({
+    // Soft delete the event by setting deletedAt timestamp
+    await prisma.event.update({
       where: { id: eventId },
+      data: {
+        deletedAt: new Date(),
+      },
     });
 
     return NextResponse.json(
@@ -130,9 +133,18 @@ export async function GET(
 ) {
   try {
     const { eventId } = await params;
+    const { searchParams } = new URL(request.url);
+    const includeDeleted = searchParams.get("includeDeleted") === "true";
+
+    const where: { id: string; deletedAt?: null } = { id: eventId };
+
+    // Only include soft-deleted events if explicitly requested
+    if (!includeDeleted) {
+      where.deletedAt = null;
+    }
 
     const event = await prisma.event.findUnique({
-      where: { id: eventId },
+      where,
       include: {
         game: true,
         createdBy: {
@@ -165,7 +177,7 @@ export async function GET(
       status: getEffectiveEventStatus(
         event.startDate,
         event.endDate,
-        (event as any).statusOverride
+        event.statusOverride
       ),
     };
 

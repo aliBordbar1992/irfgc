@@ -59,6 +59,7 @@ export interface Event {
   maxParticipants?: number;
   currentParticipants: number;
   registrationDeadline?: Date;
+  deletedAt?: Date;
   createdBy: string | { id: string; name: string; email: string };
   createdAt: Date;
   updatedAt: Date;
