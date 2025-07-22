@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { NewsPost } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,7 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar, User } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Calendar } from "lucide-react";
 
 interface NewsCardProps {
   article: NewsPost;
@@ -42,8 +44,20 @@ export function NewsCard({ article }: NewsCardProps) {
       <CardContent>
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-4 text-sm text-gray-600">
-            <div className="flex items-center space-x-1">
-              <User className="w-4 h-4" />
+            <div className="flex items-center space-x-2">
+              <Avatar className="w-6 h-6">
+                <AvatarImage
+                  src={article.author.avatar || undefined}
+                  alt={article.author.name}
+                />
+                <AvatarFallback className="text-xs">
+                  {article.author.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <span>{article.author.name}</span>
             </div>
             <div className="flex items-center space-x-1">
@@ -56,8 +70,8 @@ export function NewsCard({ article }: NewsCardProps) {
           </span>
         </div>
         <div className="mt-4">
-          <Button variant="outline" size="sm" className="w-full">
-            Read More
+          <Button variant="outline" size="sm" className="w-full" asChild>
+            <Link href={`/news/${article.id}`}>Read More</Link>
           </Button>
         </div>
       </CardContent>

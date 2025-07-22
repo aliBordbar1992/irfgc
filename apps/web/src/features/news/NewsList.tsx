@@ -1,14 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { GameSlug, NewsPost } from "@/types";
 import { NewsCard } from "./NewsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NewsListProps {
-  gameSlug: GameSlug;
+  gameSlug: GameSlug | null;
 }
 
 interface NewsResponse {
@@ -37,7 +39,9 @@ export function NewsList({ gameSlug }: NewsListProps) {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/news?gameSlug=${gameSlug}&page=${page}&limit=10`
+        gameSlug
+          ? `/api/news?gameSlug=${gameSlug}&page=${page}&limit=10`
+          : `/api/news?page=${page}&limit=10`
       );
 
       if (!response.ok) {
@@ -96,38 +100,66 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Featured Article */}
-      {newsPosts.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full mb-2">
-                Featured
-              </span>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {newsPosts[0].title}
-              </h2>
-              <p className="text-lg text-gray-700 mb-4">
-                {newsPosts[0].excerpt}
-              </p>
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>By {newsPosts[0].author.name}</span>
-                <span>•</span>
-                <span>
-                  {new Date(newsPosts[0].publishedAt).toLocaleDateString()}
-                </span>
+      {/* Featured Articles */}
+      {newsPosts.filter((article) => article.featured).length > 0 && (
+        <div className="space-y-4">
+          {newsPosts
+            .filter((article) => article.featured)
+            .map((article) => (
+              <div
+                key={article.id}
+                className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6"
+              >
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full mb-2">
+                      Featured
+                    </span>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {article.title}
+                    </h2>
+                    <p className="text-lg text-gray-700 mb-4">
+                      {article.excerpt}
+                    </p>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center space-x-2">
+                        <Avatar className="w-5 h-5">
+                          <AvatarImage
+                            src={article.author.avatar || undefined}
+                            alt={article.author.name}
+                          />
+                          <AvatarFallback className="text-xs">
+                            {article.author.name
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span>By {article.author.name}</span>
+                      </div>
+                      <span>•</span>
+                      <span>
+                        {new Date(article.publishedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <Button asChild>
+                    <Link href={`/news/${article.id}`}>Read Full Article</Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <Button>Read Full Article</Button>
-          </div>
+            ))}
         </div>
       )}
 
       {/* News Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsPosts.slice(1).map((article) => (
-          <NewsCard key={article.id} article={article} />
-        ))}
+        {newsPosts
+          .filter((article) => !article.featured)
+          .map((article) => (
+            <NewsCard key={article.id} article={article} />
+          ))}
       </div>
 
       {hasMore && (

@@ -32,7 +32,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (status) {
-      where.status = status;
+      if (status.includes(",")) {
+        // Handle multiple statuses (for dashboard)
+        where.status = { in: status.split(",") };
+      } else {
+        where.status = status;
+      }
+    } else {
+      // For public requests (no status specified), only show published news
+      where.status = "PUBLISHED";
     }
 
     if (featured !== null && featured !== undefined) {

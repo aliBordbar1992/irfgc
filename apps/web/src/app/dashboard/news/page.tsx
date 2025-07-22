@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -62,6 +63,9 @@ export default function NewsPage() {
       }
       if (filterParams.status) {
         params.append("status", filterParams.status);
+      } else {
+        // For dashboard, show all statuses when no specific status filter is applied
+        params.append("status", "DRAFT,PUBLISHED,ARCHIVED");
       }
       if (filterParams.featured) {
         params.append("featured", filterParams.featured);
@@ -334,7 +338,7 @@ export default function NewsPage() {
                               {post.author?.name || "Unknown Author"}
                             </div>
                             <div className="flex items-center text-gray-500">
-                              <Calendar className="h-3 w-3 mr-1" />
+                              <Calendar className="h-3 w-3 ml-1" />
                               {post.publishedAt
                                 ? new Date(
                                     post.publishedAt
@@ -435,8 +439,15 @@ export default function NewsPage() {
                           variant="outline"
                           className="flex-1 h-6 p-0"
                           title="View news post"
+                          asChild
                         >
-                          <ExternalLink className="h-3 w-3" />
+                          <Link
+                            href={`/news/${post.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="h-3 w-3" />
+                          </Link>
                         </Button>
                         <Button
                           size="sm"

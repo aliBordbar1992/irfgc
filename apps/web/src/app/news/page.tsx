@@ -16,7 +16,7 @@ export default function GeneralNewsPage() {
       </div>
 
       <Suspense fallback={<NewsListSkeleton />}>
-        <NewsList gameSlug="general" />
+        <NewsList gameSlug={null} />
       </Suspense>
     </div>
   );
