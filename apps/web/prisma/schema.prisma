@@ -107,15 +107,18 @@ model NewsPost {
   title       String
   content     String
   excerpt     String
-  gameSlug    String
+  gameSlug    String?
   authorId    String
+  status      NewsStatus @default(DRAFT)
+  views       Int      @default(0)
+  featured    Boolean  @default(false)
   publishedAt DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime?
 
   // Relations
-  game   Game @relation(fields: [gameSlug], references: [slug])
-  author User @relation(fields: [authorId], references: [id])
+  game   Game? @relation(fields: [gameSlug], references: [slug])
+  author User  @relation(fields: [authorId], references: [id])
 
   @@map("news_posts")
 }
@@ -292,4 +295,10 @@ enum MessageType {
   TEXT
   SYSTEM
   NOTIFICATION
+}
+
+enum NewsStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }

@@ -8,7 +8,9 @@ const createNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
-  gameSlug: z.string().min(1, "Game is required"),
+  gameSlug: z.string().optional(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
+  featured: z.boolean().default(false),
 });
 
 export async function GET(request: NextRequest) {
@@ -19,9 +21,11 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    const where: { gameSlug?: string } = {};
+    const where: any = {};
     if (gameSlug && gameSlug !== "general") {
       where.gameSlug = gameSlug;
+    } else if (gameSlug === "general") {
+      where.gameSlug = null;
     }
 
     const [newsPosts, total] = await Promise.all([
@@ -76,7 +80,7 @@ export async function POST(request: NextRequest) {
     const validatedData = createNewsSchema.parse(body);
 
     // Check if game exists (skip validation for "general")
-    if (validatedData.gameSlug !== "general") {
+    if (validatedData.gameSlug && validatedData.gameSlug !== "general") {
       const game = await prisma.game.findUnique({
         where: { slug: validatedData.gameSlug },
       });
@@ -88,8 +92,16 @@ export async function POST(request: NextRequest) {
 
     const newsPost = await prisma.newsPost.create({
       data: {
-        ...validatedData,
+        title: validatedData.title,
+        content: validatedData.content,
+        excerpt: validatedData.excerpt,
         authorId: session.user.id,
+        status: validatedData.status,
+        featured: validatedData.featured,
+        ...(validatedData.gameSlug &&
+          validatedData.gameSlug !== "general" && {
+            gameSlug: validatedData.gameSlug,
+          }),
       },
       include: {
         game: true,

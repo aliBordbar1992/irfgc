@@ -1,76 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useGames } from "@/hooks/useGames";
-
-// Mock data - in real app, this would come from API
-const MOCK_NEWS = [
-  {
-    id: "1",
-    title: "IRFGC Championship 2024 Announced",
-    gameSlug: "mk",
-    status: "published",
-    author: "Admin User",
-    publishedAt: "2024-01-15T10:00:00Z",
-    views: 15420,
-    featured: true,
-    excerpt:
-      "Exciting news for the Mortal Kombat community! We are proud to announce a new tournament series...",
-  },
-  {
-    id: "2",
-    title: "New Community Guidelines",
-    gameSlug: null,
-    status: "published",
-    author: "Admin User",
-    publishedAt: "2024-01-12T14:30:00Z",
-    views: 8920,
-    featured: true,
-    excerpt:
-      "To ensure a positive and inclusive environment for all members, we've updated our community guidelines...",
-  },
-  {
-    id: "3",
-    title: "Street Fighter Tournament Results",
-    gameSlug: "sf",
-    status: "published",
-    author: "Tournament Admin",
-    publishedAt: "2024-01-10T16:45:00Z",
-    views: 5670,
-    featured: false,
-    excerpt:
-      "This month we shine the spotlight on some of our most dedicated Street Fighter players...",
-  },
-  {
-    id: "4",
-    title: "Tekken Community Spotlight",
-    gameSlug: "tk",
-    status: "draft",
-    author: "Content Team",
-    publishedAt: null,
-    views: 0,
-    featured: false,
-    excerpt:
-      "Meet the players who are making waves in the Tekken community and learn about their journey...",
-  },
-  {
-    id: "5",
-    title: "New Discord Server Features",
-    gameSlug: null,
-    status: "published",
-    author: "Admin User",
-    publishedAt: "2024-01-03T14:20:00Z",
-    views: 2341,
-    featured: true,
-    excerpt:
-      "We&apos;ve added exciting new features to our Discord server to enhance community interaction...",
-  },
-];
+import { NewsPost } from "@/types";
 
 export default function NewsPage() {
   const { games } = useGames({ isActive: true });
+  const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetchNewsPosts();
+  }, []);
+
+  const fetchNewsPosts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/news");
+      if (!response.ok) {
+        throw new Error("Failed to fetch news posts");
+      }
+      const data = await response.json();
+      setNewsPosts(data.data || []);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to fetch news posts"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -138,112 +101,145 @@ export default function NewsPage() {
         </CardContent>
       </Card>
 
-      {/* News Table */}
+      {/* News Grid */}
       <Card>
         <CardHeader>
           <CardTitle>All News Posts</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left py-3 px-4 font-medium">Title</th>
-                  <th className="text-left py-3 px-4 font-medium">Game</th>
-                  <th className="text-left py-3 px-4 font-medium">Status</th>
-                  <th className="text-left py-3 px-4 font-medium">Author</th>
-                  <th className="text-left py-3 px-4 font-medium">Published</th>
-                  <th className="text-left py-3 px-4 font-medium">Views</th>
-                  <th className="text-left py-3 px-4 font-medium">Featured</th>
-                  <th className="text-left py-3 px-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {MOCK_NEWS.map((post) => (
-                  <tr key={post.id} className="border-b hover:bg-gray-50">
-                    <td className="py-3 px-4">
-                      <div>
-                        <div className="font-medium">{post.title}</div>
-                        <div className="text-sm text-gray-600 max-w-xs truncate">
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-gray-600">Loading news posts...</p>
+            </div>
+          )}
+
+          {error && (
+            <div className="text-center py-8">
+              <p className="text-red-600">Error: {error}</p>
+              <Button onClick={fetchNewsPosts} className="mt-2">
+                Retry
+              </Button>
+            </div>
+          )}
+
+          {!loading && !error && newsPosts.length === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-600">No news posts found.</p>
+            </div>
+          )}
+
+          {!loading && !error && newsPosts.length > 0 && (
+            <div className="space-y-4">
+              {newsPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="border rounded-lg hover:shadow-md transition-shadow"
+                >
+                  <div className="flex">
+                    {/* Left side - Content */}
+                    <div className="flex-1 p-6">
+                      <div className="mb-4">
+                        <h3 className="font-semibold text-xl mb-2 line-clamp-1">
+                          {post.title}
+                        </h3>
+                        <p className="text-gray-600 line-clamp-2">
                           {post.excerpt}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-6">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">Game:</span>
+                            <span className="capitalize font-medium text-sm">
+                              {post.gameSlug ? post.gameSlug : "General"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">
+                              Status:
+                            </span>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                post.status === "PUBLISHED"
+                                  ? "bg-green-100 text-green-800"
+                                  : post.status === "DRAFT"
+                                  ? "bg-yellow-100 text-yellow-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {post.status}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">
+                              Featured:
+                            </span>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                post.featured
+                                  ? "bg-purple-100 text-purple-800"
+                                  : "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {post.featured ? "Featured" : "Regular"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm text-gray-500">
+                              Published:
+                            </span>
+                            <span className="text-sm">
+                              {post.publishedAt
+                                ? new Date(
+                                    post.publishedAt
+                                  ).toLocaleDateString()
+                                : "Not published"}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span className="capitalize">
-                        {post.gameSlug === "general"
-                          ? "General"
-                          : post.gameSlug || "General"}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          post.status === "published"
-                            ? "bg-green-100 text-green-800"
-                            : post.status === "draft"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {post.status}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm text-gray-600">{post.author}</div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        {post.publishedAt
-                          ? new Date(post.publishedAt).toLocaleDateString()
-                          : "Not published"}
+                    </div>
+
+                    {/* Right side - Actions */}
+                    <div className="flex flex-col justify-center items-center p-6 border-l border-gray-200 bg-gray-50 min-w-[200px]">
+                      <div className="text-center mb-4">
+                        <div className="text-xs text-gray-500 mb-1">Views</div>
+                        <div className="text-lg font-semibold text-gray-700">
+                          {post.views.toLocaleString()}
+                        </div>
                       </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="text-sm">
-                        {post.views.toLocaleString()}
-                      </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          post.featured
-                            ? "bg-purple-100 text-purple-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
-                        {post.featured ? "Featured" : "Regular"}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex space-x-2">
-                        <Button size="sm" variant="outline">
+                      <div className="space-y-2 w-full">
+                        <Button size="sm" variant="outline" className="w-full">
                           Edit
                         </Button>
-                        <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" className="w-full">
                           View
                         </Button>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-red-600 hover:text-red-700 w-full"
                         >
                           Delete
                         </Button>
                       </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Pagination */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-600">
-          Showing 1 to {MOCK_NEWS.length} of {MOCK_NEWS.length} posts
+          Showing 1 to {newsPosts.length} of {newsPosts.length} posts
         </div>
         <div className="flex space-x-2">
           <Button variant="outline" size="sm" disabled>

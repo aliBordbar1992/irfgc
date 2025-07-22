@@ -239,7 +239,24 @@ class StrapiClient {
     };
   }
 
-  async createNewsPost(newsData: Partial<NewsPost>): Promise<NewsPost> {
+  async createNewsPost(newsData: {
+    title: string;
+    content: string;
+    excerpt: string;
+    gameSlug?: string;
+    category:
+      | "ANNOUNCEMENT"
+      | "TOURNAMENT"
+      | "COMMUNITY"
+      | "GAME_UPDATE"
+      | "GENERAL";
+    featured: boolean;
+    tags?: string[];
+    seoTitle?: string;
+    seoDescription?: string;
+    author: string;
+    publishedAt: string;
+  }): Promise<NewsPost> {
     const response: StrapiSingleResponse<StrapiData<NewsPost>> =
       await this.request("/news-posts", {
         method: "POST",

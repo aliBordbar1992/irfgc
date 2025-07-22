@@ -67,14 +67,20 @@ export interface Event {
 }
 
 // News Types
+export type NewsStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+
 export interface NewsPost {
   id: string;
   title: string;
   content: string;
   excerpt: string;
-  gameSlug: GameSlug;
+  gameSlug?: GameSlug; // Optional for general news
+  game?: Game;
   authorId: string;
   author: User;
+  status: NewsStatus;
+  views: number;
+  featured: boolean;
   publishedAt: Date;
   createdAt: Date;
   updatedAt: Date;

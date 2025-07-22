@@ -19,7 +19,9 @@ const createNewsSchema = z.object({
     .min(1, "Excerpt is required")
     .max(200, "Excerpt must be less than 200 characters"),
   content: z.string().min(1, "Content is required"),
-  gameSlug: z.string().min(1, "Game is required"),
+  gameSlug: z.string().optional(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
+  featured: z.boolean(),
 });
 
 type CreateNewsFormData = z.infer<typeof createNewsSchema>;
@@ -120,7 +122,7 @@ export default function CreateNewsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gameSlug">Game *</Label>
+                <Label htmlFor="gameSlug">Game</Label>
                 <select
                   id="gameSlug"
                   {...register("gameSlug")}
@@ -153,11 +155,53 @@ export default function CreateNewsPage() {
               </div>
             </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status *</Label>
+                <select
+                  id="status"
+                  {...register("status")}
+                  className={`w-full border border-gray-300 rounded-md px-3 py-2 ${
+                    errors.status ? "border-red-500" : ""
+                  }`}
+                >
+                  <option value="DRAFT">Draft</option>
+                  <option value="PUBLISHED">Published</option>
+                  <option value="ARCHIVED">Archived</option>
+                </select>
+                {errors.status && (
+                  <p className="text-sm text-red-500">
+                    {errors.status.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="featured">Featured</Label>
+                <div className="flex items-center space-x-2 pt-2">
+                  <input
+                    type="checkbox"
+                    id="featured"
+                    {...register("featured")}
+                    className="rounded border-gray-300"
+                  />
+                  <span className="text-sm text-gray-600">
+                    Feature this article
+                  </span>
+                </div>
+                {errors.featured && (
+                  <p className="text-sm text-red-500">
+                    {errors.featured.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="excerpt">Excerpt *</Label>
               <Textarea
                 id="excerpt"
-                placeholder="Brief summary of the article (max 200 characters)"
+                placeholder="Brief summary of the article (max 500 characters)"
                 {...register("excerpt")}
                 className={errors.excerpt ? "border-red-500" : ""}
                 rows={3}
