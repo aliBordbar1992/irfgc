@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const featured = searchParams.get("featured");
     const search = searchParams.get("search");
+    const includeDeleted = searchParams.get("includeDeleted") === "true";
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
@@ -54,6 +55,11 @@ export async function GET(request: NextRequest) {
         { excerpt: { contains: search, mode: "insensitive" } },
         { author: { name: { contains: search, mode: "insensitive" } } },
       ];
+    }
+
+    // Filter out soft-deleted news unless explicitly requested
+    if (!includeDeleted) {
+      where.deletedAt = null;
     }
 
     const [newsPosts, total] = await Promise.all([

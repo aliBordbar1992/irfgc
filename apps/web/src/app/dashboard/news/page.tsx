@@ -25,6 +25,7 @@ import { useGames } from "@/hooks/useGames";
 import { NewsPost } from "@/types";
 import { EditNewsDialog } from "@/features/news/EditNewsDialog";
 import { CreateNewsDialog } from "@/features/news/CreateNewsDialog";
+import { DeleteConfirmationDialog } from "@/features/news/DeleteConfirmationDialog";
 
 export default function NewsPage() {
   const { games } = useGames({ isActive: true });
@@ -39,6 +40,7 @@ export default function NewsPage() {
     featured: "",
     search: "",
   });
+  const [includeDeleted, setIncludeDeleted] = useState(false);
 
   // Edit dialog state
   const [selectedNewsPost, setSelectedNewsPost] = useState<NewsPost | null>(
@@ -49,9 +51,13 @@ export default function NewsPage() {
   // Create dialog state
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
+  // Delete dialog state
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   useEffect(() => {
     fetchNewsPosts();
-  }, []);
+  }, [includeDeleted]);
 
   const fetchNewsPosts = async (filterParams = filters) => {
     try {
@@ -72,6 +78,11 @@ export default function NewsPage() {
       }
       if (filterParams.search) {
         params.append("search", filterParams.search);
+      }
+
+      // Include deleted news if requested
+      if (includeDeleted) {
+        params.append("includeDeleted", "true");
       }
 
       const response = await fetch(`/api/news?${params.toString()}`);
@@ -162,6 +173,35 @@ export default function NewsPage() {
       }
     } catch (error) {
       console.error("Error toggling featured:", error);
+    }
+  };
+
+  const handleDeleteNews = (newsPostId: string) => {
+    const newsPost = newsPosts.find((p) => p.id === newsPostId);
+    if (newsPost) {
+      setSelectedNewsPost(newsPost);
+      setIsDeleteDialogOpen(true);
+    }
+  };
+
+  const confirmDeleteNews = async () => {
+    if (!selectedNewsPost) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/news/${selectedNewsPost.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        fetchNewsPosts();
+        setIsDeleteDialogOpen(false);
+        setSelectedNewsPost(null);
+      }
+    } catch (error) {
+      console.error("Error deleting news post:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -264,6 +304,27 @@ export default function NewsPage() {
         </CardContent>
       </Card>
 
+      {/* Deleted News Filter */}
+      <Card>
+        <CardContent className="p-4">
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="includeDeleted"
+              checked={includeDeleted}
+              onChange={(e) => setIncludeDeleted(e.target.checked)}
+              className="rounded border-gray-300"
+            />
+            <label
+              htmlFor="includeDeleted"
+              className="text-sm font-medium text-gray-700"
+            >
+              Show deleted news posts
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* News Grid */}
       <Card>
         <CardHeader>
@@ -296,7 +357,9 @@ export default function NewsPage() {
               {newsPosts.map((post) => (
                 <div
                   key={post.id}
-                  className="border rounded-lg hover:shadow-md transition-shadow"
+                  className={`border rounded-lg hover:shadow-md transition-shadow ${
+                    post.deletedAt ? "bg-red-50 opacity-75" : ""
+                  }`}
                 >
                   <div className="flex">
                     {/* Left side - Content */}
@@ -305,6 +368,11 @@ export default function NewsPage() {
                         <div className="flex-1 min-w-0">
                           <h3 className="font-semibold text-base mb-1 line-clamp-1">
                             {post.title}
+                            {post.deletedAt && (
+                              <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 text-xs rounded-full">
+                                DELETED
+                              </span>
+                            )}
                           </h3>
                           <p className="text-gray-600 text-xs line-clamp-2">
                             {post.excerpt}
@@ -384,6 +452,7 @@ export default function NewsPage() {
                           onValueChange={(value) =>
                             handleStatusChange(post.id, value)
                           }
+                          disabled={!!post.deletedAt}
                         >
                           <SelectTrigger className="h-6 text-xs">
                             <SelectValue />
@@ -409,6 +478,7 @@ export default function NewsPage() {
                           onClick={() =>
                             handleFeaturedToggle(post.id, post.featured)
                           }
+                          disabled={!!post.deletedAt}
                           title={
                             post.featured
                               ? "Remove from featured"
@@ -430,6 +500,7 @@ export default function NewsPage() {
                           variant="outline"
                           className="flex-1 h-6 p-0"
                           onClick={() => handleEditNews(post)}
+                          disabled={!!post.deletedAt}
                           title="Edit news post"
                         >
                           <Edit className="h-3 w-3" />
@@ -453,6 +524,8 @@ export default function NewsPage() {
                           size="sm"
                           variant="outline"
                           className="flex-1 h-6 p-0 text-red-600 hover:text-red-700"
+                          onClick={() => handleDeleteNews(post.id)}
+                          disabled={!!post.deletedAt}
                           title="Delete news post"
                         >
                           <Trash2 className="h-3 w-3" />
@@ -495,6 +568,15 @@ export default function NewsPage() {
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onNewsCreated={handleNewsUpdated}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        newsTitle={selectedNewsPost?.title || ""}
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={confirmDeleteNews}
+        isLoading={isDeleting}
       />
     </div>
   );

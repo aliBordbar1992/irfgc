@@ -27,6 +27,11 @@ export default function NewsArticlePage() {
       setLoading(true);
       const response = await fetch(`/api/news/${id}`);
 
+      if (response.status === 404) {
+        setError("News article not found");
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Failed to fetch news post");
       }
@@ -66,12 +71,22 @@ export default function NewsArticlePage() {
   }
 
   if (error || !newsPost) {
+    const isNotFound = error === "News article not found";
+
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">
-            {error || "News article not found"}
+            {isNotFound
+              ? "News Article Not Found"
+              : error || "News article not found"}
           </h1>
+          {isNotFound && (
+            <p className="text-gray-600 mb-6">
+              The news article you&apos;re looking for doesn&apos;t exist or may
+              have been removed.
+            </p>
+          )}
           <Button asChild>
             <Link href="/news">
               <ArrowLeft className="w-4 h-4 mr-2" />

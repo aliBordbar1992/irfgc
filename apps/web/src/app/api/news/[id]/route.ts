@@ -18,8 +18,18 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeDeleted = searchParams.get("includeDeleted") === "true";
+
+    const where: { id: string; deletedAt?: null } = { id: params.id };
+
+    // Only include soft-deleted news if explicitly requested
+    if (!includeDeleted) {
+      where.deletedAt = null;
+    }
+
     const newsPost = await prisma.newsPost.findUnique({
-      where: { id: params.id },
+      where,
       include: {
         game: true,
         author: {
@@ -159,8 +169,12 @@ export async function DELETE(
       );
     }
 
-    await prisma.newsPost.delete({
+    // Soft delete the news post by setting deletedAt timestamp
+    await prisma.newsPost.update({
       where: { id: params.id },
+      data: {
+        deletedAt: new Date(),
+      },
     });
 
     return NextResponse.json({

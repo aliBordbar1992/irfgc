@@ -82,6 +82,7 @@ export interface NewsPost {
   views: number;
   featured: boolean;
   publishedAt: Date;
+  deletedAt?: Date; // Soft delete timestamp
   createdAt: Date;
   updatedAt: Date;
 }
