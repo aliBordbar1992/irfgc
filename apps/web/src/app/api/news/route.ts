@@ -17,6 +17,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const gameSlug = searchParams.get("gameSlug");
+    const status = searchParams.get("status");
+    const featured = searchParams.get("featured");
+    const search = searchParams.get("search");
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
@@ -26,6 +29,23 @@ export async function GET(request: NextRequest) {
       where.gameSlug = gameSlug;
     } else if (gameSlug === "general") {
       where.gameSlug = null;
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (featured !== null && featured !== undefined) {
+      where.featured = featured === "true";
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
+        { excerpt: { contains: search, mode: "insensitive" } },
+        { author: { name: { contains: search, mode: "insensitive" } } },
+      ];
     }
 
     const [newsPosts, total] = await Promise.all([
@@ -38,6 +58,7 @@ export async function GET(request: NextRequest) {
               id: true,
               name: true,
               email: true,
+              avatar: true,
             },
           },
         },
@@ -110,6 +131,7 @@ export async function POST(request: NextRequest) {
             id: true,
             name: true,
             email: true,
+            avatar: true,
           },
         },
       },

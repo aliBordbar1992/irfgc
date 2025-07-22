@@ -117,7 +117,7 @@ export function ProfileActivity({
               {events.map((event) => (
                 <Link
                   key={event.id}
-                  href={`/${event.game.slug}/events/${event.id}`}
+                  href={`/${event.game?.slug || "general"}/events/${event.id}`}
                   className="block p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -126,7 +126,8 @@ export function ProfileActivity({
                         {event.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {event.game.name} • {formatDate(event.startDate)}
+                        {event.game?.name || "General"} •{" "}
+                        {formatDate(event.startDate)}
                       </p>
                     </div>
                     <Badge
@@ -152,7 +153,7 @@ export function ProfileActivity({
               {newsPosts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/${post.game.slug}/news/${post.id}`}
+                  href={`/${post.game?.slug || "general"}/news/${post.id}`}
                   className="block p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -161,7 +162,8 @@ export function ProfileActivity({
                         {post.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {post.game.name} • {formatDate(post.publishedAt)}
+                        {post.game?.name || "General"} •{" "}
+                        {formatDate(post.publishedAt)}
                       </p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-gray-400" />
@@ -183,7 +185,9 @@ export function ProfileActivity({
               {lfgPosts.map((post) => (
                 <Link
                   key={post.id}
-                  href={`/${post.game.slug}/matchmaking/${post.id}`}
+                  href={`/${post.game?.slug || "general"}/matchmaking/${
+                    post.id
+                  }`}
                   className="block p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -192,7 +196,8 @@ export function ProfileActivity({
                         {post.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {post.game.name} • {formatDate(post.createdAt)}
+                        {post.game?.name || "General"} •{" "}
+                        {formatDate(post.createdAt)}
                       </p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-gray-400" />
@@ -214,7 +219,7 @@ export function ProfileActivity({
               {forumThreads.map((thread) => (
                 <Link
                   key={thread.id}
-                  href={`/${thread.game.slug}/forum/${thread.id}`}
+                  href={`/${thread.game?.slug || "general"}/forum/${thread.id}`}
                   className="block p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -223,8 +228,9 @@ export function ProfileActivity({
                         {thread.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {thread.game.name} • {formatDate(thread.createdAt)} •{" "}
-                        {thread._count.replies} replies
+                        {thread.game?.name || "General"} •{" "}
+                        {formatDate(thread.createdAt)} • {thread._count.replies}{" "}
+                        replies
                       </p>
                     </div>
                     <ExternalLink className="w-4 h-4 text-gray-400" />
@@ -246,7 +252,9 @@ export function ProfileActivity({
               {registrations.map((registration) => (
                 <Link
                   key={registration.id}
-                  href={`/${registration.event.game.slug}/events/${registration.event.id}`}
+                  href={`/${
+                    registration.event.game?.slug || "general"
+                  }/events/${registration.event.id}`}
                   className="block p-3 rounded-lg border hover:bg-gray-50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
@@ -255,7 +263,7 @@ export function ProfileActivity({
                         {registration.event.title}
                       </p>
                       <p className="text-xs text-gray-500">
-                        {registration.event.game.name} •{" "}
+                        {registration.event.game?.name || "General"} •{" "}
                         {formatDate(registration.createdAt)}
                       </p>
                     </div>

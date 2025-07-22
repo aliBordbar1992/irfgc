@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { NewsPost } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +26,7 @@ import {
 } from "@/components/ui/select";
 import { useGames } from "@/hooks/useGames";
 
-const createNewsSchema = z.object({
+const editNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   excerpt: z
     .string()
@@ -37,19 +38,21 @@ const createNewsSchema = z.object({
   featured: z.boolean(),
 });
 
-type CreateNewsFormData = z.infer<typeof createNewsSchema>;
+type EditNewsFormData = z.infer<typeof editNewsSchema>;
 
-interface CreateNewsDialogProps {
+interface EditNewsDialogProps {
+  newsPost: NewsPost | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onNewsCreated: () => void;
+  onNewsUpdated: () => void;
 }
 
-export function CreateNewsDialog({
+export function EditNewsDialog({
+  newsPost,
   open,
   onOpenChange,
-  onNewsCreated,
-}: CreateNewsDialogProps) {
+  onNewsUpdated,
+}: EditNewsDialogProps) {
   const { games } = useGames({ isActive: true });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,25 +64,36 @@ export function CreateNewsDialog({
     reset,
     setValue,
     watch,
-  } = useForm<CreateNewsFormData>({
-    resolver: zodResolver(createNewsSchema),
-    defaultValues: {
-      status: "DRAFT",
-      featured: false,
-      gameSlug: "general",
-    },
+  } = useForm<EditNewsFormData>({
+    resolver: zodResolver(editNewsSchema),
   });
 
   const status = watch("status");
   const featured = watch("featured");
 
-  const onSubmit = async (data: CreateNewsFormData) => {
+  // Reset form when news post changes
+  useEffect(() => {
+    if (newsPost && open) {
+      reset({
+        title: newsPost.title,
+        excerpt: newsPost.excerpt,
+        content: newsPost.content,
+        gameSlug: newsPost.gameSlug || "general",
+        status: newsPost.status,
+        featured: newsPost.featured,
+      });
+    }
+  }, [newsPost, open, reset]);
+
+  const onSubmit = async (data: EditNewsFormData) => {
+    if (!newsPost) return;
+
     setIsLoading(true);
     setError("");
 
     try {
-      const response = await fetch("/api/news", {
-        method: "POST",
+      const response = await fetch(`/api/news/${newsPost.id}`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
@@ -95,16 +109,16 @@ export function CreateNewsDialog({
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || "Failed to create news post");
+        setError(result.error || "Failed to update news post");
         return;
       }
 
       // Close dialog and refresh news
       onOpenChange(false);
-      onNewsCreated();
+      onNewsUpdated();
     } catch (err) {
       setError("An error occurred. Please try again.");
-      console.error("Error creating news post:", err);
+      console.error("Error updating news post:", err);
     } finally {
       setIsLoading(false);
     }
@@ -118,13 +132,15 @@ export function CreateNewsDialog({
     onOpenChange(newOpen);
   };
 
+  if (!newsPost) return null;
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Create News Post</DialogTitle>
+          <DialogTitle>Edit News Post</DialogTitle>
           <DialogDescription>
-            Create a new news post for the community.
+            Update the news post &quot;{newsPost.title}&quot;.
           </DialogDescription>
         </DialogHeader>
 
@@ -239,7 +255,7 @@ export function CreateNewsDialog({
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Creating..." : "Create News Post"}
+              {isLoading ? "Updating..." : "Update News Post"}
             </Button>
           </DialogFooter>
         </form>
