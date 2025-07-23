@@ -37,9 +37,11 @@ interface RecentActivityProps {
     news: Array<{
       id: string;
       title: string;
-      game: { slug: string; fullName: string };
-      author: { name: string };
+      game: { slug: string; fullName: string } | null;
+      author: { id: string; name: string };
       publishedAt: Date;
+      updatedAt: Date;
+      deletedAt?: Date;
     }>;
     lfg: Array<{
       id: string;
@@ -64,6 +66,8 @@ const activityIcons = {
   eventUpdated: Edit,
   eventDeleted: Trash2,
   news: Newspaper,
+  newsUpdated: Edit,
+  newsDeleted: Trash2,
   lfg: Gamepad2,
   forum: MessageSquare,
 };
@@ -74,6 +78,8 @@ const activityColors = {
   eventUpdated: "bg-yellow-100 text-yellow-800",
   eventDeleted: "bg-red-100 text-red-800",
   news: "bg-purple-100 text-purple-800",
+  newsUpdated: "bg-yellow-100 text-yellow-800",
+  newsDeleted: "bg-red-100 text-red-800",
   lfg: "bg-orange-100 text-orange-800",
   forum: "bg-indigo-100 text-indigo-800",
 };
@@ -161,17 +167,55 @@ export function RecentActivity({ data }: RecentActivityProps) {
 
       return activities;
     }),
-    ...data.news.map((article) => ({
-      type: "news" as const,
-      id: article.id,
-      title: article.title,
-      subtitle: `by ${article.author.name}`,
-      game: article.game,
-      author: article.author,
-      role: null,
-      date: article.publishedAt,
-      href: `/dashboard/news/${article.id}`,
-    })),
+    // News activities - create separate entries for created, updated, and deleted
+    ...data.news.flatMap((article) => {
+      const activities = [];
+
+      // News created
+      activities.push({
+        type: "news" as const,
+        id: `${article.id}-created`,
+        title: article.title,
+        subtitle: `News created by ${article.author.name}`,
+        game: article.game,
+        author: article.author,
+        role: null,
+        date: article.publishedAt,
+        href: `/dashboard/news/${article.id}`,
+      });
+
+      // News updated (only if updated after publication)
+      if (article.updatedAt > article.publishedAt) {
+        activities.push({
+          type: "newsUpdated" as const,
+          id: `${article.id}-updated`,
+          title: article.title,
+          subtitle: `News updated by ${article.author.name}`,
+          game: article.game,
+          author: article.author,
+          role: null,
+          date: article.updatedAt,
+          href: `/dashboard/news/${article.id}`,
+        });
+      }
+
+      // News deleted
+      if (article.deletedAt) {
+        activities.push({
+          type: "newsDeleted" as const,
+          id: `${article.id}-deleted`,
+          title: article.title,
+          subtitle: `News deleted by ${article.author.name}`,
+          game: article.game,
+          author: article.author,
+          role: null,
+          date: article.deletedAt,
+          href: `/dashboard/news/${article.id}`,
+        });
+      }
+
+      return activities;
+    }),
     ...data.lfg.map((post) => ({
       type: "lfg" as const,
       id: post.id,

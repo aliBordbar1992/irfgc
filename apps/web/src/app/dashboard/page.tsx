@@ -33,9 +33,9 @@ export default async function DashboardPage() {
     recentForumThreads,
   ] = await Promise.all([
     prisma.user.count(),
-    prisma.event.count(),
-    prisma.newsPost.count(),
-    prisma.lFGPost.count(),
+    prisma.event.count({ where: { deletedAt: null } }),
+    prisma.newsPost.count({ where: { deletedAt: null } }),
+    prisma.lFGPost.count({ where: { isActive: true } }),
     prisma.forumThread.count(),
     prisma.user.findMany({
       take: 5,
@@ -62,12 +62,13 @@ export default async function DashboardPage() {
       },
     }),
     prisma.newsPost.findMany({
-      take: 5,
-      orderBy: { publishedAt: "desc" },
+      take: 10,
+      orderBy: [{ updatedAt: "desc" }, { publishedAt: "desc" }],
       include: {
         game: true,
         author: {
           select: {
+            id: true,
             name: true,
           },
         },
@@ -121,7 +122,20 @@ export default async function DashboardPage() {
         updatedAt: event.updatedAt || event.createdAt, // Fallback to createdAt if updatedAt is null
         deletedAt: event.deletedAt || undefined, // Convert null to undefined
       })),
-      news: recentNews,
+      news: recentNews.map((news) => ({
+        id: news.id,
+        title: news.title,
+        game: news.game
+          ? {
+              slug: news.game.slug,
+              fullName: news.game.fullName,
+            }
+          : null,
+        author: news.author,
+        publishedAt: news.publishedAt,
+        updatedAt: news.updatedAt || news.publishedAt, // Fallback to publishedAt if updatedAt is null
+        deletedAt: news.deletedAt || undefined, // Convert null to undefined
+      })),
       lfg: recentLFG,
       forumThreads: recentForumThreads,
     },
