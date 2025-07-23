@@ -15,13 +15,14 @@ const updateNewsSchema = z.object({
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const includeDeleted = searchParams.get("includeDeleted") === "true";
+    const { id } = await params;
 
-    const where: { id: string; deletedAt?: null } = { id: params.id };
+    const where: { id: string; deletedAt?: null } = { id };
 
     // Only include soft-deleted news if explicitly requested
     if (!includeDeleted) {
@@ -62,7 +63,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -75,10 +76,11 @@ export async function PUT(
 
     const body = await request.json();
     const validatedData = updateNewsSchema.parse(body);
+    const { id } = await params;
 
     // Check if news post exists
     const existingNewsPost = await prisma.newsPost.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingNewsPost) {
@@ -100,7 +102,7 @@ export async function PUT(
     }
 
     const updatedNewsPost = await prisma.newsPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         title: validatedData.title,
         content: validatedData.content,
@@ -146,7 +148,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -157,9 +159,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { id } = await params;
+
     // Check if news post exists
     const existingNewsPost = await prisma.newsPost.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!existingNewsPost) {
@@ -171,7 +175,7 @@ export async function DELETE(
 
     // Soft delete the news post by setting deletedAt timestamp
     await prisma.newsPost.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         deletedAt: new Date(),
       },
