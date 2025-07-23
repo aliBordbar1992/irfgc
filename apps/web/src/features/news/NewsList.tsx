@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { GameSlug, NewsPost } from "@/types";
 import { NewsListItem } from "./NewsListItem";
 import { FeaturedNewsCard } from "./FeaturedNewsCard";
@@ -29,14 +30,20 @@ interface FeaturedNewsResponse {
 
 export function NewsList({ gameSlug }: NewsListProps) {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
   const [featuredNews, setFeaturedNews] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [featuredLoading, setFeaturedLoading] = useState(true);
   const [error, setError] = useState("");
   const [featuredError, setFeaturedError] = useState("");
-  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  // Get page from URL params, default to 1
+  const currentPage = parseInt(searchParams.get("page") || "1");
 
   useEffect(() => {
     fetchFeaturedNews();
@@ -44,10 +51,20 @@ export function NewsList({ gameSlug }: NewsListProps) {
   }, [gameSlug]);
 
   useEffect(() => {
-    if (page > 1) {
+    if (currentPage > 1) {
       fetchNews();
     }
-  }, [page]);
+  }, [currentPage]);
+
+  const updatePageInUrl = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newPage === 1) {
+      params.delete("page");
+    } else {
+      params.set("page", newPage.toString());
+    }
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   const fetchFeaturedNews = async () => {
     try {
@@ -81,8 +98,8 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
       const response = await fetch(
         gameSlug
-          ? `/api/news?gameSlug=${gameSlug}&page=${page}&limit=10`
-          : `/api/news?page=${page}&limit=10`
+          ? `/api/news?gameSlug=${gameSlug}&page=${currentPage}&limit=10`
+          : `/api/news?page=${currentPage}&limit=10`
       );
 
       if (!response.ok) {
@@ -91,13 +108,13 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
       const data: NewsResponse = await response.json();
 
-      if (page === 1) {
+      if (currentPage === 1) {
         setNewsPosts(data.data);
       } else {
         setNewsPosts((prev) => [...prev, ...data.data]);
       }
 
-      setHasMore(page < data.pagination.totalPages);
+      setHasMore(currentPage < data.pagination.totalPages);
     } catch (err) {
       setError("Failed to load news");
       console.error("Error fetching news:", err);
@@ -113,6 +130,11 @@ export function NewsList({ gameSlug }: NewsListProps) {
     if (featuredError) {
       fetchFeaturedNews();
     }
+  };
+
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    updatePageInUrl(nextPage);
   };
 
   const hasAnyContent = newsPosts.length > 0 || featuredNews.length > 0;
@@ -161,12 +183,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
             Featured Articles
           </h2>
           {featuredNews.map((article) => (
-            <FeaturedNewsCard
-              key={article.id}
-              article={article}
-              gameSlug={gameSlug}
-              currentPage={page}
-            />
+            <FeaturedNewsCard key={article.id} article={article} />
           ))}
         </div>
       )}
@@ -186,11 +203,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
       {/* Load More Button */}
       {hasMore && (
         <div className="text-center">
-          <Button
-            onClick={() => setPage((prev) => prev + 1)}
-            disabled={loading}
-            variant="outline"
-          >
+          <Button onClick={handleLoadMore} disabled={loading} variant="outline">
             {loading ? "Loading..." : "Load More Articles"}
           </Button>
         </div>

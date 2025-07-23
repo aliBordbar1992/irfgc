@@ -7,26 +7,9 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface FeaturedNewsCardProps {
   article: NewsPost;
-  gameSlug?: string | null;
-  currentPage?: number;
 }
 
-export function FeaturedNewsCard({
-  article,
-  gameSlug,
-  currentPage,
-}: FeaturedNewsCardProps) {
-  const handleArticleClick = () => {
-    // Save current scroll position and page to sessionStorage
-    const scrollKey = `news-scroll-${gameSlug || "general"}`;
-    const scrollData = {
-      scrollY: window.scrollY,
-      page: currentPage || 1,
-      timestamp: Date.now(),
-    };
-    sessionStorage.setItem(scrollKey, JSON.stringify(scrollData));
-  };
-
+export function FeaturedNewsCard({ article }: FeaturedNewsCardProps) {
   return (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
       <div className="flex justify-between items-start">
@@ -60,9 +43,7 @@ export function FeaturedNewsCard({
           </div>
         </div>
         <Button asChild>
-          <Link href={`/news/${article.id}`} onClick={handleArticleClick}>
-            Read Full Article
-          </Link>
+          <Link href={`/news/${article.id}`}>Read Full Article</Link>
         </Button>
       </div>
     </div>
