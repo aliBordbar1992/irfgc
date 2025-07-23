@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { NewsPost } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -8,9 +9,12 @@ import { Clock, ArrowRight } from "lucide-react";
 
 interface NewsListItemProps {
   article: NewsPost;
+  gameSlug?: string | null;
 }
 
-export function NewsListItem({ article }: NewsListItemProps) {
+export function NewsListItem({ article, gameSlug }: NewsListItemProps) {
+  const searchParams = useSearchParams();
+
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
       year: "numeric",
@@ -24,6 +28,16 @@ export function NewsListItem({ article }: NewsListItemProps) {
     const wordCount = content.split(" ").length;
     const readTime = Math.ceil(wordCount / wordsPerMinute);
     return `${readTime} min read`;
+  };
+
+  const handleArticleClick = () => {
+    const currentPage = parseInt(searchParams.get("page") || "1");
+    const scrollKey = `news-scroll-${gameSlug || "general"}-${currentPage}`;
+    const scrollData = {
+      scrollY: window.scrollY,
+      timestamp: Date.now(),
+    };
+    sessionStorage.setItem(scrollKey, JSON.stringify(scrollData));
   };
 
   return (
@@ -43,7 +57,11 @@ export function NewsListItem({ article }: NewsListItemProps) {
           </div>
 
           <h3 className="text-xl font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 transition-colors">
-            <Link href={`/news/${article.id}`} className="hover:underline">
+            <Link
+              href={`/news/${article.id}`}
+              onClick={handleArticleClick}
+              className="hover:underline"
+            >
               {article.title}
             </Link>
           </h3>
@@ -80,7 +98,7 @@ export function NewsListItem({ article }: NewsListItemProps) {
               asChild
               className="text-blue-600 hover:text-blue-700"
             >
-              <Link href={`/news/${article.id}`}>
+              <Link href={`/news/${article.id}`} onClick={handleArticleClick}>
                 Read Article
                 <ArrowRight className="w-4 h-4 ml-1" />
               </Link>

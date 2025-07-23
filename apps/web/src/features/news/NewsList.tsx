@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { GameSlug, NewsPost } from "@/types";
@@ -33,6 +33,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const scrollRestoredRef = useRef(false);
 
   const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
   const [featuredNews, setFeaturedNews] = useState<NewsPost[]>([]);
@@ -46,6 +47,9 @@ export function NewsList({ gameSlug }: NewsListProps) {
   const currentPage = parseInt(searchParams.get("page") || "1");
 
   useEffect(() => {
+    // Reset news posts when gameSlug changes to prevent mixing articles from different games
+    setNewsPosts([]);
+    setHasMore(true);
     fetchFeaturedNews();
     fetchNews();
   }, [gameSlug]);
@@ -55,6 +59,37 @@ export function NewsList({ gameSlug }: NewsListProps) {
       fetchNews();
     }
   }, [currentPage]);
+
+  // Reset scroll restoration when gameSlug changes
+  useEffect(() => {
+    scrollRestoredRef.current = false;
+  }, [gameSlug]);
+
+  // Restore scroll position when component mounts
+  useEffect(() => {
+    if (!scrollRestoredRef.current) {
+      const scrollKey = `news-scroll-${gameSlug || "general"}-${currentPage}`;
+      const savedScroll = sessionStorage.getItem(scrollKey);
+
+      if (savedScroll) {
+        try {
+          const { scrollY, timestamp } = JSON.parse(savedScroll);
+          // Only restore if the scroll position was saved within the last 30 minutes
+          if (Date.now() - timestamp < 30 * 60 * 1000) {
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
+              window.scrollTo(0, scrollY);
+            });
+          }
+          // Clear the saved scroll position after restoring
+          sessionStorage.removeItem(scrollKey);
+        } catch (error) {
+          console.error("Error restoring scroll position:", error);
+        }
+      }
+      scrollRestoredRef.current = true;
+    }
+  }, [gameSlug, currentPage]);
 
   const updatePageInUrl = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -111,7 +146,14 @@ export function NewsList({ gameSlug }: NewsListProps) {
       if (currentPage === 1) {
         setNewsPosts(data.data);
       } else {
-        setNewsPosts((prev) => [...prev, ...data.data]);
+        // Prevent duplicate articles by checking existing IDs
+        setNewsPosts((prev) => {
+          const existingIds = new Set(prev.map((article) => article.id));
+          const newArticles = data.data.filter(
+            (article) => !existingIds.has(article.id)
+          );
+          return [...prev, ...newArticles];
+        });
       }
 
       setHasMore(currentPage < data.pagination.totalPages);
@@ -194,7 +236,11 @@ export function NewsList({ gameSlug }: NewsListProps) {
           <h2 className="text-xl font-semibold text-gray-900">Latest News</h2>
           <div className="space-y-2">
             {newsPosts.map((article) => (
-              <NewsListItem key={article.id} article={article} />
+              <NewsListItem
+                key={article.id}
+                article={article}
+                gameSlug={gameSlug}
+              />
             ))}
           </div>
         </div>
