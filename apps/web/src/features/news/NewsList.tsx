@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { GameSlug, NewsPost } from "@/types";
-import { NewsCard } from "./NewsCard";
+import { NewsListItem } from "./NewsListItem";
+import { FeaturedNewsCard } from "./FeaturedNewsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface NewsListProps {
   gameSlug: GameSlug | null;
@@ -23,21 +22,63 @@ interface NewsResponse {
   };
 }
 
+interface FeaturedNewsResponse {
+  data: NewsPost[];
+  total: number;
+}
+
 export function NewsList({ gameSlug }: NewsListProps) {
   const { data: session } = useSession();
   const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
+  const [featuredNews, setFeaturedNews] = useState<NewsPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [featuredLoading, setFeaturedLoading] = useState(true);
   const [error, setError] = useState("");
+  const [featuredError, setFeaturedError] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
   useEffect(() => {
+    fetchFeaturedNews();
     fetchNews();
-  }, [gameSlug, page]);
+  }, [gameSlug]);
+
+  useEffect(() => {
+    if (page > 1) {
+      fetchNews();
+    }
+  }, [page]);
+
+  const fetchFeaturedNews = async () => {
+    try {
+      setFeaturedLoading(true);
+      setFeaturedError("");
+
+      const response = await fetch(
+        gameSlug
+          ? `/api/news/featured?gameSlug=${gameSlug}&limit=5`
+          : `/api/news/featured?limit=5`
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch featured news");
+      }
+
+      const data: FeaturedNewsResponse = await response.json();
+      setFeaturedNews(data.data);
+    } catch (err) {
+      setFeaturedError("Failed to load featured news");
+      console.error("Error fetching featured news:", err);
+    } finally {
+      setFeaturedLoading(false);
+    }
+  };
 
   const fetchNews = async () => {
     try {
       setLoading(true);
+      setError("");
+
       const response = await fetch(
         gameSlug
           ? `/api/news?gameSlug=${gameSlug}&page=${page}&limit=10`
@@ -65,12 +106,25 @@ export function NewsList({ gameSlug }: NewsListProps) {
     }
   };
 
-  if (error) {
+  const handleRetry = () => {
+    if (error) {
+      fetchNews();
+    }
+    if (featuredError) {
+      fetchFeaturedNews();
+    }
+  };
+
+  const hasAnyContent = newsPosts.length > 0 || featuredNews.length > 0;
+  const hasAnyError = error || featuredError;
+  const isLoading = loading && featuredLoading;
+
+  if (hasAnyError) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
-          <p className="text-red-600">{error}</p>
-          <Button onClick={fetchNews} className="mt-4">
+          <p className="text-red-600">{error || featuredError}</p>
+          <Button onClick={handleRetry} className="mt-4">
             Try Again
           </Button>
         </CardContent>
@@ -78,7 +132,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
     );
   }
 
-  if (newsPosts.length === 0 && !loading) {
+  if (!hasAnyContent && !isLoading) {
     return (
       <Card>
         <CardContent className="p-6 text-center">
@@ -100,68 +154,36 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Featured Articles */}
-      {newsPosts.filter((article) => article.featured).length > 0 && (
+      {/* Featured Articles Section */}
+      {featuredNews.length > 0 && (
         <div className="space-y-4">
-          {newsPosts
-            .filter((article) => article.featured)
-            .map((article) => (
-              <div
-                key={article.id}
-                className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6"
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full mb-2">
-                      Featured
-                    </span>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                      {article.title}
-                    </h2>
-                    <p className="text-lg text-gray-700 mb-4">
-                      {article.excerpt}
-                    </p>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
-                      <div className="flex items-center space-x-2">
-                        <Avatar className="w-5 h-5">
-                          <AvatarImage
-                            src={article.author.avatar || undefined}
-                            alt={article.author.name}
-                          />
-                          <AvatarFallback className="text-xs">
-                            {article.author.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span>By {article.author.name}</span>
-                      </div>
-                      <span>•</span>
-                      <span>
-                        {new Date(article.publishedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <Button asChild>
-                    <Link href={`/news/${article.id}`}>Read Full Article</Link>
-                  </Button>
-                </div>
-              </div>
-            ))}
+          <h2 className="text-xl font-semibold text-gray-900">
+            Featured Articles
+          </h2>
+          {featuredNews.map((article) => (
+            <FeaturedNewsCard
+              key={article.id}
+              article={article}
+              gameSlug={gameSlug}
+              currentPage={page}
+            />
+          ))}
         </div>
       )}
 
-      {/* News Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {newsPosts
-          .filter((article) => !article.featured)
-          .map((article) => (
-            <NewsCard key={article.id} article={article} />
-          ))}
-      </div>
+      {/* Regular News List */}
+      {newsPosts.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-gray-900">Latest News</h2>
+          <div className="space-y-2">
+            {newsPosts.map((article) => (
+              <NewsListItem key={article.id} article={article} />
+            ))}
+          </div>
+        </div>
+      )}
 
+      {/* Load More Button */}
       {hasMore && (
         <div className="text-center">
           <Button
