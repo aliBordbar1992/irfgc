@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import Link from "next/link";
 
 export default function NewsArticlePage() {
   const params = useParams();
+  const router = useRouter();
   const { id } = params;
 
   const [newsPost, setNewsPost] = useState<NewsPost | null>(null);
@@ -87,11 +88,9 @@ export default function NewsArticlePage() {
               have been removed.
             </p>
           )}
-          <Button asChild>
-            <Link href="/news">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to News
-            </Link>
+          <Button onClick={() => router.back()}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to News
           </Button>
         </div>
       </div>
@@ -216,11 +215,9 @@ export default function NewsArticlePage() {
               <span>•</span>
               <span>{formatDate(newsPost.publishedAt)}</span>
             </div>
-            <Button variant="outline" asChild>
-              <Link href="/news">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to News
-              </Link>
+            <Button variant="outline" onClick={() => router.back()}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to News
             </Button>
           </div>
         </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { GameProvider } from "@/features/games/GameContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import { JotaiProvider } from "@/components/providers/JotaiProvider";
 import { MainNav } from "@/components/MainNav";
 
 export const metadata: Metadata = {
@@ -28,12 +29,14 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl">
       <body className="font-sans">
-        <SessionProvider>
-          <GameProvider>
-            <MainNav />
-            {children}
-          </GameProvider>
-        </SessionProvider>
+        <JotaiProvider>
+          <SessionProvider>
+            <GameProvider>
+              <MainNav />
+              {children}
+            </GameProvider>
+          </SessionProvider>
+        </JotaiProvider>
       </body>
     </html>
   );

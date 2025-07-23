@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { GameSlug, NewsPost } from "@/types";
+import { GameSlug } from "@/types";
 import { NewsListItem } from "./NewsListItem";
 import { FeaturedNewsCard } from "./FeaturedNewsCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useNewsStore } from "./hooks/useNewsStore";
 
 interface NewsListProps {
   gameSlug: GameSlug | null;
 }
 
 interface NewsResponse {
-  data: NewsPost[];
+  data: import("@/types").NewsPost[];
   pagination: {
     page: number;
     limit: number;
@@ -24,7 +25,7 @@ interface NewsResponse {
 }
 
 interface FeaturedNewsResponse {
-  data: NewsPost[];
+  data: import("@/types").NewsPost[];
   total: number;
 }
 
@@ -35,30 +36,57 @@ export function NewsList({ gameSlug }: NewsListProps) {
   const pathname = usePathname();
   const scrollRestoredRef = useRef(false);
 
-  const [newsPosts, setNewsPosts] = useState<NewsPost[]>([]);
-  const [featuredNews, setFeaturedNews] = useState<NewsPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [featuredLoading, setFeaturedLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [featuredError, setFeaturedError] = useState("");
-  const [hasMore, setHasMore] = useState(true);
+  // Use Jotai store
+  const {
+    articles: newsPosts,
+    featuredArticles: featuredNews,
+    currentPage,
+    loading,
+    featuredLoading,
+    error,
+    featuredError,
+    hasMore,
+    setFeaturedArticles: setFeaturedNews,
+    setLoading,
+    setFeaturedLoading,
+    setError,
+    setFeaturedError,
+    loadMoreArticles,
+    handleGameChange,
+    handleBackToNews,
+    setCurrentPage,
+  } = useNewsStore();
 
   // Get page from URL params, default to 1
-  const currentPage = parseInt(searchParams.get("page") || "1");
+  const urlPage = parseInt(searchParams.get("page") || "1");
+
+  // Sync Jotai currentPage with urlPage
+  useEffect(() => {
+    if (currentPage !== urlPage) {
+      setCurrentPage(urlPage);
+    }
+  }, [urlPage, currentPage, setCurrentPage]);
+
+  // Load More handler: update URL param
+  const handleLoadMore = () => {
+    const nextPage = currentPage + 1;
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", nextPage.toString());
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  };
 
   useEffect(() => {
-    // Reset news posts when gameSlug changes to prevent mixing articles from different games
-    setNewsPosts([]);
-    setHasMore(true);
+    // Handle game slug changes
+    handleGameChange(gameSlug);
     fetchFeaturedNews();
     fetchNews();
-  }, [gameSlug]);
+  }, [gameSlug, handleGameChange]);
 
   useEffect(() => {
-    if (currentPage > 1) {
+    if (urlPage > 1 && urlPage !== currentPage) {
       fetchNews();
     }
-  }, [currentPage]);
+  }, [urlPage, currentPage]);
 
   // Reset scroll restoration when gameSlug changes
   useEffect(() => {
@@ -68,38 +96,10 @@ export function NewsList({ gameSlug }: NewsListProps) {
   // Restore scroll position when component mounts
   useEffect(() => {
     if (!scrollRestoredRef.current) {
-      const scrollKey = `news-scroll-${gameSlug || "general"}-${currentPage}`;
-      const savedScroll = sessionStorage.getItem(scrollKey);
-
-      if (savedScroll) {
-        try {
-          const { scrollY, timestamp } = JSON.parse(savedScroll);
-          // Only restore if the scroll position was saved within the last 30 minutes
-          if (Date.now() - timestamp < 30 * 60 * 1000) {
-            // Use requestAnimationFrame to ensure DOM is ready
-            requestAnimationFrame(() => {
-              window.scrollTo(0, scrollY);
-            });
-          }
-          // Clear the saved scroll position after restoring
-          sessionStorage.removeItem(scrollKey);
-        } catch (error) {
-          console.error("Error restoring scroll position:", error);
-        }
-      }
+      handleBackToNews();
       scrollRestoredRef.current = true;
     }
-  }, [gameSlug, currentPage]);
-
-  const updatePageInUrl = (newPage: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (newPage === 1) {
-      params.delete("page");
-    } else {
-      params.set("page", newPage.toString());
-    }
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  };
+  }, [handleBackToNews]);
 
   const fetchFeaturedNews = async () => {
     try {
@@ -133,8 +133,8 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
       const response = await fetch(
         gameSlug
-          ? `/api/news?gameSlug=${gameSlug}&page=${currentPage}&limit=10`
-          : `/api/news?page=${currentPage}&limit=10`
+          ? `/api/news?gameSlug=${gameSlug}&page=${urlPage}&limit=10`
+          : `/api/news?page=${urlPage}&limit=10`
       );
 
       if (!response.ok) {
@@ -143,20 +143,8 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
       const data: NewsResponse = await response.json();
 
-      if (currentPage === 1) {
-        setNewsPosts(data.data);
-      } else {
-        // Prevent duplicate articles by checking existing IDs
-        setNewsPosts((prev) => {
-          const existingIds = new Set(prev.map((article) => article.id));
-          const newArticles = data.data.filter(
-            (article) => !existingIds.has(article.id)
-          );
-          return [...prev, ...newArticles];
-        });
-      }
-
-      setHasMore(currentPage < data.pagination.totalPages);
+      // Use the loadMoreArticles helper from the store
+      loadMoreArticles(data.data, data.pagination.totalPages, urlPage);
     } catch (err) {
       setError("Failed to load news");
       console.error("Error fetching news:", err);
@@ -172,11 +160,6 @@ export function NewsList({ gameSlug }: NewsListProps) {
     if (featuredError) {
       fetchFeaturedNews();
     }
-  };
-
-  const handleLoadMore = () => {
-    const nextPage = currentPage + 1;
-    updatePageInUrl(nextPage);
   };
 
   const hasAnyContent = newsPosts.length > 0 || featuredNews.length > 0;
