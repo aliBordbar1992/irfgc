@@ -170,11 +170,6 @@ export function TagSelect({
             key={tag.id}
             variant="secondary"
             className="flex items-center gap-1"
-            style={
-              tag.color
-                ? { backgroundColor: tag.color + "20", color: tag.color }
-                : undefined
-            }
           >
             <span className="text-xs">{tag.name}</span>
             <button
@@ -252,12 +247,6 @@ export function TagSelect({
                     onClick={() => handleTagSelect(tag)}
                     className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
                   >
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={
-                        tag.color ? { backgroundColor: tag.color } : undefined
-                      }
-                    />
                     <span>{tag.name}</span>
                     {tag.description && (
                       <span className="text-muted-foreground text-xs">

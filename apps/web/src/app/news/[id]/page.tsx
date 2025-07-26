@@ -174,9 +174,13 @@ export default function NewsArticlePage() {
           {/* Tags */}
           {newsPost.tags && newsPost.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-6">
-              {newsPost.tags.map((tag, index) => (
-                <Badge key={index} variant="outline" className="text-sm">
-                  {tag}
+              {newsPost.tags.map((tagRelation) => (
+                <Badge
+                  key={tagRelation.id}
+                  variant="outline"
+                  className="text-sm"
+                >
+                  {tagRelation.tag.name}
                 </Badge>
               ))}
             </div>

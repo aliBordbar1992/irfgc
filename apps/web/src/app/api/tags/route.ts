@@ -35,7 +35,6 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    // @ts-expect-error - Temporary fix for TypeScript recognition
     const tags = await prisma.tag.findMany({
       where,
       orderBy: { name: "asc" },
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
       .replace(/(^-|-$)/g, "");
 
     // Check if tag with same name or slug already exists
-    // @ts-expect-error - Temporary fix for TypeScript recognition
+
     const existingTag = await prisma.tag.findFirst({
       where: {
         OR: [{ name: validatedData.name }, { slug: slug }],
@@ -86,7 +85,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // @ts-expect-error - Temporary fix for TypeScript recognition
     const tag = await prisma.tag.create({
       data: {
         name: validatedData.name,

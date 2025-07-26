@@ -79,6 +79,14 @@ export interface Tag {
   updatedAt: Date;
 }
 
+export interface NewsPostTag {
+  id: string;
+  newsPostId: string;
+  tagId: string;
+  createdAt: Date;
+  tag: Tag;
+}
+
 export interface NewsPost {
   id: string;
   title: string;
@@ -91,7 +99,7 @@ export interface NewsPost {
   status: NewsStatus;
   views: number;
   featured: boolean;
-  tags: Tag[]; // Array of Tag entities
+  tags: NewsPostTag[]; // Array of NewsPostTag with nested tag
   thumbnail?: string; // URL for thumbnail image (shown in news list)
   coverImage?: string; // URL for cover image (shown on article page)
   publishedAt: Date;

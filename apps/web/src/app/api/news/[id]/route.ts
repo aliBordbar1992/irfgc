@@ -11,7 +11,7 @@ const updateNewsSchema = z.object({
   gameSlug: z.string().optional().nullable(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
   featured: z.boolean().default(false),
-  tags: z.array(z.string()).default([]),
+  tagIds: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
   coverImage: z.string().optional(),
 });
@@ -42,6 +42,11 @@ export async function GET(
             name: true,
             email: true,
             avatar: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: true,
           },
         },
       },
@@ -104,6 +109,31 @@ export async function PUT(
       }
     }
 
+    // Validate that all tag IDs exist
+    if (validatedData.tagIds.length > 0) {
+      const existingTags = await prisma.tag.findMany({
+        where: { id: { in: validatedData.tagIds } },
+        select: { id: true },
+      });
+
+      const existingTagIds = existingTags.map((tag) => tag.id);
+      const invalidTagIds = validatedData.tagIds.filter(
+        (id) => !existingTagIds.includes(id)
+      );
+
+      if (invalidTagIds.length > 0) {
+        return NextResponse.json(
+          { error: `Invalid tag IDs: ${invalidTagIds.join(", ")}` },
+          { status: 400 }
+        );
+      }
+    }
+
+    // First, delete existing tag relationships
+    await prisma.newsPostTag.deleteMany({
+      where: { newsPostId: id },
+    });
+
     const updatedNewsPost = await prisma.newsPost.update({
       where: { id },
       data: {
@@ -115,10 +145,17 @@ export async function PUT(
         ...(validatedData.gameSlug && validatedData.gameSlug !== "general"
           ? { gameSlug: validatedData.gameSlug }
           : { gameSlug: null }),
-        ...(validatedData.tags && { tags: validatedData.tags }),
         ...(validatedData.thumbnail && { thumbnail: validatedData.thumbnail }),
         ...(validatedData.coverImage && {
           coverImage: validatedData.coverImage,
+        }),
+        // Create new tag relationships only if there are valid tag IDs
+        ...(validatedData.tagIds.length > 0 && {
+          tags: {
+            create: validatedData.tagIds.map((tagId) => ({
+              tagId: tagId,
+            })),
+          },
         }),
       },
       include: {
@@ -129,6 +166,11 @@ export async function PUT(
             name: true,
             email: true,
             avatar: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: true,
           },
         },
       },

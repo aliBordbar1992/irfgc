@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGames } from "@/hooks/useGames";
+import { TagSelect, Tag } from "@/components/ui/tag-select";
 
 const editNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -37,7 +38,7 @@ const editNewsSchema = z.object({
   gameSlug: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featured: z.boolean(),
-  tags: z.string().optional(),
+  tagIds: z.array(z.string()).optional(),
   thumbnail: z.string().optional(),
   coverImage: z.string().optional(),
 });
@@ -60,6 +61,7 @@ export function EditNewsDialog({
   const { games } = useGames({ isActive: true });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
   const {
     register,
@@ -70,6 +72,9 @@ export function EditNewsDialog({
     watch,
   } = useForm<EditNewsFormData>({
     resolver: zodResolver(editNewsSchema),
+    defaultValues: {
+      tagIds: [],
+    },
   });
 
   const status = watch("status");
@@ -85,10 +90,14 @@ export function EditNewsDialog({
         gameSlug: newsPost.gameSlug || "general",
         status: newsPost.status,
         featured: newsPost.featured,
-        tags: newsPost.tags.join(", "),
+        tagIds: newsPost.tags?.map((tagRelation) => tagRelation.tag.id) || [],
         thumbnail: newsPost.thumbnail || "",
         coverImage: newsPost.coverImage || "",
       });
+      // Transform nested tag structure to flat tags
+      const flatTags =
+        newsPost.tags?.map((tagRelation) => tagRelation.tag) || [];
+      setSelectedTags(flatTags);
     }
   }, [newsPost, open, reset]);
 
@@ -99,14 +108,6 @@ export function EditNewsDialog({
     setError("");
 
     try {
-      // Convert tags from comma-separated string to array
-      const tags = data.tags
-        ? data.tags
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter((tag) => tag.length > 0)
-        : [];
-
       const response = await fetch(`/api/news/${newsPost.id}`, {
         method: "PUT",
         headers: {
@@ -114,7 +115,7 @@ export function EditNewsDialog({
         },
         body: JSON.stringify({
           ...data,
-          tags,
+          tagIds: selectedTags.map((tag) => tag.id),
           gameSlug:
             data.gameSlug === "general" || !data.gameSlug
               ? null
@@ -207,15 +208,12 @@ export function EditNewsDialog({
 
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
-            <Input
-              id="tags"
-              placeholder="Enter tags separated by commas (e.g., tournament, announcement, community)"
-              {...register("tags")}
-              className={errors.tags ? "border-red-500" : ""}
+            <TagSelect
+              value={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Search and select tags..."
+              maxTags={10}
             />
-            {errors.tags && (
-              <p className="text-sm text-red-500">{errors.tags.message}</p>
-            )}
             <p className="text-xs text-gray-500">
               Tags help categorize and search for articles
             </p>

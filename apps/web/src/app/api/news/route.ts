@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         // Handle multiple statuses (for dashboard)
         where.status = { in: status.split(",") };
       } else {
-        where.status = status;
+        where.status = status as "DRAFT" | "PUBLISHED" | "ARCHIVED";
       }
     } else {
       // For public requests (no status specified), only show published news
@@ -87,6 +87,11 @@ export async function GET(request: NextRequest) {
               name: true,
               email: true,
               avatar: true,
+            },
+          },
+          tags: {
+            include: {
+              tag: true,
             },
           },
         },
@@ -139,6 +144,26 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Validate that all tag IDs exist
+    if (validatedData.tagIds.length > 0) {
+      const existingTags = await prisma.tag.findMany({
+        where: { id: { in: validatedData.tagIds } },
+        select: { id: true },
+      });
+
+      const existingTagIds = existingTags.map((tag) => tag.id);
+      const invalidTagIds = validatedData.tagIds.filter(
+        (id) => !existingTagIds.includes(id)
+      );
+
+      if (invalidTagIds.length > 0) {
+        return NextResponse.json(
+          { error: `Invalid tag IDs: ${invalidTagIds.join(", ")}` },
+          { status: 400 }
+        );
+      }
+    }
+
     const newsPost = await prisma.newsPost.create({
       data: {
         title: validatedData.title,
@@ -155,14 +180,14 @@ export async function POST(request: NextRequest) {
         ...(validatedData.coverImage && {
           coverImage: validatedData.coverImage,
         }),
-        // Create tag relationships
-        tags: {
-          create: validatedData.tagIds.map((tagId) => ({
-            tag: {
-              connect: { id: tagId },
-            },
-          })),
-        },
+        // Create tag relationships only if there are valid tag IDs
+        ...(validatedData.tagIds.length > 0 && {
+          tags: {
+            create: validatedData.tagIds.map((tagId) => ({
+              tagId: tagId,
+            })),
+          },
+        }),
       },
       include: {
         game: true,

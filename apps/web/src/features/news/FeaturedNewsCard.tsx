@@ -33,12 +33,12 @@ export function FeaturedNewsCard({ article }: FeaturedNewsCardProps) {
           {/* Tags */}
           {article.tags && article.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mb-4">
-              {article.tags.slice(0, 4).map((tag, index) => (
+              {article.tags.slice(0, 4).map((tagRelation) => (
                 <span
-                  key={index}
+                  key={tagRelation.id}
                   className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-white/70 text-gray-700 border border-blue-200"
                 >
-                  {tag}
+                  {tagRelation.tag.name}
                 </span>
               ))}
               {article.tags.length > 4 && (
