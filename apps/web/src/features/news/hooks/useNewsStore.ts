@@ -12,6 +12,7 @@ import {
   featuredLoadingAtom,
   errorAtom,
   featuredErrorAtom,
+  showLoadMoreButtonAtom,
   addArticlesAtom,
   setArticlesAtom,
   incrementPageAtom,
@@ -32,6 +33,7 @@ export function useNewsStore() {
   const featuredLoading = useAtomValue(featuredLoadingAtom);
   const error = useAtomValue(errorAtom);
   const featuredError = useAtomValue(featuredErrorAtom);
+  const showLoadMoreButton = useAtomValue(showLoadMoreButtonAtom);
 
   // Action atoms
   const setArticles = useSetAtom(setArticlesAtom);
@@ -45,6 +47,7 @@ export function useNewsStore() {
   const setFeaturedLoading = useSetAtom(featuredLoadingAtom);
   const setError = useSetAtom(errorAtom);
   const setFeaturedError = useSetAtom(featuredErrorAtom);
+  const setShowLoadMoreButton = useSetAtom(showLoadMoreButtonAtom);
   const incrementPage = useSetAtom(incrementPageAtom);
   const resetStore = useSetAtom(resetStoreAtom);
   const saveScrollPosition = useSetAtom(saveScrollPositionAtom);
@@ -59,12 +62,18 @@ export function useNewsStore() {
     ) => {
       if (pageBeingFetched === 1) {
         setArticles(newArticles);
+        // Reset showLoadMoreButton for first page
+        setShowLoadMoreButton(false);
       } else {
         addArticles(newArticles);
       }
-      setHasMore(pageBeingFetched < totalPages);
+
+      // Show "Load More Articles" button only after 10 pages
+      if (pageBeingFetched >= 10) {
+        setShowLoadMoreButton(true);
+      }
     },
-    [setArticles, addArticles, setHasMore]
+    [setArticles, addArticles, setShowLoadMoreButton]
   );
 
   const handleLoadMore = useCallback(() => {
@@ -101,6 +110,7 @@ export function useNewsStore() {
     featuredLoading,
     error,
     featuredError,
+    showLoadMoreButton,
 
     // Actions
     setArticles,
@@ -114,6 +124,7 @@ export function useNewsStore() {
     setFeaturedLoading,
     setError,
     setFeaturedError,
+    setShowLoadMoreButton,
     incrementPage,
     resetStore,
 

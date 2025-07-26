@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { GameSlug } from "@/types";
@@ -35,6 +35,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
   const router = useRouter();
   const pathname = usePathname();
   const scrollRestoredRef = useRef(false);
+  const observerRef = useRef<HTMLDivElement>(null);
 
   // Use Jotai store
   const {
@@ -45,7 +46,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
     featuredLoading,
     error,
     featuredError,
-    hasMore,
+    showLoadMoreButton,
     setFeaturedArticles: setFeaturedNews,
     setLoading,
     setFeaturedLoading,
@@ -67,7 +68,37 @@ export function NewsList({ gameSlug }: NewsListProps) {
     }
   }, [urlPage, currentPage, setCurrentPage]);
 
-  // Load More handler: update URL param
+  // Intersection Observer for lazy loading
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [target] = entries;
+      if (target.isIntersecting && !loading && currentPage < 10) {
+        // Auto-load next page for first 10 pages
+        const nextPage = currentPage + 1;
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("page", nextPage.toString());
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+      }
+    },
+    [loading, currentPage, searchParams, router, pathname]
+  );
+
+  // Set up Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0.1,
+    });
+
+    if (observerRef.current) {
+      observer.observe(observerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [handleObserver]);
+
+  // Load More handler: update URL param (for pages after 10)
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
     const params = new URLSearchParams(searchParams.toString());
@@ -79,12 +110,12 @@ export function NewsList({ gameSlug }: NewsListProps) {
     // Handle game slug changes
     handleGameChange(gameSlug);
     fetchFeaturedNews();
-    fetchNews();
+    fetchNews(urlPage);
   }, [gameSlug, handleGameChange]);
 
   useEffect(() => {
     if (urlPage > 1 && urlPage !== currentPage) {
-      fetchNews();
+      fetchNews(urlPage);
     }
   }, [urlPage, currentPage]);
 
@@ -126,15 +157,16 @@ export function NewsList({ gameSlug }: NewsListProps) {
     }
   };
 
-  const fetchNews = async () => {
+  const fetchNews = async (pageToFetch?: number) => {
     try {
       setLoading(true);
       setError("");
 
+      const page = pageToFetch || urlPage;
       const response = await fetch(
         gameSlug
-          ? `/api/news?gameSlug=${gameSlug}&page=${urlPage}&limit=10`
-          : `/api/news?page=${urlPage}&limit=10`
+          ? `/api/news?gameSlug=${gameSlug}&page=${page}&limit=10`
+          : `/api/news?page=${page}&limit=10`
       );
 
       if (!response.ok) {
@@ -144,7 +176,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
       const data: NewsResponse = await response.json();
 
       // Use the loadMoreArticles helper from the store
-      loadMoreArticles(data.data, data.pagination.totalPages, urlPage);
+      loadMoreArticles(data.data, data.pagination.totalPages, page);
     } catch (err) {
       setError("Failed to load news");
       console.error("Error fetching news:", err);
@@ -155,7 +187,7 @@ export function NewsList({ gameSlug }: NewsListProps) {
 
   const handleRetry = () => {
     if (error) {
-      fetchNews();
+      fetchNews(urlPage);
     }
     if (featuredError) {
       fetchFeaturedNews();
@@ -219,18 +251,17 @@ export function NewsList({ gameSlug }: NewsListProps) {
           <h2 className="text-xl font-semibold text-gray-900">Latest News</h2>
           <div className="space-y-2">
             {newsPosts.map((article) => (
-              <NewsListItem
-                key={article.id}
-                article={article}
-                gameSlug={gameSlug}
-              />
+              <NewsListItem key={article.id} article={article} />
             ))}
           </div>
+
+          {/* Intersection Observer for lazy loading (first 10 pages) */}
+          {currentPage < 10 && <div ref={observerRef} className="h-4" />}
         </div>
       )}
 
-      {/* Load More Button */}
-      {hasMore && (
+      {/* Load More Button (after 10 pages) */}
+      {showLoadMoreButton && (
         <div className="text-center">
           <Button onClick={handleLoadMore} disabled={loading} variant="outline">
             {loading ? "Loading..." : "Load More Articles"}

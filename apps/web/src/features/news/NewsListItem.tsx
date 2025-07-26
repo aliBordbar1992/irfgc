@@ -1,19 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { NewsPost } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Clock, ArrowRight } from "lucide-react";
+import { useNewsStore } from "./hooks/useNewsStore";
 
 interface NewsListItemProps {
   article: NewsPost;
-  gameSlug?: string | null;
 }
 
-export function NewsListItem({ article, gameSlug }: NewsListItemProps) {
-  const searchParams = useSearchParams();
+export function NewsListItem({ article }: NewsListItemProps) {
+  const { handleArticleClick } = useNewsStore();
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -28,16 +27,6 @@ export function NewsListItem({ article, gameSlug }: NewsListItemProps) {
     const wordCount = content.split(" ").length;
     const readTime = Math.ceil(wordCount / wordsPerMinute);
     return `${readTime} min read`;
-  };
-
-  const handleArticleClick = () => {
-    const currentPage = parseInt(searchParams.get("page") || "1");
-    const scrollKey = `news-scroll-${gameSlug || "general"}-${currentPage}`;
-    const scrollData = {
-      scrollY: window.scrollY,
-      timestamp: Date.now(),
-    };
-    sessionStorage.setItem(scrollKey, JSON.stringify(scrollData));
   };
 
   return (

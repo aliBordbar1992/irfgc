@@ -14,6 +14,7 @@ interface NewsStoreState {
   featuredLoading: boolean;
   error: string;
   featuredError: string;
+  showLoadMoreButton: boolean;
 }
 
 // Default state
@@ -28,6 +29,7 @@ const defaultState: NewsStoreState = {
   featuredLoading: false,
   error: "",
   featuredError: "",
+  showLoadMoreButton: false,
 };
 
 // Create persistent atoms with sessionStorage
@@ -131,6 +133,13 @@ export const featuredErrorAtom = atom(
   (get) => get(newsStoreAtom).featuredError,
   (get, set, featuredError: string) => {
     set(newsStoreAtom, { ...get(newsStoreAtom), featuredError });
+  }
+);
+
+export const showLoadMoreButtonAtom = atom(
+  (get) => get(newsStoreAtom).showLoadMoreButton,
+  (get, set, showLoadMoreButton: boolean) => {
+    set(newsStoreAtom, { ...get(newsStoreAtom), showLoadMoreButton });
   }
 );
 
