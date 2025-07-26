@@ -245,6 +245,56 @@ async function main() {
     }
   }
 
+  // Create some initial tags
+  const tags = [
+    {
+      name: "Tournament",
+      description: "Tournament related news",
+      color: "#FF6B6B",
+    },
+    {
+      name: "Announcement",
+      description: "Important announcements",
+      color: "#4ECDC4",
+    },
+    {
+      name: "Community",
+      description: "Community events and updates",
+      color: "#45B7D1",
+    },
+    {
+      name: "Game Update",
+      description: "Game updates and patches",
+      color: "#96CEB4",
+    },
+    { name: "Event", description: "Special events", color: "#FFEAA7" },
+    {
+      name: "Competition",
+      description: "Competitive gaming",
+      color: "#DDA0DD",
+    },
+    { name: "News", description: "General news", color: "#98D8C8" },
+    { name: "Guide", description: "Gaming guides and tips", color: "#F7DC6F" },
+  ];
+
+  for (const tagData of tags) {
+    const slug = tagData.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    await prisma.tag.upsert({
+      where: { slug },
+      update: {},
+      create: {
+        name: tagData.name,
+        slug,
+        description: tagData.description,
+        color: tagData.color,
+      },
+    });
+  }
+
   console.log("🎉 Database seeded successfully!");
 }
 

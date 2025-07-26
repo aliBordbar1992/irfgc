@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGames } from "@/hooks/useGames";
+import { TagSelect, Tag } from "@/components/ui/tag-select";
 
 const createNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -36,7 +37,7 @@ const createNewsSchema = z.object({
   gameSlug: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featured: z.boolean(),
-  tags: z.string().optional(),
+  tagIds: z.array(z.string()).default([]),
   thumbnail: z.string().optional(),
   coverImage: z.string().optional(),
 });
@@ -58,6 +59,8 @@ export function CreateNewsDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
+
   const {
     register,
     handleSubmit,
@@ -71,7 +74,7 @@ export function CreateNewsDialog({
       status: "DRAFT",
       featured: false,
       gameSlug: "general",
-      tags: "",
+      tagIds: [],
     },
   });
 
@@ -83,14 +86,6 @@ export function CreateNewsDialog({
     setError("");
 
     try {
-      // Convert tags from comma-separated string to array
-      const tags = data.tags
-        ? data.tags
-            .split(",")
-            .map((tag) => tag.trim())
-            .filter((tag) => tag.length > 0)
-        : [];
-
       const response = await fetch("/api/news", {
         method: "POST",
         headers: {
@@ -98,7 +93,7 @@ export function CreateNewsDialog({
         },
         body: JSON.stringify({
           ...data,
-          tags,
+          tagIds: selectedTags.map((tag) => tag.id),
           gameSlug:
             data.gameSlug === "general" || !data.gameSlug
               ? null
@@ -189,15 +184,12 @@ export function CreateNewsDialog({
 
           <div className="space-y-2">
             <Label htmlFor="tags">Tags</Label>
-            <Input
-              id="tags"
-              placeholder="Enter tags separated by commas (e.g., tournament, announcement, community)"
-              {...register("tags")}
-              className={errors.tags ? "border-red-500" : ""}
+            <TagSelect
+              value={selectedTags}
+              onChange={setSelectedTags}
+              placeholder="Search and select tags..."
+              maxTags={10}
             />
-            {errors.tags && (
-              <p className="text-sm text-red-500">{errors.tags.message}</p>
-            )}
             <p className="text-xs text-gray-500">
               Tags help categorize and search for articles
             </p>

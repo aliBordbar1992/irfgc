@@ -69,6 +69,16 @@ export interface Event {
 // News Types
 export type NewsStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
+export interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  color?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface NewsPost {
   id: string;
   title: string;
@@ -81,7 +91,7 @@ export interface NewsPost {
   status: NewsStatus;
   views: number;
   featured: boolean;
-  tags: string[]; // Array of tags
+  tags: Tag[]; // Array of Tag entities
   thumbnail?: string; // URL for thumbnail image (shown in news list)
   coverImage?: string; // URL for cover image (shown on article page)
   publishedAt: Date;

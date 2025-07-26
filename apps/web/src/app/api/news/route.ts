@@ -11,7 +11,7 @@ const createNewsSchema = z.object({
   gameSlug: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
   featured: z.boolean().default(false),
-  tags: z.array(z.string()).default([]),
+  tagIds: z.array(z.string()).default([]), // Array of tag IDs
   thumbnail: z.string().optional(),
   coverImage: z.string().optional(),
 });
@@ -28,7 +28,18 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    const where: {
+      gameSlug?: string | null;
+      status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" | { in: string[] };
+      featured?: boolean;
+      OR?: Array<{
+        title?: { contains: string; mode: "insensitive" };
+        content?: { contains: string; mode: "insensitive" };
+        excerpt?: { contains: string; mode: "insensitive" };
+        author?: { name: { contains: string; mode: "insensitive" } };
+      }>;
+      deletedAt?: null;
+    } = {};
     if (gameSlug && gameSlug !== "general") {
       where.gameSlug = gameSlug;
     } else if (gameSlug === "general") {
@@ -140,11 +151,18 @@ export async function POST(request: NextRequest) {
           validatedData.gameSlug !== "general" && {
             gameSlug: validatedData.gameSlug,
           }),
-        ...(validatedData.tags && { tags: validatedData.tags }),
         ...(validatedData.thumbnail && { thumbnail: validatedData.thumbnail }),
         ...(validatedData.coverImage && {
           coverImage: validatedData.coverImage,
         }),
+        // Create tag relationships
+        tags: {
+          create: validatedData.tagIds.map((tagId) => ({
+            tag: {
+              connect: { id: tagId },
+            },
+          })),
+        },
       },
       include: {
         game: true,
@@ -154,6 +172,11 @@ export async function POST(request: NextRequest) {
             name: true,
             email: true,
             avatar: true,
+          },
+        },
+        tags: {
+          include: {
+            tag: true,
           },
         },
       },

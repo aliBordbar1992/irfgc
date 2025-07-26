@@ -112,7 +112,6 @@ model NewsPost {
   status      NewsStatus @default(DRAFT)
   views       Int      @default(0)
   featured    Boolean  @default(false)
-  tags        String[] // Array of tags
   thumbnail   String?  // URL for thumbnail image (shown in news list)
   coverImage  String?  // URL for cover image (shown on article page)
   publishedAt DateTime @default(now())
@@ -123,8 +122,38 @@ model NewsPost {
   // Relations
   game   Game? @relation(fields: [gameSlug], references: [slug])
   author User  @relation(fields: [authorId], references: [id])
+  tags   NewsPostTag[]
 
   @@map("news_posts")
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  color       String?  // Hex color for tag styling
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  newsPosts NewsPostTag[]
+
+  @@map("tags")
+}
+
+model NewsPostTag {
+  id         String   @id @default(cuid())
+  newsPostId String
+  tagId      String
+  createdAt  DateTime @default(now())
+
+  // Relations
+  newsPost NewsPost @relation(fields: [newsPostId], references: [id], onDelete: Cascade)
+  tag      Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([newsPostId, tagId])
+  @@map("news_post_tags")
 }
 
 model LFGPost {
