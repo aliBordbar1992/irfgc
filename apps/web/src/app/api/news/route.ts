@@ -11,6 +11,9 @@ const createNewsSchema = z.object({
   gameSlug: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
   featured: z.boolean().default(false),
+  tags: z.array(z.string()).default([]),
+  thumbnail: z.string().optional(),
+  coverImage: z.string().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -137,6 +140,11 @@ export async function POST(request: NextRequest) {
           validatedData.gameSlug !== "general" && {
             gameSlug: validatedData.gameSlug,
           }),
+        ...(validatedData.tags && { tags: validatedData.tags }),
+        ...(validatedData.thumbnail && { thumbnail: validatedData.thumbnail }),
+        ...(validatedData.coverImage && {
+          coverImage: validatedData.coverImage,
+        }),
       },
       include: {
         game: true,

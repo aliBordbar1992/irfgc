@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { CropImagePicker } from "@/components/ui/crop-image-picker";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,9 @@ const createNewsSchema = z.object({
   gameSlug: z.string().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   featured: z.boolean(),
+  tags: z.string().optional(),
+  thumbnail: z.string().optional(),
+  coverImage: z.string().optional(),
 });
 
 type CreateNewsFormData = z.infer<typeof createNewsSchema>;
@@ -67,6 +71,7 @@ export function CreateNewsDialog({
       status: "DRAFT",
       featured: false,
       gameSlug: "general",
+      tags: "",
     },
   });
 
@@ -78,6 +83,14 @@ export function CreateNewsDialog({
     setError("");
 
     try {
+      // Convert tags from comma-separated string to array
+      const tags = data.tags
+        ? data.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag.length > 0)
+        : [];
+
       const response = await fetch("/api/news", {
         method: "POST",
         headers: {
@@ -85,6 +98,7 @@ export function CreateNewsDialog({
         },
         body: JSON.stringify({
           ...data,
+          tags,
           gameSlug:
             data.gameSlug === "general" || !data.gameSlug
               ? null
@@ -120,7 +134,7 @@ export function CreateNewsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Create News Post</DialogTitle>
           <DialogDescription>
@@ -128,7 +142,10 @@ export function CreateNewsDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4 overflow-y-auto flex-1 pr-2"
+        >
           <div className="space-y-2">
             <Label htmlFor="title">Article Title</Label>
             <Input
@@ -168,6 +185,46 @@ export function CreateNewsDialog({
             {errors.content && (
               <p className="text-sm text-red-500">{errors.content.message}</p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags</Label>
+            <Input
+              id="tags"
+              placeholder="Enter tags separated by commas (e.g., tournament, announcement, community)"
+              {...register("tags")}
+              className={errors.tags ? "border-red-500" : ""}
+            />
+            {errors.tags && (
+              <p className="text-sm text-red-500">{errors.tags.message}</p>
+            )}
+            <p className="text-xs text-gray-500">
+              Tags help categorize and search for articles
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6">
+            <CropImagePicker
+              label="Thumbnail Image (Optional)"
+              description="Image shown in news list (recommended: 400x300px)"
+              value={watch("thumbnail")}
+              onChange={(value) => setValue("thumbnail", value)}
+              maxSize={2}
+              cropWidth={400}
+              cropHeight={300}
+              imageType="thumbnail"
+            />
+
+            <CropImagePicker
+              label="Cover Image (Optional)"
+              description="Image shown on article page (recommended: 1200x600px)"
+              value={watch("coverImage")}
+              onChange={(value) => setValue("coverImage", value)}
+              maxSize={5}
+              cropWidth={1200}
+              cropHeight={600}
+              imageType="cover"
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

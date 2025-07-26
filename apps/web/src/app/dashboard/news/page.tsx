@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -362,6 +363,20 @@ export default function NewsPage() {
                   }`}
                 >
                   <div className="flex">
+                    {/* Thumbnail Image */}
+                    {post.thumbnail && (
+                      <div className="flex-shrink-0 p-3">
+                        <Image
+                          src={post.thumbnail}
+                          alt={post.title}
+                          className="w-20 h-16 object-cover rounded-lg"
+                          width={80}
+                          height={64}
+                          unoptimized
+                        />
+                      </div>
+                    )}
+
                     {/* Left side - Content */}
                     <div className="flex-1 p-3">
                       <div className="flex items-start justify-between mb-2">

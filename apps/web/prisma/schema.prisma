@@ -112,6 +112,9 @@ model NewsPost {
   status      NewsStatus @default(DRAFT)
   views       Int      @default(0)
   featured    Boolean  @default(false)
+  tags        String[] // Array of tags
+  thumbnail   String?  // URL for thumbnail image (shown in news list)
+  coverImage  String?  // URL for cover image (shown on article page)
   publishedAt DateTime @default(now())
   deletedAt   DateTime?   // Soft delete timestamp
   createdAt   DateTime @default(now())

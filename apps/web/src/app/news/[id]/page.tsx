@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { NewsPost } from "@/types";
 import { Calendar, Eye, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function NewsArticlePage() {
   const params = useParams();
@@ -131,17 +132,6 @@ export default function NewsArticlePage() {
             {newsPost.featured && (
               <Badge className="bg-purple-100 text-purple-800">Featured</Badge>
             )}
-            <Badge
-              className={
-                newsPost.status === "PUBLISHED"
-                  ? "bg-green-100 text-green-800"
-                  : newsPost.status === "DRAFT"
-                  ? "bg-yellow-100 text-yellow-800"
-                  : "bg-gray-100 text-gray-800"
-              }
-            >
-              {newsPost.status}
-            </Badge>
           </div>
 
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -180,7 +170,32 @@ export default function NewsArticlePage() {
               {newsPost.excerpt}
             </p>
           )}
+
+          {/* Tags */}
+          {newsPost.tags && newsPost.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {newsPost.tags.map((tag, index) => (
+                <Badge key={index} variant="outline" className="text-sm">
+                  {tag}
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Cover Image */}
+        {newsPost.coverImage && (
+          <div className="mb-8">
+            <Image
+              src={newsPost.coverImage}
+              alt={newsPost.title}
+              className="w-full h-64 md:h-96 object-cover rounded-lg"
+              width={1200}
+              height={600}
+              unoptimized
+            />
+          </div>
+        )}
 
         {/* Article Content */}
         <Card>

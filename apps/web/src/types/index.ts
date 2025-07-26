@@ -81,6 +81,9 @@ export interface NewsPost {
   status: NewsStatus;
   views: number;
   featured: boolean;
+  tags: string[]; // Array of tags
+  thumbnail?: string; // URL for thumbnail image (shown in news list)
+  coverImage?: string; // URL for cover image (shown on article page)
   publishedAt: Date;
   deletedAt?: Date; // Soft delete timestamp
   createdAt: Date;
