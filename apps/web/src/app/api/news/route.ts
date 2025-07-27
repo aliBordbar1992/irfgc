@@ -30,7 +30,11 @@ export async function GET(request: NextRequest) {
 
     const where: {
       gameSlug?: string | null;
-      status?: "DRAFT" | "PUBLISHED" | "ARCHIVED" | { in: string[] };
+      status?:
+        | "DRAFT"
+        | "PUBLISHED"
+        | "ARCHIVED"
+        | { in: ("DRAFT" | "PUBLISHED" | "ARCHIVED")[] };
       featured?: boolean;
       OR?: Array<{
         title?: { contains: string; mode: "insensitive" };
@@ -49,7 +53,9 @@ export async function GET(request: NextRequest) {
     if (status) {
       if (status.includes(",")) {
         // Handle multiple statuses (for dashboard)
-        where.status = { in: status.split(",") };
+        where.status = {
+          in: status.split(",") as ("DRAFT" | "PUBLISHED" | "ARCHIVED")[],
+        };
       } else {
         where.status = status as "DRAFT" | "PUBLISHED" | "ARCHIVED";
       }
