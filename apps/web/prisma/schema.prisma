@@ -15,7 +15,10 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String   @unique
+  username  String   @unique
+  usernameNormalized String @unique // Normalized username for case-insensitive lookups
+  email     String?  // Made nullable for backward compatibility
+  emailNormalized String? @unique // Normalized email for case-insensitive lookups
   name      String
   password  String
   role      UserRole @default(PLAYER)

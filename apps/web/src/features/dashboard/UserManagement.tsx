@@ -42,7 +42,10 @@ import {
 interface User {
   id: string;
   name: string;
-  email: string;
+  username: string;
+  usernameNormalized: string;
+  email?: string;
+  emailNormalized?: string;
   role: UserRole;
   createdAt: Date;
   updatedAt: Date;
@@ -76,10 +79,13 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
 
     // Apply search filter
     if (searchQuery) {
+      const normalizedQuery = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (user) =>
-          user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchQuery.toLowerCase())
+          user.name.toLowerCase().includes(normalizedQuery) ||
+          user.usernameNormalized.includes(normalizedQuery) ||
+          (user.emailNormalized &&
+            user.emailNormalized.includes(normalizedQuery))
       );
     }
 
@@ -254,7 +260,7 @@ export function UserManagement({ initialUsers }: UserManagementProps) {
                       <div>
                         <div className="font-medium">{user.name}</div>
                         <div className="text-sm text-gray-600">
-                          {user.email}
+                          @{user.username}
                         </div>
                       </div>
                     </TableCell>

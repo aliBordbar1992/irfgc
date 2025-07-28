@@ -21,7 +21,7 @@ describe("Authentication Components", () => {
     it("should render sign in form with all required fields", () => {
       render(<SignInForm />);
 
-      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /sign in/i })
@@ -36,25 +36,8 @@ describe("Authentication Components", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/username is required/i)).toBeInTheDocument();
         expect(screen.getByText(/password is required/i)).toBeInTheDocument();
-      });
-    });
-
-    it("should validate email format", async () => {
-      const user = userEvent.setup();
-      render(<SignInForm />);
-
-      const emailInput = screen.getByLabelText(/email/i);
-      await user.type(emailInput, "invalid-email");
-
-      const submitButton = screen.getByRole("button", { name: /sign in/i });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(
-          screen.getByText(/please enter a valid email address/i)
-        ).toBeInTheDocument();
       });
     });
 
@@ -62,10 +45,10 @@ describe("Authentication Components", () => {
       const user = userEvent.setup();
       render(<SignInForm />);
 
-      const emailInput = screen.getByLabelText(/email/i);
+      const usernameInput = screen.getByLabelText(/username/i);
       const passwordInput = screen.getByLabelText(/password/i);
 
-      await user.type(emailInput, "test@example.com");
+      await user.type(usernameInput, "testuser");
       await user.type(passwordInput, "123");
 
       const submitButton = screen.getByRole("button", { name: /sign in/i });
@@ -84,11 +67,12 @@ describe("Authentication Components", () => {
       render(<SignUpForm />);
 
       expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
       expect(screen.getByLabelText(/confirm password/i)).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: /sign up/i })
+        screen.getByRole("button", { name: /create account/i })
       ).toBeInTheDocument();
     });
 
@@ -96,14 +80,16 @@ describe("Authentication Components", () => {
       const user = userEvent.setup();
       render(<SignUpForm />);
 
-      const submitButton = screen.getByRole("button", { name: /sign up/i });
+      const submitButton = screen.getByRole("button", {
+        name: /create account/i,
+      });
       await user.click(submitButton);
 
       await waitFor(() => {
         expect(
           screen.getByText(/name must be at least 2 characters/i)
         ).toBeInTheDocument();
-        expect(screen.getByText(/email is required/i)).toBeInTheDocument();
+        expect(screen.getByText(/username is required/i)).toBeInTheDocument();
         expect(screen.getByText(/password is required/i)).toBeInTheDocument();
       });
     });
@@ -115,7 +101,9 @@ describe("Authentication Components", () => {
       const nameInput = screen.getByLabelText(/name/i);
       await user.type(nameInput, "a");
 
-      const submitButton = screen.getByRole("button", { name: /sign up/i });
+      const submitButton = screen.getByRole("button", {
+        name: /create account/i,
+      });
       await user.click(submitButton);
 
       await waitFor(() => {
@@ -125,25 +113,48 @@ describe("Authentication Components", () => {
       });
     });
 
+    it("should validate username minimum length", async () => {
+      const user = userEvent.setup();
+      render(<SignUpForm />);
+
+      const usernameInput = screen.getByLabelText(/username/i);
+      await user.type(usernameInput, "ab");
+
+      const submitButton = screen.getByRole("button", {
+        name: /create account/i,
+      });
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/username must be at least 3 characters/i)
+        ).toBeInTheDocument();
+      });
+    });
+
     it("should validate password confirmation match", async () => {
       const user = userEvent.setup();
       render(<SignUpForm />);
 
       const nameInput = screen.getByLabelText(/name/i);
+      const usernameInput = screen.getByLabelText(/username/i);
       const emailInput = screen.getByLabelText(/email/i);
       const passwordInput = screen.getByLabelText(/password/i);
       const confirmPasswordInput = screen.getByLabelText(/confirm password/i);
 
       await user.type(nameInput, "Test User");
+      await user.type(usernameInput, "testuser");
       await user.type(emailInput, "test@example.com");
       await user.type(passwordInput, "password123");
       await user.type(confirmPasswordInput, "password456");
 
-      const submitButton = screen.getByRole("button", { name: /sign up/i });
+      const submitButton = screen.getByRole("button", {
+        name: /create account/i,
+      });
       await user.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/passwords do not match/i)).toBeInTheDocument();
+        expect(screen.getByText(/passwords don't match/i)).toBeInTheDocument();
       });
     });
   });

@@ -21,7 +21,10 @@ interface RecentActivityProps {
     users: Array<{
       id: string;
       name: string;
-      email: string;
+      username: string;
+      usernameNormalized: string;
+      email?: string;
+      emailNormalized?: string;
       role: string;
       createdAt: Date;
     }>;
@@ -111,7 +114,7 @@ export function RecentActivity({ data }: RecentActivityProps) {
       type: "user" as const,
       id: user.id,
       title: `${user.name} joined`,
-      subtitle: user.email,
+      subtitle: `@${user.username}`,
       game: null,
       author: null,
       role: user.role,

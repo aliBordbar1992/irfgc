@@ -26,6 +26,7 @@ describe("Authentication API", () => {
         method: "POST",
         body: {
           name: "Test User",
+          username: "testuser",
           email: "test@example.com",
           password: "password123",
         },
@@ -37,6 +38,7 @@ describe("Authentication API", () => {
       prisma.user.create.mockResolvedValue({
         id: "user-123",
         name: "Test User",
+        username: "testuser",
         email: "test@example.com",
         role: "PLAYER",
       });
@@ -46,7 +48,7 @@ describe("Authentication API", () => {
       expect(res._getStatusCode()).toBe(201);
       const data = JSON.parse(res._getData());
       expect(data.message).toBe("User created successfully");
-      expect(data.user.email).toBe("test@example.com");
+      expect(data.user.username).toBe("testuser");
       expect(data.user.role).toBe("PLAYER");
     });
 
@@ -55,6 +57,7 @@ describe("Authentication API", () => {
         method: "POST",
         body: {
           name: "Test User",
+          username: "existinguser",
           email: "existing@example.com",
           password: "password123",
         },
@@ -71,7 +74,7 @@ describe("Authentication API", () => {
 
       expect(res._getStatusCode()).toBe(400);
       const data = JSON.parse(res._getData());
-      expect(data.error).toBe("User with this email already exists");
+      expect(data.error).toBe("Username is already taken");
     });
 
     it("should validate required fields", async () => {
@@ -79,6 +82,7 @@ describe("Authentication API", () => {
         method: "POST",
         body: {
           name: "",
+          username: "testuser",
           email: "invalid-email",
           password: "123",
         },
@@ -96,6 +100,7 @@ describe("Authentication API", () => {
         method: "POST",
         body: {
           name: "Test User",
+          username: "testuser",
           email: "invalid-email",
           password: "password123",
         },
@@ -113,6 +118,7 @@ describe("Authentication API", () => {
         method: "POST",
         body: {
           name: "Test User",
+          username: "testuser",
           email: "test@example.com",
           password: "123",
         },

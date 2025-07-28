@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,11 +16,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { normalizeUsername } from "@/lib/normalization";
 
 const signUpSchema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
-    email: z.string().email("Please enter a valid email address"),
+    username: z
+      .string()
+      .min(3, "Username must be at least 3 characters")
+      .max(20, "Username must be at most 20 characters"),
+    email: z
+      .string()
+      .email("Please enter a valid email address")
+      .optional()
+      .or(z.literal("")),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
@@ -34,15 +44,58 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 export function SignUpForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [usernameStatus, setUsernameStatus] = useState<{
+    checking: boolean;
+    available: boolean | null;
+  }>({ checking: false, available: null });
   const router = useRouter();
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
+
+  const watchedUsername = watch("username");
+
+  // Check username availability
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (!watchedUsername || watchedUsername.length < 3) {
+        setUsernameStatus({ checking: false, available: null });
+        return;
+      }
+
+      setUsernameStatus({ checking: true, available: null });
+
+      try {
+        const normalizedUsername = normalizeUsername(watchedUsername);
+        const response = await fetch("/api/auth/check-username", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username: normalizedUsername }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setUsernameStatus({ checking: false, available: data.available });
+        } else {
+          setUsernameStatus({ checking: false, available: null });
+        }
+      } catch {
+        setUsernameStatus({ checking: false, available: null });
+      }
+    };
+
+    const timeoutId = setTimeout(checkUsername, 500);
+    return () => clearTimeout(timeoutId);
+  }, [watchedUsername]);
 
   const onSubmit = async (data: SignUpFormData) => {
     setIsLoading(true);
@@ -56,7 +109,8 @@ export function SignUpForm() {
         },
         body: JSON.stringify({
           name: data.name,
-          email: data.email,
+          username: data.username,
+          email: data.email || undefined,
           password: data.password,
         }),
       });
@@ -77,6 +131,32 @@ export function SignUpForm() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getUsernameStatusIcon = () => {
+    if (usernameStatus.checking) {
+      return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />;
+    }
+    if (usernameStatus.available === true) {
+      return <CheckCircle className="h-4 w-4 text-green-500" />;
+    }
+    if (usernameStatus.available === false) {
+      return <XCircle className="h-4 w-4 text-red-500" />;
+    }
+    return null;
+  };
+
+  const getUsernameStatusText = () => {
+    if (usernameStatus.checking) {
+      return "Checking availability...";
+    }
+    if (usernameStatus.available === true) {
+      return "Username is available";
+    }
+    if (usernameStatus.available === false) {
+      return "Username is already taken";
+    }
+    return "";
   };
 
   return (
@@ -104,11 +184,43 @@ export function SignUpForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
+            <div className="relative">
+              <Input
+                id="username"
+                type="text"
+                placeholder="Choose a username"
+                {...register("username")}
+                className={`${errors.username ? "border-red-500" : ""} pr-10`}
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                {getUsernameStatusIcon()}
+              </div>
+            </div>
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
+            )}
+            {getUsernameStatusText() && (
+              <p
+                className={`text-sm ${
+                  usernameStatus.available === true
+                    ? "text-green-600"
+                    : usernameStatus.available === false
+                    ? "text-red-600"
+                    : "text-gray-600"
+                }`}
+              >
+                {getUsernameStatusText()}
+              </p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email (Optional)</Label>
             <Input
               id="email"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your email (optional)"
               {...register("email")}
               className={errors.email ? "border-red-500" : ""}
             />
@@ -153,7 +265,11 @@ export function SignUpForm() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={isLoading || usernameStatus.available === false}
+          >
             {isLoading ? "Creating account..." : "Create Account"}
           </Button>
         </form>

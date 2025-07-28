@@ -15,7 +15,8 @@ interface ProfileFormProps {
   user: {
     id: string;
     name: string;
-    email: string;
+    username: string;
+    email?: string;
     role: UserRole;
     avatar?: string | null;
     createdAt: Date;
@@ -33,7 +34,8 @@ export function ProfileForm({ user }: ProfileFormProps) {
   } | null>(null);
   const [formData, setFormData] = useState({
     name: user.name,
-    email: user.email,
+    username: user.username,
+    email: user.email || "",
     avatar: user.avatar || "",
   });
 
@@ -193,7 +195,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
             </div>
             <div>
               <h3 className="font-medium text-gray-900">{formData.name}</h3>
-              <p className="text-sm text-gray-500">{formData.email}</p>
+              <p className="text-sm text-gray-500">@{formData.username}</p>
               <Badge className={`mt-1 ${getRoleColor(user.role)}`}>
                 {user.role}
               </Badge>
@@ -216,18 +218,31 @@ export function ProfileForm({ user }: ProfileFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, email: e.target.value }))
-                }
-                placeholder="Enter your email"
-                required
+                id="username"
+                value={formData.username}
+                disabled
+                className="bg-gray-50"
+                placeholder="Username cannot be changed"
               />
+              <p className="text-xs text-gray-500">
+                Username cannot be changed after registration
+              </p>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Email Address (Optional)</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, email: e.target.value }))
+              }
+              placeholder="Enter your email (optional)"
+            />
           </div>
 
           <div className="space-y-2">

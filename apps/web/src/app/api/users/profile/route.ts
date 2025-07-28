@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeEmail } from "@/lib/normalization";
 
 export async function PUT(request: NextRequest) {
   try {
@@ -15,40 +16,44 @@ export async function PUT(request: NextRequest) {
     const { name, email, avatar } = body;
 
     // Validate input
-    if (!name || !email) {
-      return NextResponse.json(
-        { error: "Name and email are required" },
-        { status: 400 }
-      );
+    if (!name) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Check if email is already taken by another user
-    const existingUser = await prisma.user.findFirst({
-      where: {
-        email,
-        id: { not: session.user.id },
-      },
-    });
+    // Normalize email for case-insensitive check (if provided)
+    const normalizedEmail = normalizeEmail(email);
 
-    if (existingUser) {
-      return NextResponse.json(
-        { error: "Email is already taken" },
-        { status: 400 }
-      );
+    // Check if email is already taken by another user (case-insensitive, if provided)
+    if (normalizedEmail) {
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          emailNormalized: normalizedEmail,
+          id: { not: session.user.id },
+        },
+      });
+
+      if (existingUser) {
+        return NextResponse.json(
+          { error: "Email is already taken" },
+          { status: 400 }
+        );
+      }
     }
 
-    // Update user profile
+    // Update user profile with normalized email
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
       data: {
         name,
-        email,
+        email: email || null,
+        emailNormalized: normalizedEmail,
         avatar: avatar || null,
         updatedAt: new Date(),
       },
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
         role: true,
         avatar: true,
@@ -83,6 +88,7 @@ export async function GET() {
       select: {
         id: true,
         name: true,
+        username: true,
         email: true,
         role: true,
         avatar: true,

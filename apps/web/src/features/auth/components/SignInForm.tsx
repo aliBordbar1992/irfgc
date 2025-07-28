@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/card";
 
 const signInSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  username: z.string().min(1, "Username is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -44,13 +44,13 @@ export function SignInForm() {
 
     try {
       const result = await signIn("credentials", {
-        email: data.email,
+        username: data.username,
         password: data.password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        setError("Invalid username or password");
       } else {
         router.push("/");
         router.refresh();
@@ -73,16 +73,16 @@ export function SignInForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              {...register("email")}
-              className={errors.email ? "border-red-500" : ""}
+              id="username"
+              type="text"
+              placeholder="Enter your username"
+              {...register("username")}
+              className={errors.username ? "border-red-500" : ""}
             />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email.message}</p>
+            {errors.username && (
+              <p className="text-sm text-red-500">{errors.username.message}</p>
             )}
           </div>
 
@@ -118,24 +118,6 @@ export function SignInForm() {
               Sign up
             </Link>
           </p>
-        </div>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-gray-50 rounded-md">
-          <p className="text-sm font-medium text-gray-700 mb-2">
-            Demo Credentials:
-          </p>
-          <div className="space-y-1 text-xs text-gray-600">
-            <p>
-              <strong>Admin:</strong> admin@irfgc.ir / admin123
-            </p>
-            <p>
-              <strong>Moderator:</strong> moderator@irfgc.ir / mod123
-            </p>
-            <p>
-              <strong>Player:</strong> player@irfgc.ir / player123
-            </p>
-          </div>
         </div>
       </CardContent>
     </Card>
