@@ -109,6 +109,29 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // If this is a reply, create a notification for the parent comment author
+    if (
+      parentId &&
+      comment.parent &&
+      comment.parent.author.id !== session.user.id
+    ) {
+      try {
+        await prisma.notification.create({
+          data: {
+            userId: comment.parent.author.id,
+            type: "COMMENT_REPLY",
+            title: "New Reply to Your Comment",
+            message: `${session.user.name} replied to your comment`,
+            contentId: contentId,
+            contentType: contentType,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to create notification:", error);
+        // Don't fail the comment creation if notification fails
+      }
+    }
+
     return NextResponse.json({
       success: true,
       action: "created",

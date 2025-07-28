@@ -8,7 +8,7 @@ const createNewsSchema = z.object({
   title: z.string().min(1, "Title is required"),
   content: z.string().min(1, "Content is required"),
   excerpt: z.string().min(1, "Excerpt is required"),
-  gameSlug: z.string().optional(),
+  gameSlug: z.string().nullable().optional(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).default("DRAFT"),
   featured: z.boolean().default(false),
   tagIds: z.array(z.string()).default([]), // Array of tag IDs
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createNewsSchema.parse(body);
 
-    // Check if game exists (skip validation for "general")
+    // Check if game exists (skip validation for null/general)
     if (validatedData.gameSlug && validatedData.gameSlug !== "general") {
       const game = await prisma.game.findUnique({
         where: { slug: validatedData.gameSlug },
@@ -178,10 +178,8 @@ export async function POST(request: NextRequest) {
         authorId: session.user.id,
         status: validatedData.status,
         featured: validatedData.featured,
-        ...(validatedData.gameSlug &&
-          validatedData.gameSlug !== "general" && {
-            gameSlug: validatedData.gameSlug,
-          }),
+        gameSlug:
+          validatedData.gameSlug === "general" ? null : validatedData.gameSlug,
         ...(validatedData.thumbnail && { thumbnail: validatedData.thumbnail }),
         ...(validatedData.coverImage && {
           coverImage: validatedData.coverImage,

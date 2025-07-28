@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Settings, LogOut, Shield } from "lucide-react";
+import { NotificationBadge } from "@/components/NotificationBadge";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -59,6 +60,7 @@ export function UserMenu() {
             />
             <AvatarFallback>{userInitials}</AvatarFallback>
           </Avatar>
+          <NotificationBadge />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>

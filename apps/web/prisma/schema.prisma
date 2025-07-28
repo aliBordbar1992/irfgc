@@ -36,6 +36,7 @@ model User {
   chatMessages  ChatMessage[]
   reactions     Reaction[]
   comments      Comment[]
+  notifications Notification[]
 
   @@map("users")
 }
@@ -395,4 +396,32 @@ model Comment {
   @@index([authorId])
   @@index([parentId])
   @@map("comments")
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  userId      String           // User receiving the notification
+  type        NotificationType
+  title       String
+  message     String
+  contentId   String?          // ID of the related content
+  contentType ContentType?     // Type of the related content
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+enum NotificationType {
+  COMMENT_REPLY
+  EVENT_REGISTRATION
+  FORUM_REPLY
+  LFG_MATCH
+  SYSTEM
 }

@@ -85,6 +85,12 @@ async function main() {
       password: await bcrypt.hash("player123", 12),
       role: "PLAYER" as const,
     },
+    {
+      email: "player2@irfgc.ir",
+      name: "Player User 2",
+      password: await bcrypt.hash("player123", 12),
+      role: "PLAYER" as const,
+    },
   ];
 
   const createdUsers = [];

@@ -234,6 +234,36 @@ export interface Comment {
   };
 }
 
+// Notification Types
+export interface Notification {
+  id: string;
+  userId: string;
+  type:
+    | "COMMENT_REPLY"
+    | "EVENT_REGISTRATION"
+    | "FORUM_REPLY"
+    | "LFG_MATCH"
+    | "SYSTEM";
+  title: string;
+  message: string;
+  contentId?: string;
+  contentType?: ContentType;
+  isRead: boolean;
+  createdAt: Date;
+}
+
+export interface NotificationsData {
+  notifications: Notification[];
+  totalNotifications: number;
+  unreadCount: number;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
 export interface CommentData {
   contentId: string;
   contentType: ContentType;

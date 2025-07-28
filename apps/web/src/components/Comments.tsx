@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { MessageCircle } from "lucide-react";
 import { CommentItem } from "./CommentItem";
-import { AuthModal } from "./AuthModal";
+import { AuthModal } from "@/components/AuthModal";
 
 interface CommentsProps {
   contentId: string;
@@ -137,7 +137,6 @@ export function Comments({ contentId, contentType, className }: CommentsProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="date">Date</SelectItem>
-                  <SelectItem value="replies">Replies</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={sortOrder} onValueChange={handleSortOrderChange}>
