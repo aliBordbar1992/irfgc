@@ -14,6 +14,8 @@ import {
   Clock,
   ExternalLink,
 } from "lucide-react";
+import { Reactions } from "@/components/Reactions";
+import { ContentType } from "@/types";
 
 export default function EventDetailPage() {
   const params = useParams();
@@ -368,6 +370,20 @@ export default function EventDetailPage() {
                   </p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Reactions */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Reactions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Reactions
+                contentId={event.id}
+                contentType={ContentType.EVENT}
+                className="justify-start"
+              />
             </CardContent>
           </Card>
 

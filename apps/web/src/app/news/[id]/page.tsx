@@ -12,6 +12,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ViewTracker } from "@/features/news/ViewTracker";
 import { ViewStatsDisplay } from "@/features/news/ViewStatsDisplay";
+import { Reactions } from "@/components/Reactions";
+import { ContentType } from "@/types";
 
 export default function NewsArticlePage() {
   const params = useParams();
@@ -222,6 +224,15 @@ export default function NewsArticlePage() {
               className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: newsPost.content }}
             />
+
+            {/* Reactions */}
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <Reactions
+                contentId={newsPost.id}
+                contentType={ContentType.NEWS}
+                className="justify-start"
+              />
+            </div>
           </CardContent>
         </Card>
 

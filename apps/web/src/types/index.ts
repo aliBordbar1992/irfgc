@@ -175,3 +175,41 @@ export interface PaginatedResponse<T> {
     totalPages: number;
   };
 }
+
+export enum ContentType {
+  FORUM_THREAD = "FORUM_THREAD",
+  FORUM_REPLY = "FORUM_REPLY",
+  LFG_POST = "LFG_POST",
+  NEWS_POST = "NEWS_POST",
+  USER = "USER",
+  NEWS = "NEWS",
+  POST = "POST",
+  EVENT = "EVENT",
+}
+
+export interface ReactionData {
+  contentId: string;
+  contentType: ContentType;
+  reactions: Record<
+    string,
+    {
+      count: number;
+      users: Array<{ id: string; name: string; avatar: string | null }>;
+    }
+  >;
+  userReaction: string | null;
+  totalReactions: number;
+}
+
+export interface ReactionResponse {
+  success: boolean;
+  action: "created" | "updated" | "removed";
+  reaction: {
+    id: string;
+    contentId: string;
+    contentType: ContentType;
+    emoji: string;
+    userId: string;
+    createdAt: string;
+  } | null;
+}

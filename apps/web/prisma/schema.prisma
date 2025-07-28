@@ -34,6 +34,7 @@ model User {
   reportedReports Report[] @relation("ReportReportedUser")
   moderatedReports Report[] @relation("ReportModerator")
   chatMessages  ChatMessage[]
+  reactions     Reaction[]
 
   @@map("users")
 }
@@ -352,4 +353,22 @@ model ViewEvent {
 
   @@index([dedupHash, viewedAt])
   @@map("view_events")
+}
+
+model Reaction {
+  id          String      @id @default(cuid())
+  contentId   String
+  contentType ContentType
+  emoji       String      // Store the actual emoji character
+  userId      String      // Reactions require authentication
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([contentId, contentType, userId]) // One reaction per user per content
+  @@index([contentId, contentType])
+  @@index([userId])
+  @@map("reactions")
 }
