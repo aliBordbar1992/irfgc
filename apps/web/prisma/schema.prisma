@@ -35,6 +35,7 @@ model User {
   moderatedReports Report[] @relation("ReportModerator")
   chatMessages  ChatMessage[]
   reactions     Reaction[]
+  comments      Comment[]
 
   @@map("users")
 }
@@ -313,6 +314,7 @@ enum ContentType {
   NEWS
   POST
   EVENT
+  COMMENT
 }
 
 enum ReportStatus {
@@ -371,4 +373,26 @@ model Reaction {
   @@index([contentId, contentType])
   @@index([userId])
   @@map("reactions")
+}
+
+model Comment {
+  id          String      @id @default(cuid())
+  content     String
+  contentId   String      // ID of the content being commented on
+  contentType ContentType
+  authorId    String
+  parentId    String?     // For replies to comments
+  isDeleted   Boolean     @default(false) // Soft delete
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  author   User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  parent   Comment?       @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[]      @relation("CommentReplies")
+
+  @@index([contentId, contentType])
+  @@index([authorId])
+  @@index([parentId])
+  @@map("comments")
 }

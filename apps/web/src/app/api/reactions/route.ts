@@ -7,13 +7,15 @@ import { z } from "zod";
 const reactionSchema = z.object({
   contentId: z.string().min(1, "Content ID is required"),
   contentType: z.enum([
-    "NEWS",
-    "POST",
-    "EVENT",
     "FORUM_THREAD",
     "FORUM_REPLY",
     "LFG_POST",
-    "CHAT_MESSAGE",
+    "NEWS_POST",
+    "USER",
+    "NEWS",
+    "POST",
+    "EVENT",
+    "COMMENT",
   ]),
   emoji: z.string().min(1, "Emoji is required"),
 });
@@ -118,13 +120,15 @@ export async function GET(request: NextRequest) {
 
     // Validate content type
     const validContentTypes = [
-      "NEWS",
-      "POST",
-      "EVENT",
       "FORUM_THREAD",
       "FORUM_REPLY",
       "LFG_POST",
-      "CHAT_MESSAGE",
+      "NEWS_POST",
+      "USER",
+      "NEWS",
+      "POST",
+      "EVENT",
+      "COMMENT",
     ];
     if (!validContentTypes.includes(contentType)) {
       return NextResponse.json(
@@ -141,7 +145,16 @@ export async function GET(request: NextRequest) {
     const reactions = await prisma.reaction.findMany({
       where: {
         contentId,
-        contentType: contentType as any,
+        contentType: contentType as
+          | "FORUM_THREAD"
+          | "FORUM_REPLY"
+          | "LFG_POST"
+          | "NEWS_POST"
+          | "USER"
+          | "NEWS"
+          | "POST"
+          | "EVENT"
+          | "COMMENT",
       },
       include: {
         user: {
@@ -189,7 +202,7 @@ export async function GET(request: NextRequest) {
 
     // Check if current user has reacted
     const userReaction = userId
-      ? reactions.find((r: any) => r.userId === userId)
+      ? reactions.find((r) => r.userId === userId)
       : null;
 
     return NextResponse.json({

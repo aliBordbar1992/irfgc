@@ -14,6 +14,7 @@ import { ViewTracker } from "@/features/news/ViewTracker";
 import { ViewStatsDisplay } from "@/features/news/ViewStatsDisplay";
 import { Reactions } from "@/components/Reactions";
 import { ContentType } from "@/types";
+import { Comments } from "@/components/Comments";
 
 export default function NewsArticlePage() {
   const params = useParams();
@@ -229,7 +230,7 @@ export default function NewsArticlePage() {
             <div className="mt-8 pt-6 border-t border-gray-200">
               <Reactions
                 contentId={newsPost.id}
-                contentType={ContentType.NEWS}
+                contentType={ContentType.NEWS_POST}
                 className="justify-start"
               />
             </div>
@@ -297,6 +298,15 @@ export default function NewsArticlePage() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Comments section */}
+      <div className="mt-12">
+        <Comments
+          contentId={Array.isArray(id) ? id[0] || "" : id || ""}
+          contentType={ContentType.NEWS_POST}
+          className="mt-6"
+        />
       </div>
     </div>
   );

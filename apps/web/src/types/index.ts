@@ -185,6 +185,7 @@ export enum ContentType {
   NEWS = "NEWS",
   POST = "POST",
   EVENT = "EVENT",
+  COMMENT = "COMMENT",
 }
 
 export interface ReactionData {
@@ -212,4 +213,37 @@ export interface ReactionResponse {
     userId: string;
     createdAt: string;
   } | null;
+}
+
+// Comment Types
+export interface Comment {
+  id: string;
+  content: string;
+  contentId: string;
+  contentType: ContentType;
+  authorId: string;
+  author: User;
+  parentId?: string;
+  parent?: Comment;
+  replies?: Comment[];
+  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  _count?: {
+    replies: number;
+  };
+}
+
+export interface CommentData {
+  contentId: string;
+  contentType: ContentType;
+  comments: Comment[];
+  totalComments: number;
+  userComment?: Comment;
+}
+
+export interface CommentResponse {
+  success: boolean;
+  action: "created" | "updated" | "deleted";
+  comment: Comment | null;
 }
