@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-type ContentType = "NEWS" | "POST" | "EVENT";
+import { ContentType } from "@/types";
 type Period = "day" | "week" | "month" | "all";
 
 interface ViewStats {

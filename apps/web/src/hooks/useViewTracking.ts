@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { ensureAnonId } from "@/lib/utils";
 
-type ContentType = "NEWS" | "POST" | "EVENT";
+import { ContentType } from "@/types";
 
 interface TrackViewOptions {
   contentId: string;

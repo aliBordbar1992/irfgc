@@ -2,10 +2,11 @@
 
 import { useEffect } from "react";
 import { useViewTracking } from "@/hooks/useViewTracking";
+import { ContentType } from "@/types";
 
 interface ViewTrackerProps {
   contentId: string;
-  contentType: "NEWS" | "POST" | "EVENT";
+  contentType: ContentType;
   onTracked?: () => void;
   onSuccess?: () => void;
   onError?: (error: string) => void;

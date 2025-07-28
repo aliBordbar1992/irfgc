@@ -7,7 +7,17 @@ import { z } from "zod";
 
 const trackViewSchema = z.object({
   contentId: z.string().min(1, "Content ID is required"),
-  contentType: z.enum(["NEWS", "POST", "EVENT"]),
+  contentType: z.enum([
+    "FORUM_THREAD",
+    "FORUM_REPLY",
+    "LFG_POST",
+    "NEWS_POST",
+    "USER",
+    "NEWS",
+    "POST",
+    "EVENT",
+    "COMMENT",
+  ]),
 });
 
 export async function POST(request: NextRequest) {

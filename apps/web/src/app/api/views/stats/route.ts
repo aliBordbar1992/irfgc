@@ -4,7 +4,17 @@ import { z } from "zod";
 
 const statsQuerySchema = z.object({
   contentId: z.string().min(1, "Content ID is required"),
-  contentType: z.enum(["NEWS", "POST", "EVENT"]),
+  contentType: z.enum([
+    "FORUM_THREAD",
+    "FORUM_REPLY",
+    "LFG_POST",
+    "NEWS_POST",
+    "USER",
+    "NEWS",
+    "POST",
+    "EVENT",
+    "COMMENT",
+  ]),
   period: z.enum(["day", "week", "month", "all"]).default("all"),
 });
 

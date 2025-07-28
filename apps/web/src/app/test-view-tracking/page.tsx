@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Users, TrendingUp, RefreshCw } from "lucide-react";
+import { ContentType } from "@/types";
 
 export default function TestViewTrackingPage() {
   const [testContentId] = useState("test-news-123");
@@ -16,7 +17,7 @@ export default function TestViewTrackingPage() {
   const { trackView } = useViewTracking();
   const { stats, loading, error, refetch } = useViewStats({
     contentId: testContentId,
-    contentType: "NEWS",
+    contentType: ContentType.NEWS_POST,
     period: "all",
     enabled: true,
   });
@@ -25,7 +26,7 @@ export default function TestViewTrackingPage() {
     try {
       await trackView({
         contentId: testContentId,
-        contentType: "NEWS",
+        contentType: ContentType.NEWS_POST,
         onSuccess: () => {
           setTrackingResults((prev) => [
             ...prev,
@@ -72,7 +73,7 @@ export default function TestViewTrackingPage() {
             </p>
             <ViewTracker
               contentId={testContentId}
-              contentType="NEWS"
+              contentType={ContentType.NEWS_POST}
               onSuccess={() => {
                 setTrackingResults((prev) => [
                   ...prev,
@@ -179,7 +180,7 @@ export default function TestViewTrackingPage() {
             </p>
             <ViewStatsDisplay
               contentId={testContentId}
-              contentType="NEWS"
+              contentType={ContentType.NEWS_POST}
               className="justify-center"
             />
           </CardContent>

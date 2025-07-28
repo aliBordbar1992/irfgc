@@ -109,7 +109,7 @@ export default function NewsArticlePage() {
       {newsPost && (
         <ViewTracker
           contentId={newsPost.id}
-          contentType="NEWS"
+          contentType={ContentType.NEWS_POST}
           onError={(error) => console.error("Failed to track view:", error)}
         />
       )}
@@ -178,7 +178,10 @@ export default function NewsArticlePage() {
             </div>
             {/* Real-time view statistics from tracking system */}
             {newsPost && (
-              <ViewStatsDisplay contentId={newsPost.id} contentType="NEWS" />
+              <ViewStatsDisplay
+                contentId={newsPost.id}
+                contentType={ContentType.NEWS_POST}
+              />
             )}
           </div>
 
@@ -284,7 +287,7 @@ export default function NewsArticlePage() {
                 <div className="text-center p-4 bg-white rounded-lg shadow-sm">
                   <ViewStatsDisplay
                     contentId={newsPost.id}
-                    contentType="NEWS"
+                    contentType={ContentType.NEWS_POST}
                     className="justify-center"
                   />
                 </div>

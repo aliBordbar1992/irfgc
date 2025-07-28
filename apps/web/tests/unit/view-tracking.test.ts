@@ -5,7 +5,7 @@ describe("View Tracking Utilities", () => {
     it("generates consistent hashes for same inputs", () => {
       const hash1 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -13,7 +13,7 @@ describe("View Tracking Utilities", () => {
       );
       const hash2 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -25,7 +25,7 @@ describe("View Tracking Utilities", () => {
     it("generates different hashes for different content", () => {
       const hash1 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -33,7 +33,7 @@ describe("View Tracking Utilities", () => {
       );
       const hash2 = computeDedupHash(
         "news-456",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -45,7 +45,7 @@ describe("View Tracking Utilities", () => {
     it("generates different hashes for different content types", () => {
       const hash1 = computeDedupHash(
         "content-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -65,7 +65,7 @@ describe("View Tracking Utilities", () => {
     it("generates different hashes for different users", () => {
       const hash1 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         null,
         "192.168.1.1",
@@ -73,7 +73,7 @@ describe("View Tracking Utilities", () => {
       );
       const hash2 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user456",
         null,
         "192.168.1.1",
@@ -85,7 +85,7 @@ describe("View Tracking Utilities", () => {
     it("prioritizes userId over anonId", () => {
       const hash1 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         "anon456",
         "192.168.1.1",
@@ -93,7 +93,7 @@ describe("View Tracking Utilities", () => {
       );
       const hash2 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         "user123",
         "anon789",
         "192.168.1.1",
@@ -105,7 +105,7 @@ describe("View Tracking Utilities", () => {
     it("uses anonId when userId is null", () => {
       const hash1 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         null,
         "anon456",
         "192.168.1.1",
@@ -113,7 +113,7 @@ describe("View Tracking Utilities", () => {
       );
       const hash2 = computeDedupHash(
         "news-123",
-        "NEWS",
+        "NEWS_POST",
         null,
         "anon456",
         "192.168.1.1",

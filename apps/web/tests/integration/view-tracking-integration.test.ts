@@ -21,7 +21,14 @@ describe("View Tracking Integration", () => {
     const userAgent = "Mozilla/5.0 (Test Browser)";
 
     // Compute expected dedup hash
-    const expectedDedupHash = computeDedupHash(userId, anonId, ip, userAgent);
+    const expectedDedupHash = computeDedupHash(
+      contentId,
+      contentType,
+      userId,
+      anonId,
+      ip,
+      userAgent
+    );
 
     // Create a view event
     const viewEvent = await prisma.viewEvent.create({
@@ -74,7 +81,14 @@ describe("View Tracking Integration", () => {
     const ip = "192.168.1.2";
     const userAgent = "Mozilla/5.0 (Test Browser)";
 
-    const dedupHash = computeDedupHash(userId, anonId, ip, userAgent);
+    const dedupHash = computeDedupHash(
+      contentId,
+      contentType,
+      userId,
+      anonId,
+      ip,
+      userAgent
+    );
 
     // Create first view
     await prisma.viewEvent.create({
@@ -122,12 +136,19 @@ describe("View Tracking Integration", () => {
     const ip = "192.168.1.3";
     const userAgent = "Mozilla/5.0 (Test Browser)";
 
-    // Test NEWS content type
-    const newsDedupHash = computeDedupHash(userId, anonId, ip, userAgent);
+    // Test NEWS_POST content type
+    const newsDedupHash = computeDedupHash(
+      contentId,
+      "NEWS_POST",
+      userId,
+      anonId,
+      ip,
+      userAgent
+    );
     await prisma.viewEvent.create({
       data: {
         contentId,
-        contentType: "NEWS",
+        contentType: "NEWS_POST",
         userId,
         anonId,
         ip,
@@ -137,7 +158,14 @@ describe("View Tracking Integration", () => {
     });
 
     // Test EVENT content type
-    const eventDedupHash = computeDedupHash(userId, anonId, ip, userAgent);
+    const eventDedupHash = computeDedupHash(
+      contentId,
+      "EVENT",
+      userId,
+      anonId,
+      ip,
+      userAgent
+    );
     await prisma.viewEvent.create({
       data: {
         contentId,
@@ -152,7 +180,7 @@ describe("View Tracking Integration", () => {
 
     // Verify both views exist
     const newsViews = await prisma.viewEvent.count({
-      where: { contentId, contentType: "NEWS" },
+      where: { contentId, contentType: "NEWS_POST" },
     });
     const eventViews = await prisma.viewEvent.count({
       where: { contentId, contentType: "EVENT" },

@@ -4,10 +4,11 @@ import { useViewStats } from "@/hooks/useViewStats";
 import { formatViewCount } from "@/lib/utils";
 import { Eye, Users, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ContentType } from "@/types";
 
 interface ViewStatsDisplayProps {
   contentId: string;
-  contentType: "NEWS" | "POST" | "EVENT";
+  contentType: ContentType;
   className?: string;
 }
 
