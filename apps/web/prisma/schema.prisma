@@ -309,6 +309,9 @@ enum ContentType {
   LFG_POST
   NEWS_POST
   USER
+  NEWS
+  POST
+  EVENT
 }
 
 enum ReportStatus {
@@ -334,4 +337,19 @@ enum NewsStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+}
+
+model ViewEvent {
+  id          String      @id @default(cuid())
+  contentId   String
+  contentType ContentType
+  userId      String?
+  anonId      String?
+  ip          String?
+  userAgent   String?
+  viewedAt    DateTime    @default(now())
+  dedupHash   String
+
+  @@index([dedupHash, viewedAt])
+  @@map("view_events")
 }

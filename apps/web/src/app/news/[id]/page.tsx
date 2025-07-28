@@ -10,6 +10,8 @@ import { NewsPost } from "@/types";
 import { Calendar, Eye, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { ViewTracker } from "@/features/news/ViewTracker";
+import { ViewStatsDisplay } from "@/features/news/ViewStatsDisplay";
 
 export default function NewsArticlePage() {
   const params = useParams();
@@ -100,6 +102,14 @@ export default function NewsArticlePage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
+      {/* Track view when news article is loaded */}
+      {newsPost && (
+        <ViewTracker
+          contentId={newsPost.id}
+          contentType="NEWS"
+          onError={(error) => console.error("Failed to track view:", error)}
+        />
+      )}
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
         <div className="mb-6">
@@ -163,6 +173,10 @@ export default function NewsArticlePage() {
               <Eye className="w-4 h-4" />
               <span>{newsPost.views.toLocaleString()} views</span>
             </div>
+            {/* Real-time view statistics from tracking system */}
+            {newsPost && (
+              <ViewStatsDisplay contentId={newsPost.id} contentType="NEWS" />
+            )}
           </div>
 
           {newsPost.excerpt && (
@@ -238,6 +252,38 @@ export default function NewsArticlePage() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to News
             </Button>
+          </div>
+        </div>
+
+        {/* View Analytics Section */}
+        <div className="mt-8 p-6 bg-gray-50 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Article Analytics
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+              <div className="text-2xl font-bold text-blue-600">
+                {newsPost.views.toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-600">Total Views</div>
+            </div>
+            {newsPost && (
+              <>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <ViewStatsDisplay
+                    contentId={newsPost.id}
+                    contentType="NEWS"
+                    className="justify-center"
+                  />
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-sm text-gray-600">Tracked Views</div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Real-time from tracking system
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
