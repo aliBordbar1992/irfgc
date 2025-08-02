@@ -22,8 +22,10 @@ export async function GET(request: NextRequest) {
     const whereClause: {
       userId: string;
       isRead?: boolean;
+      deletedAt?: Date | null;
     } = {
       userId: session.user.id,
+      deletedAt: null,
     };
 
     if (unreadOnly) {
@@ -44,10 +46,7 @@ export async function GET(request: NextRequest) {
         where: whereClause,
       }),
       prisma.notification.count({
-        where: {
-          userId: session.user.id,
-          isRead: false,
-        },
+        where: whereClause,
       }),
     ]);
 

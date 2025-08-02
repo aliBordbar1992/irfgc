@@ -416,6 +416,7 @@ model Notification {
   contentId   String?          // ID of the related content
   contentType ContentType?     // Type of the related content
   isRead      Boolean          @default(false)
+  deletedAt   DateTime?        // Soft delete timestamp
   createdAt   DateTime         @default(now())
   updatedAt   DateTime?
 

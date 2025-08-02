@@ -159,11 +159,33 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Delete the request
-        await prisma.followRequest.delete({
-          where: {
-            id: existingRequest.id,
-          },
+        // Delete the request and the related notification
+        // This ensures consistency: when a follow request is cancelled,
+        // the recipient won't see a notification for a request that no longer exists
+        await prisma.$transaction(async (tx) => {
+          // Delete the follow request
+          await tx.followRequest.delete({
+            where: {
+              id: existingRequest.id,
+            },
+          });
+
+          // Delete the related notification
+          const deletedNotifications = await tx.notification.updateMany({
+            where: {
+              userId: targetUserId,
+              type: "FOLLOW_REQUEST",
+              contentId: currentUserId,
+              contentType: "USER",
+            },
+            data: {
+              deletedAt: new Date(),
+            },
+          });
+
+          console.log(
+            `Deleted ${deletedNotifications.count} notifications for cancelled follow request`
+          );
         });
 
         return NextResponse.json({
