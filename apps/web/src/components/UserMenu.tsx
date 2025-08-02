@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Settings, LogOut, Shield } from "lucide-react";
+import { User, Settings, LogOut, Shield, ExternalLink } from "lucide-react";
 import { NotificationBadge } from "@/components/NotificationBadge";
 
 export function UserMenu() {
@@ -79,6 +79,15 @@ export function UserMenu() {
           <Link href="/profile" className="flex items-center">
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link
+            href={`/users/${session.user.username}`}
+            className="flex items-center"
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            <span>Public Profile</span>
           </Link>
         </DropdownMenuItem>
         {(session.user.role === "ADMIN" ||

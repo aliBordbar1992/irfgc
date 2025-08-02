@@ -2,9 +2,9 @@ import { notFound } from "next/navigation";
 
 interface GameLayoutProps {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     gameSlug: string;
-  };
+  }>;
 }
 
 async function validateGame(gameSlug: string) {

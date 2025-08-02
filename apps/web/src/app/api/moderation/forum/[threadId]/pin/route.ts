@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { threadId: string } }
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
   try {
+    const { threadId } = await params;
     const session = await getServerSession(authOptions);
     if (
       !session ||
@@ -17,7 +18,7 @@ export async function PATCH(
     }
 
     const thread = await prisma.forumThread.findUnique({
-      where: { id: params.threadId },
+      where: { id: threadId },
     });
 
     if (!thread) {
@@ -26,7 +27,7 @@ export async function PATCH(
 
     // Toggle pin status
     const updatedThread = await prisma.forumThread.update({
-      where: { id: params.threadId },
+      where: { id: threadId },
       data: {
         isPinned: !thread.isPinned,
         updatedAt: new Date(),

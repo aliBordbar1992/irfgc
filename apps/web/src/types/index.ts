@@ -3,6 +3,7 @@ export type UserRole = "PLAYER" | "MODERATOR" | "ADMIN";
 
 export interface User {
   id: string;
+  username: string;
   email: string;
   name: string;
   role: UserRole;

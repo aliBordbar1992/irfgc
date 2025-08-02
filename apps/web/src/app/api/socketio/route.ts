@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { initSocket } from "@/lib/socket";
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest) {
   try {
     // Initialize Socket.IO server
-    const io = initSocket(req as any, res as any);
+    initSocket(req as any, {} as any);
 
     return NextResponse.json({
       success: true,
@@ -19,10 +19,10 @@ export async function GET(req: NextRequest, res: NextResponse) {
   }
 }
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     // Initialize Socket.IO server
-    const io = initSocket(req as any, res as any);
+    initSocket(req as any, {} as any);
 
     return NextResponse.json({
       success: true,

@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Reply, Edit, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import Link from "next/link";
+import { getPublicProfileUrl } from "@/lib/utils";
 import { Reactions } from "./Reactions";
 
 interface CommentItemProps {
@@ -104,15 +106,24 @@ export function CommentItem({
           <div className="bg-gray-50 rounded-lg p-3">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="font-medium text-sm">
+                <Link
+                  href={getPublicProfileUrl(comment.author.username)}
+                  className="font-medium text-sm hover:text-blue-600 transition-colors"
+                >
                   {comment.author.name}
-                </span>
+                </Link>
                 <span className="text-xs text-gray-500">
                   {new Date(comment.createdAt).toLocaleDateString()}
                 </span>
                 {comment.parent && (
                   <span className="text-xs text-gray-500">
-                    replying to {comment.parent.author.name}
+                    replying to{" "}
+                    <Link
+                      href={getPublicProfileUrl(comment.parent.author.username)}
+                      className="hover:text-blue-600 transition-colors"
+                    >
+                      {comment.parent.author.name}
+                    </Link>
                   </span>
                 )}
               </div>

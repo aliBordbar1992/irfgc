@@ -3,16 +3,17 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
 
     // Build where clause
     const whereClause = {
-      authorId: params.userId,
+      authorId: userId,
       isDeleted: false,
     };
 
@@ -58,7 +59,7 @@ export async function GET(
 
     return NextResponse.json({
       data: {
-        userId: params.userId,
+        userId: userId,
         comments,
         totalComments,
         pagination: {

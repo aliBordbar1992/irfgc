@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { reportId: string } }
+  { params }: { params: Promise<{ reportId: string }> }
 ) {
   try {
+    const { reportId } = await params;
     const session = await getServerSession(authOptions);
     if (
       !session ||
@@ -17,7 +18,7 @@ export async function PATCH(
     }
 
     const report = await prisma.report.findUnique({
-      where: { id: params.reportId },
+      where: { id: reportId },
     });
 
     if (!report) {
@@ -33,7 +34,7 @@ export async function PATCH(
 
     // Update report status to dismissed
     const updatedReport = await prisma.report.update({
-      where: { id: params.reportId },
+      where: { id: reportId },
       data: {
         status: "DISMISSED",
         moderatorId: session.user.id,

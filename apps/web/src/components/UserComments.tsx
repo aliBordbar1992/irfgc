@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, ExternalLink, Clock } from "lucide-react";
+import { getPublicProfileUrl } from "@/lib/utils";
 import Link from "next/link";
 
 interface UserCommentsProps {
@@ -146,9 +147,12 @@ export function UserComments({ userId, className }: UserCommentsProps) {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium text-gray-900">
+                        <Link
+                          href={getPublicProfileUrl(comment.author.username)}
+                          className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors"
+                        >
                           {comment.author.name}
-                        </span>
+                        </Link>
                         <span className="text-xs text-gray-500">
                           {formatDate(comment.createdAt)}
                         </span>

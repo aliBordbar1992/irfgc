@@ -10,9 +10,10 @@ const updateRoleSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -22,7 +23,7 @@ export async function PATCH(
     const validatedData = updateRoleSchema.parse(body);
 
     // Prevent admin from changing their own role
-    if (params.userId === session.user.id) {
+    if (userId === session.user.id) {
       return NextResponse.json(
         { error: "Cannot change your own role" },
         { status: 400 }
@@ -30,7 +31,7 @@ export async function PATCH(
     }
 
     const updatedUser = await prisma.user.update({
-      where: { id: params.userId },
+      where: { id: userId },
       data: { role: validatedData.role },
       select: {
         id: true,

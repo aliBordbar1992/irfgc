@@ -1,9 +1,18 @@
-import { clsx, type ClassValue } from "clsx";
+import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { createHash } from "crypto";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Generates a public profile URL for a given username
+ * @param username - The username to generate the URL for
+ * @returns The public profile URL
+ */
+export function getPublicProfileUrl(username: string): string {
+  return `/users/${username}`;
 }
 
 /**

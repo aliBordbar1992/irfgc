@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { threadId: string } }
+  { params }: { params: Promise<{ threadId: string }> }
 ) {
   try {
+    const { threadId } = await params;
     const session = await getServerSession(authOptions);
     if (
       !session ||
@@ -17,7 +18,7 @@ export async function DELETE(
     }
 
     const thread = await prisma.forumThread.findUnique({
-      where: { id: params.threadId },
+      where: { id: threadId },
       include: {
         replies: true,
       },
@@ -29,7 +30,7 @@ export async function DELETE(
 
     // Delete thread and all replies (cascade)
     await prisma.forumThread.delete({
-      where: { id: params.threadId },
+      where: { id: threadId },
     });
 
     return NextResponse.json({

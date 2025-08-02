@@ -69,24 +69,36 @@ async function main() {
   const users = [
     {
       email: "admin@irfgc.ir",
+      username: "admin",
+      usernameNormalized: "admin",
+      emailNormalized: "admin@irfgc.ir",
       name: "Admin User",
       password: await bcrypt.hash("admin123", 12),
       role: "ADMIN" as const,
     },
     {
       email: "moderator@irfgc.ir",
+      username: "moderator",
+      usernameNormalized: "moderator",
+      emailNormalized: "moderator@irfgc.ir",
       name: "Moderator User",
       password: await bcrypt.hash("mod123", 12),
       role: "MODERATOR" as const,
     },
     {
       email: "player@irfgc.ir",
+      username: "player",
+      usernameNormalized: "player",
+      emailNormalized: "player@irfgc.ir",
       name: "Player User",
       password: await bcrypt.hash("player123", 12),
       role: "PLAYER" as const,
     },
     {
       email: "player2@irfgc.ir",
+      username: "player2",
+      usernameNormalized: "player2",
+      emailNormalized: "player2@irfgc.ir",
       name: "Player User 2",
       password: await bcrypt.hash("player123", 12),
       role: "PLAYER" as const,
@@ -96,7 +108,7 @@ async function main() {
   const createdUsers = [];
   for (const user of users) {
     const createdUser = await prisma.user.upsert({
-      where: { email: user.email },
+      where: { username: user.username },
       update: user,
       create: user,
     });
