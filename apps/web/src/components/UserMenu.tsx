@@ -14,6 +14,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Settings, LogOut, Shield, ExternalLink } from "lucide-react";
 import { NotificationBadge } from "@/components/NotificationBadge";
+import { getPublicProfileUrl } from "@/lib/utils";
 
 export function UserMenu() {
   const { data: session, status } = useSession();
@@ -83,7 +84,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link
-            href={`/users/${session.user.username}`}
+            href={getPublicProfileUrl(session.user.username)}
             className="flex items-center"
           >
             <ExternalLink className="mr-2 h-4 w-4" />

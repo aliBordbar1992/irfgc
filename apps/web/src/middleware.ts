@@ -11,10 +11,19 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
-    pathname.startsWith("/static") ||
-    pathname.includes(".")
+    pathname.startsWith("/static")
   ) {
     return NextResponse.next();
+  }
+
+  // Handle @username pattern for public profiles
+  const decodedPathname = decodeURIComponent(pathname);
+  const matchUsername = decodedPathname.match(/^\/@(.+)$/);
+  if (matchUsername) {
+    const username = decodeURIComponent(matchUsername[1]);
+    const url = request.nextUrl.clone();
+    url.pathname = `/users/${username}`;
+    return NextResponse.rewrite(url);
   }
 
   // Extract subdomain

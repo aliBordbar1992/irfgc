@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  * @returns The public profile URL
  */
 export function getPublicProfileUrl(username: string): string {
-  return `/users/${username}`;
+  return `/@${username}`;
 }
 
 /**
