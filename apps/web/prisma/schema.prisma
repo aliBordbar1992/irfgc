@@ -40,6 +40,12 @@ model User {
   reactions     Reaction[]
   comments      Comment[]
   notifications Notification[]
+  
+  // Follow system relations
+  followRequestsSent     FollowRequest[] @relation("FollowRequestSender")
+  followRequestsReceived FollowRequest[] @relation("FollowRequestReceiver")
+  followers              Follow[] @relation("FollowFollower")
+  following              Follow[] @relation("FollowFollowing")
 
   @@map("users")
 }
@@ -427,4 +433,47 @@ enum NotificationType {
   FORUM_REPLY
   LFG_MATCH
   SYSTEM
+  FOLLOW_REQUEST
+  FOLLOW_ACCEPTED
+  FOLLOW_REJECTED
+}
+
+model FollowRequest {
+  id          String           @id @default(cuid())
+  senderId    String           // User sending the follow request
+  receiverId  String           // User receiving the follow request
+  status      FollowRequestStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  sender   User @relation("FollowRequestSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver User @relation("FollowRequestReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  @@unique([senderId, receiverId]) // One request per sender-receiver pair
+  @@index([receiverId, status])
+  @@index([senderId, status])
+  @@map("follow_requests")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who is following
+  followingId String   // User being followed
+  createdAt   DateTime @default(now())
+
+  // Relations
+  follower  User @relation("FollowFollower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("FollowFollowing", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId]) // One follow relationship per pair
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+enum FollowRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

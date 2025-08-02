@@ -87,6 +87,8 @@ export default async function PublicProfilePage({
           forumThreads: true,
           forumReplies: true,
           eventRegistrations: true,
+          followers: true,
+          following: true,
         },
       },
     },

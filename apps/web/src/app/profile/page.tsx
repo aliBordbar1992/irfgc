@@ -72,6 +72,8 @@ export default async function ProfilePage() {
           forumThreads: true,
           forumReplies: true,
           eventRegistrations: true,
+          followers: true,
+          following: true,
         },
       },
     },

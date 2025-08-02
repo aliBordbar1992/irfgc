@@ -3,6 +3,7 @@
 import { ProfileStats } from "@/features/profile/ProfileStats";
 import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { UserComments } from "@/components/UserComments";
+import { FollowButton } from "@/components/FollowButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -62,6 +63,9 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
                 <Calendar className="h-4 w-4 mr-1" />
                 Member since {new Date(user.createdAt).toLocaleDateString()}
               </div>
+            </div>
+            <div className="mt-4">
+              <FollowButton targetUserId={user.id} />
             </div>
           </div>
         </div>

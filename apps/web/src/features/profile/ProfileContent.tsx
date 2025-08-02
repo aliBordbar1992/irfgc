@@ -5,6 +5,7 @@ import { ProfileStats } from "@/features/profile/ProfileStats";
 import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { UserComments } from "@/components/UserComments";
 import { Notifications } from "@/components/Notifications";
+import { FollowRequests } from "@/components/FollowRequests";
 interface ProfileContentProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any; // Simplified for now to avoid complex type issues
@@ -43,6 +44,11 @@ export function ProfileContent({ user }: ProfileContentProps) {
       <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
         <UserComments userId={user.id} />
         <Notifications />
+      </div>
+
+      {/* Follow Requests */}
+      <div className="mt-12">
+        <FollowRequests />
       </div>
     </div>
   );
