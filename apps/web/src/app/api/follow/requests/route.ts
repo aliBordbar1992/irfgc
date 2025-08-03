@@ -62,6 +62,7 @@ export async function GET(request: NextRequest) {
     } else {
       whereClause = {
         senderId: userId,
+        status: "PENDING",
       };
       includeClause = {
         receiver: {

@@ -369,6 +369,7 @@ export async function GET(request: NextRequest) {
             senderId: currentUserId,
             receiverId: targetUserId,
           },
+          status: "PENDING",
         },
       }),
       // Check if there's a pending request from target user to current user
@@ -378,6 +379,7 @@ export async function GET(request: NextRequest) {
             senderId: targetUserId,
             receiverId: currentUserId,
           },
+          status: "PENDING",
         },
       }),
       // Get follower count
