@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Check if there's a pending request
-        const existingRequest = await prisma.followRequest.findUnique({
+        let followRequest = await prisma.followRequest.findUnique({
           where: {
             senderId_receiverId: {
               senderId: currentUserId,
@@ -74,21 +74,27 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        if (existingRequest) {
-          return NextResponse.json(
-            { error: "Follow request already sent" },
-            { status: 400 }
-          );
+        if (followRequest) {
+          if (followRequest.status === "PENDING") {
+            return NextResponse.json(
+              { error: "Follow request already sent" },
+              { status: 400 }
+            );
+          } else {
+            await prisma.followRequest.update({
+              where: { id: followRequest.id },
+              data: { status: "PENDING" },
+            });
+          }
+        } else {
+          // Create follow request
+          followRequest = await prisma.followRequest.create({
+            data: {
+              senderId: currentUserId,
+              receiverId: targetUserId,
+            },
+          });
         }
-
-        // Create follow request
-        const followRequest = await prisma.followRequest.create({
-          data: {
-            senderId: currentUserId,
-            receiverId: targetUserId,
-          },
-        });
-
         // Create notification for the target user
         try {
           await prisma.notification.create({
