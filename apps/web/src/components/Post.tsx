@@ -33,7 +33,7 @@ interface PostProps {
       username: string;
       avatar?: string;
     };
-    _count: {
+    _count?: {
       comments: number;
     };
   };
@@ -156,7 +156,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center space-x-4">
             {/* Reactions */}
-            <Reactions contentId={post.id} contentType="POST" />
+            <Reactions contentId={post.id} contentType={"POST" as any} />
 
             {/* Comments */}
             <Button
@@ -166,7 +166,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
               className="flex items-center space-x-1"
             >
               <MessageCircle className="h-4 w-4" />
-              <span>{post._count.comments}</span>
+              <span>{post._count?.comments || 0}</span>
             </Button>
 
             {/* Share */}
@@ -190,7 +190,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
         {/* Comments Section */}
         {showComments && (
           <div className="mt-4 pt-4 border-t">
-            <Comments contentId={post.id} contentType="POST" />
+            <Comments contentId={post.id} contentType={"POST" as any} />
           </div>
         )}
       </CardContent>

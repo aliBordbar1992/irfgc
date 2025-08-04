@@ -9,8 +9,14 @@ const createPostSchema = z.object({
     .string()
     .min(1, "Content is required")
     .max(5000, "Content too long"),
-  images: z.array(z.string().url()).optional().default([]),
-  videos: z.array(z.string().url()).optional().default([]),
+  images: z
+    .array(z.string().min(1, "Image URL cannot be empty"))
+    .optional()
+    .default([]),
+  videos: z
+    .array(z.string().min(1, "Video URL cannot be empty"))
+    .optional()
+    .default([]),
 });
 
 export async function GET(request: NextRequest) {

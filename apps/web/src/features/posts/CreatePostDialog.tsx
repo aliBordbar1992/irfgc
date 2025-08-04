@@ -12,10 +12,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { X, Image, Video, Plus } from "lucide-react";
+import { CropImagePicker } from "@/components/ui/crop-image-picker";
+import { Plus } from "lucide-react";
 import { usePosts } from "@/hooks/usePosts";
 
 interface CreatePostDialogProps {
@@ -29,10 +28,8 @@ export function CreatePostDialog({
 }: CreatePostDialogProps) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
-  const [images, setImages] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([""]);
   const [videos, setVideos] = useState<string[]>([]);
-  const [newImageUrl, setNewImageUrl] = useState("");
-  const [newVideoUrl, setNewVideoUrl] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { createPost } = usePosts({
@@ -58,7 +55,8 @@ export function CreatePostDialog({
 
     setIsSubmitting(true);
     try {
-      await createPost(content.trim(), images, videos);
+      const filteredImages = images.filter((img) => img.trim() !== "");
+      await createPost(content.trim(), filteredImages, videos);
       alert("Post created successfully!");
     } catch {
       alert("Failed to create post. Please try again.");
@@ -67,35 +65,11 @@ export function CreatePostDialog({
     }
   };
 
-  const addImage = () => {
-    if (newImageUrl.trim() && !images.includes(newImageUrl.trim())) {
-      setImages([...images, newImageUrl.trim()]);
-      setNewImageUrl("");
-    }
-  };
-
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
-  };
-
-  const addVideo = () => {
-    if (newVideoUrl.trim() && !videos.includes(newVideoUrl.trim())) {
-      setVideos([...videos, newVideoUrl.trim()]);
-      setNewVideoUrl("");
-    }
-  };
-
-  const removeVideo = (index: number) => {
-    setVideos(videos.filter((_, i) => i !== index));
-  };
-
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       setContent("");
-      setImages([]);
+      setImages([""]);
       setVideos([]);
-      setNewImageUrl("");
-      setNewVideoUrl("");
     }
     setOpen(newOpen);
   };
@@ -110,7 +84,7 @@ export function CreatePostDialog({
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Create a New Post</DialogTitle>
           <DialogDescription>
@@ -118,7 +92,10 @@ export function CreatePostDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 overflow-y-auto flex-1 pr-2"
+        >
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>
             <Textarea
@@ -137,93 +114,41 @@ export function CreatePostDialog({
           {/* Images Section */}
           <div className="space-y-2">
             <Label>Images</Label>
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Image URL"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                onKeyPress={(e) =>
-                  e.key === "Enter" && (e.preventDefault(), addImage())
-                }
-              />
+            <div className="space-y-3">
+              {images.map((image, index) => (
+                <div key={index} className="relative">
+                  <CropImagePicker
+                    label={`Image ${index + 1}`}
+                    value={image}
+                    onChange={(value) => {
+                      const newImages = [...images];
+                      newImages[index] = value;
+                      setImages(newImages.filter(Boolean));
+                    }}
+                    maxSize={5}
+                    imageType="thumbnail"
+                  />
+                </div>
+              ))}
+
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
-                onClick={addImage}
-                disabled={!newImageUrl.trim()}
+                onClick={() => setImages([...images, ""])}
+                className="w-full"
               >
-                <Image className="h-4 w-4" />
+                Add Another Image
               </Button>
             </div>
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {images.map((image, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="flex items-center space-x-1"
-                  >
-                    <span className="truncate max-w-[200px]">{image}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeImage(index)}
-                      className="h-auto p-0 ml-1"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Videos Section */}
           <div className="space-y-2">
             <Label>Videos</Label>
-            <div className="flex space-x-2">
-              <Input
-                placeholder="Video URL"
-                value={newVideoUrl}
-                onChange={(e) => setNewVideoUrl(e.target.value)}
-                onKeyPress={(e) =>
-                  e.key === "Enter" && (e.preventDefault(), addVideo())
-                }
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={addVideo}
-                disabled={!newVideoUrl.trim()}
-              >
-                <Video className="h-4 w-4" />
-              </Button>
+            <div className="text-sm text-gray-500">
+              Video upload functionality coming soon. For now, you can add video
+              URLs.
             </div>
-            {videos.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {videos.map((video, index) => (
-                  <Badge
-                    key={index}
-                    variant="secondary"
-                    className="flex items-center space-x-1"
-                  >
-                    <span className="truncate max-w-[200px]">{video}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeVideo(index)}
-                      className="h-auto p-0 ml-1"
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </Badge>
-                ))}
-              </div>
-            )}
           </div>
 
           <DialogFooter>

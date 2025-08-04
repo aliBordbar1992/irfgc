@@ -2,8 +2,8 @@
 
 import { ProfileStats } from "@/features/profile/ProfileStats";
 import { ProfileActivity } from "@/features/profile/ProfileActivity";
-import { UserComments } from "@/components/UserComments";
 import { FollowButton } from "@/components/FollowButton";
+import { PostsList } from "@/components/PostsList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,6 +88,15 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
               </p>
             </CardContent>
           </Card>
+
+          {/* User Posts */}
+          <div className="mt-12">
+            <PostsList
+              authorId={user.id}
+              title={`${user.name}'s Posts`}
+              showCreateButton={false}
+            />
+          </div>
         </div>
 
         {/* Sidebar */}
@@ -101,11 +110,6 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
             registrations={user.eventRegistrations}
           />
         </div>
-      </div>
-
-      {/* User Comments */}
-      <div className="mt-12">
-        <UserComments userId={user.id} />
       </div>
     </div>
   );

@@ -19,6 +19,8 @@ interface ProfileStatsProps {
     forumThreads: number;
     forumReplies: number;
     eventRegistrations: number;
+    followers: number;
+    following: number;
   };
 }
 
@@ -72,6 +74,20 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
       icon: Trophy,
       color: "text-red-600",
       bgColor: "bg-red-50",
+    },
+    {
+      label: "Followers",
+      value: stats.followers,
+      icon: UserPlus,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50",
+    },
+    {
+      label: "Following",
+      value: stats.following,
+      icon: Users,
+      color: "text-cyan-600",
+      bgColor: "bg-cyan-50",
     },
   ];
 

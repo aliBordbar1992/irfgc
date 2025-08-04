@@ -83,6 +83,7 @@ export default async function PublicProfilePage({
           newsPosts: {
             where: { deletedAt: null },
           },
+          posts: true,
           lfgPosts: true,
           forumThreads: true,
           forumReplies: true,
