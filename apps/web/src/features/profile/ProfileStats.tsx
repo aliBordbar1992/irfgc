@@ -7,12 +7,14 @@ import {
   FileText,
   Trophy,
   UserPlus,
+  PenTool,
 } from "lucide-react";
 
 interface ProfileStatsProps {
   stats: {
     events: number;
     newsPosts: number;
+    posts: number;
     lfgPosts: number;
     forumThreads: number;
     forumReplies: number;
@@ -35,6 +37,13 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
       icon: FileText,
       color: "text-green-600",
       bgColor: "bg-green-50",
+    },
+    {
+      label: "Posts",
+      value: stats.posts,
+      icon: PenTool,
+      color: "text-pink-600",
+      bgColor: "bg-pink-50",
     },
     {
       label: "LFG Posts",

@@ -68,6 +68,7 @@ export default async function ProfilePage() {
         select: {
           events: true,
           newsPosts: true,
+          posts: true,
           lfgPosts: true,
           forumThreads: true,
           forumReplies: true,

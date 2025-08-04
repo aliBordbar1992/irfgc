@@ -29,6 +29,7 @@ model User {
   // Relations
   events        Event[]
   newsPosts     NewsPost[]
+  posts         Post[]        // User posts
   lfgPosts      LFGPost[]
   forumThreads  ForumThread[]
   forumReplies  ForumReply[]
@@ -477,4 +478,22 @@ enum FollowRequestStatus {
   PENDING
   ACCEPTED
   REJECTED
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  content     String   // Text content
+  images      String[] // Array of image URLs
+  videos      String[] // Array of video URLs
+  authorId    String
+  isDeleted   Boolean  @default(false) // Soft delete
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime?
+
+  // Relations
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([createdAt])
+  @@map("posts")
 }

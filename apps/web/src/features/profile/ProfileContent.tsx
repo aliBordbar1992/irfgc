@@ -6,6 +6,8 @@ import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { UserComments } from "@/components/UserComments";
 import { Notifications } from "@/components/Notifications";
 import { FollowRequests } from "@/components/FollowRequests";
+import { PostsList } from "@/components/PostsList";
+import { CreatePostDialog } from "@/features/posts/CreatePostDialog";
 interface ProfileContentProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any; // Simplified for now to avoid complex type issues
@@ -38,6 +40,15 @@ export function ProfileContent({ user }: ProfileContentProps) {
             registrations={user.eventRegistrations}
           />
         </div>
+      </div>
+
+      {/* User Posts */}
+      <div className="mt-12">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">My Posts</h2>
+          <CreatePostDialog />
+        </div>
+        <PostsList authorId={user.id} title="My Posts" />
       </div>
 
       {/* User Comments and Notifications */}
