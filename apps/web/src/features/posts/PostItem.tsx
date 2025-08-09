@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, MessageCircle, Share } from "lucide-react";
+import { MoreHorizontal, MessageCircle, Share2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +17,10 @@ import { Comments } from "@/components/Comments";
 import { Reactions } from "@/components/Reactions";
 import { usePosts } from "@/hooks/usePosts";
 import { useSession } from "next-auth/react";
+import { ContentType } from "@/types";
+import Image from "next/image";
 
-interface PostProps {
+interface PostItemProps {
   post: {
     id: string;
     content: string;
@@ -41,7 +43,7 @@ interface PostProps {
   onUpdate?: () => void;
 }
 
-export function Post({ post, onDelete, onUpdate }: PostProps) {
+export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
   const { data: session } = useSession();
   const { deletePost } = usePosts({
     onSuccess: () => {
@@ -121,13 +123,15 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
         {/* Images */}
         {post.images.length > 0 && (
           <div className="mb-4">
-            <div className="grid grid-cols-1 gap-2">
+            <div className="flex flex-row gap-2 overflow-x-auto">
               {post.images.map((image, index) => (
-                <img
+                <Image
                   key={index}
                   src={image}
                   alt={`Post image ${index + 1}`}
                   className="rounded-lg max-w-full h-auto"
+                  width={100}
+                  height={100}
                 />
               ))}
             </div>
@@ -156,7 +160,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
         <div className="flex items-center justify-between pt-4 border-t">
           <div className="flex items-center space-x-4">
             {/* Reactions */}
-            <Reactions contentId={post.id} contentType={"POST" as any} />
+            <Reactions contentId={post.id} contentType={ContentType.POST} />
 
             {/* Comments */}
             <Button
@@ -175,8 +179,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
               size="sm"
               className="flex items-center space-x-1"
             >
-              <Share className="h-4 w-4" />
-              <span>Share</span>
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
 
@@ -190,7 +193,7 @@ export function Post({ post, onDelete, onUpdate }: PostProps) {
         {/* Comments Section */}
         {showComments && (
           <div className="mt-4 pt-4 border-t">
-            <Comments contentId={post.id} contentType={"POST" as any} />
+            <Comments contentId={post.id} contentType={ContentType.POST} />
           </div>
         )}
       </CardContent>

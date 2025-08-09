@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { PostsList } from "@/components/PostsList";
+import { PostsList } from "@/features/posts/PostsList";
 import { CreatePostDialog } from "@/features/posts/CreatePostDialog";
 
 export default async function PostsPage() {

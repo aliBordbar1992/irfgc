@@ -3,8 +3,9 @@
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useFollow } from "@/hooks/useFollow";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { UserPlus, UserMinus, Clock, Check, X } from "lucide-react";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 
 interface FollowButtonProps {
   targetUserId: string;
@@ -20,6 +21,7 @@ export function FollowButton({
   onStatusChange,
 }: FollowButtonProps) {
   const { data: session } = useSession();
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const {
     followStatus,
     isLoading,
@@ -40,9 +42,29 @@ export function FollowButton({
     }
   }, [session?.user?.id, fetchFollowStatus]);
 
-  // Don't show button if user is not logged in or viewing their own profile
-  if (!session?.user?.id || session.user.id === targetUserId) {
+  // Don't show button if viewing your own profile
+  if (session?.user?.id === targetUserId) {
     return null;
+  }
+
+  // Show login prompt for non-authenticated users
+  if (!session?.user?.id) {
+    return (
+      <>
+        <Button
+          onClick={() => setShowLoginModal(true)}
+          className="flex items-center gap-2"
+        >
+          <UserPlus className="h-4 w-4" />
+          Follow
+        </Button>
+        <LoginPromptModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          action="follow"
+        />
+      </>
+    );
   }
 
   const renderButton = () => {
@@ -115,16 +137,5 @@ export function FollowButton({
     }
   };
 
-  return (
-    <div className="flex items-center gap-4">
-      {renderButton()}
-      <div className="text-sm text-gray-600">
-        <span className="font-medium">{followStatus.followerCount}</span>{" "}
-        followers
-        <span className="mx-2">•</span>
-        <span className="font-medium">{followStatus.followingCount}</span>{" "}
-        following
-      </div>
-    </div>
-  );
+  return renderButton();
 }

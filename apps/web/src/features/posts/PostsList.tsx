@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Post } from "@/components/Post";
+import { PostItem } from "./PostItem";
 import { usePostsData } from "@/hooks/usePostsData";
 
 interface PostsListProps {
@@ -112,7 +112,7 @@ export function PostsList({
         <CardContent>
           <div className="space-y-6">
             {data.posts.map((post) => (
-              <Post
+              <PostItem
                 key={post.id}
                 post={post}
                 onDelete={handlePostDeleted}

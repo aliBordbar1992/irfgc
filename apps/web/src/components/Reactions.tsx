@@ -3,13 +3,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 import { useReactions } from "@/hooks/useReactions";
 import { useReactionData } from "@/hooks/useReactionData";
 import { ContentType } from "@/types";
@@ -124,32 +118,11 @@ export function Reactions({
         )}
       </div>
 
-      {/* Login Required Dialog */}
-      <Dialog open={showLoginModal} onOpenChange={setShowLoginModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Login Required</DialogTitle>
-            <DialogDescription>
-              You need to be logged in to react to content. Please sign in to
-              continue.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setShowLoginModal(false)}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setShowLoginModal(false);
-                // Redirect to login page
-                window.location.href = "/auth/signin";
-              }}
-            >
-              Sign In
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="react"
+      />
     </>
   );
 }

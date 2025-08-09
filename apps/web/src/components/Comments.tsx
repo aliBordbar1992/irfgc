@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { MessageCircle } from "lucide-react";
 import { CommentItem } from "./CommentItem";
-import { AuthModal } from "@/components/AuthModal";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 
 interface CommentsProps {
   contentId: string;
@@ -28,7 +28,7 @@ interface CommentsProps {
 
 export function Comments({ contentId, contentType, className }: CommentsProps) {
   const { data: session } = useSession();
-  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [sortBy, setSortBy] = useState<"date" | "replies">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -58,7 +58,7 @@ export function Comments({ contentId, contentType, className }: CommentsProps) {
 
   const handleSubmitComment = async () => {
     if (!session?.user?.id) {
-      setShowAuthModal(true);
+      setShowLoginModal(true);
       return;
     }
 
@@ -223,11 +223,10 @@ export function Comments({ contentId, contentType, className }: CommentsProps) {
         </CardContent>
       </Card>
 
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-        title="Sign in to comment"
-        message="You need to be signed in to leave a comment."
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="comment"
       />
     </>
   );

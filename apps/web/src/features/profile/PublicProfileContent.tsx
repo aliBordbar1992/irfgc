@@ -3,7 +3,8 @@
 import { ProfileStats } from "@/features/profile/ProfileStats";
 import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { FollowButton } from "@/components/FollowButton";
-import { PostsList } from "@/components/PostsList";
+import { FollowStats } from "@/components/FollowStats";
+import { PostsList } from "@/features/posts/PostsList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,8 +65,9 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
                 Member since {new Date(user.createdAt).toLocaleDateString()}
               </div>
             </div>
-            <div className="mt-4">
+            <div className="mt-4 flex items-center gap-4">
               <FollowButton targetUserId={user.id} />
+              <FollowStats targetUserId={user.id} />
             </div>
           </div>
         </div>

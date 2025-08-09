@@ -6,6 +6,7 @@ import { GameSlug, Event } from "@/types";
 import { EventCard } from "./EventCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LoginPromptModal } from "@/components/LoginPromptModal";
 
 interface EventsListProps {
   gameSlug: GameSlug;
@@ -32,6 +33,7 @@ export function EventsList({
   const [error, setError] = useState("");
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
     fetchEvents();
@@ -67,8 +69,7 @@ export function EventsList({
 
   const handleRegister = async (eventId: string) => {
     if (!session) {
-      // Redirect to sign in
-      window.location.href = "/auth/signin";
+      setShowLoginModal(true);
       return;
     }
 
@@ -144,6 +145,12 @@ export function EventsList({
           </Button>
         </div>
       )}
+
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        action="register"
+      />
     </div>
   );
 }

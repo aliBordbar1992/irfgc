@@ -6,7 +6,8 @@ import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { UserComments } from "@/components/UserComments";
 import { Notifications } from "@/components/Notifications";
 import { FollowRequests } from "@/components/FollowRequests";
-import { PostsList } from "@/components/PostsList";
+import { FollowStats } from "@/components/FollowStats";
+import { PostsList } from "@/features/posts/PostsList";
 import { CreatePostDialog } from "@/features/posts/CreatePostDialog";
 interface ProfileContentProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,6 +22,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
         <p className="text-gray-600 mt-2">
           Manage your account settings and view your activity
         </p>
+        <div className="mt-4">
+          <FollowStats targetUserId={user.id} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
