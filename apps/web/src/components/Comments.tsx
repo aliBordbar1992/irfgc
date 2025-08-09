@@ -163,15 +163,10 @@ export function Comments({ contentId, contentType, className }: CommentsProps) {
               </Avatar>
               <div className="flex-1 space-y-2">
                 <Textarea
-                  placeholder={
-                    session?.user?.id
-                      ? "Write a comment..."
-                      : "Sign in to comment"
-                  }
+                  placeholder={"Write a comment..."}
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
                   className="min-h-[80px]"
-                  disabled={!session?.user?.id}
                 />
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-gray-500">
@@ -179,7 +174,7 @@ export function Comments({ contentId, contentType, className }: CommentsProps) {
                   </div>
                   <Button
                     onClick={handleSubmitComment}
-                    disabled={!newComment.trim() || !session?.user?.id}
+                    disabled={!newComment.trim()}
                     size="sm"
                   >
                     Post Comment
