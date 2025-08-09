@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { useFollow } from "@/hooks/useFollow";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { UserPlus, UserMinus, Clock, Check, X } from "lucide-react";
 import { LoginPromptModal } from "@/components/LoginPromptModal";
 
@@ -25,16 +25,6 @@ export function FollowButton({
   const { data: session } = useSession();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Enhanced callback that also triggers public stats refresh
-  const enhancedStatusChange = (status: {
-    status: "none" | "following" | "request_sent" | "request_received";
-    followerCount: number;
-    followingCount: number;
-  }) => {
-    onStatusChange?.(status);
-    onFollowStatsChange?.(); // Refresh public stats when follow status changes
-  };
-
   const {
     followStatus,
     isLoading,
@@ -46,8 +36,34 @@ export function FollowButton({
     rejectRequest,
   } = useFollow({
     targetUserId,
-    onStatusChange: enhancedStatusChange,
+    onStatusChange,
   });
+
+  // Create wrapped follow actions that trigger stats refresh
+  const handleFollow = useCallback(async () => {
+    await follow();
+    onFollowStatsChange?.();
+  }, [follow, onFollowStatsChange]);
+
+  const handleUnfollow = useCallback(async () => {
+    await unfollow();
+    onFollowStatsChange?.();
+  }, [unfollow, onFollowStatsChange]);
+
+  const handleCancelRequest = useCallback(async () => {
+    await cancelRequest();
+    onFollowStatsChange?.();
+  }, [cancelRequest, onFollowStatsChange]);
+
+  const handleAcceptRequest = useCallback(async () => {
+    await acceptRequest();
+    onFollowStatsChange?.();
+  }, [acceptRequest, onFollowStatsChange]);
+
+  const handleRejectRequest = useCallback(async () => {
+    await rejectRequest();
+    onFollowStatsChange?.();
+  }, [rejectRequest, onFollowStatsChange]);
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -85,7 +101,7 @@ export function FollowButton({
       case "none":
         return (
           <Button
-            onClick={follow}
+            onClick={handleFollow}
             disabled={isLoading}
             className="flex items-center gap-2"
           >
@@ -97,7 +113,7 @@ export function FollowButton({
       case "following":
         return (
           <Button
-            onClick={unfollow}
+            onClick={handleUnfollow}
             disabled={isLoading}
             variant="outline"
             className="flex items-center gap-2"
@@ -110,7 +126,7 @@ export function FollowButton({
       case "request_sent":
         return (
           <Button
-            onClick={cancelRequest}
+            onClick={handleCancelRequest}
             disabled={isLoading}
             variant="outline"
             className="flex items-center gap-2"
@@ -124,7 +140,7 @@ export function FollowButton({
         return (
           <div className="flex gap-2">
             <Button
-              onClick={acceptRequest}
+              onClick={handleAcceptRequest}
               disabled={isLoading}
               size="sm"
               className="flex items-center gap-2"
@@ -133,7 +149,7 @@ export function FollowButton({
               Accept
             </Button>
             <Button
-              onClick={rejectRequest}
+              onClick={handleRejectRequest}
               disabled={isLoading}
               variant="outline"
               size="sm"

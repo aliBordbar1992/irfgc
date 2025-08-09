@@ -1,10 +1,4 @@
-import {
-  useState,
-  useEffect,
-  useCallback,
-  createContext,
-  useContext,
-} from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface FollowStats {
   followerCount: number;
@@ -14,17 +8,6 @@ interface FollowStats {
 interface UseFollowStatsOptions {
   targetUserId: string;
   enabled?: boolean;
-}
-
-// Context for sharing follow stats updates across components
-interface FollowStatsContextValue {
-  refreshStats: (userId: string) => void;
-}
-
-const FollowStatsContext = createContext<FollowStatsContextValue | null>(null);
-
-export function useFollowStatsContext() {
-  return useContext(FollowStatsContext);
 }
 
 export function useFollowStats({
@@ -37,7 +20,6 @@ export function useFollowStats({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   const fetchStats = useCallback(async () => {
     if (!targetUserId || !enabled) return;
@@ -46,9 +28,7 @@ export function useFollowStats({
     setError(null);
 
     try {
-      const response = await fetch(
-        `/api/users/${targetUserId}/follow-stats?_t=${refreshKey}`
-      );
+      const response = await fetch(`/api/users/${targetUserId}/follow-stats`);
 
       if (response.ok) {
         const data = await response.json();
@@ -63,15 +43,15 @@ export function useFollowStats({
     } finally {
       setIsLoading(false);
     }
-  }, [targetUserId, enabled, refreshKey]);
+  }, [targetUserId, enabled]);
 
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
 
   const refresh = useCallback(() => {
-    setRefreshKey((prev) => prev + 1);
-  }, []);
+    fetchStats();
+  }, [fetchStats]);
 
   return {
     stats,
