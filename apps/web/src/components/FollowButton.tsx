@@ -14,14 +14,27 @@ interface FollowButtonProps {
     followerCount: number;
     followingCount: number;
   }) => void;
+  onFollowStatsChange?: () => void; // New callback for refreshing public stats
 }
 
 export function FollowButton({
   targetUserId,
   onStatusChange,
+  onFollowStatsChange,
 }: FollowButtonProps) {
   const { data: session } = useSession();
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // Enhanced callback that also triggers public stats refresh
+  const enhancedStatusChange = (status: {
+    status: "none" | "following" | "request_sent" | "request_received";
+    followerCount: number;
+    followingCount: number;
+  }) => {
+    onStatusChange?.(status);
+    onFollowStatsChange?.(); // Refresh public stats when follow status changes
+  };
+
   const {
     followStatus,
     isLoading,
@@ -33,7 +46,7 @@ export function FollowButton({
     rejectRequest,
   } = useFollow({
     targetUserId,
-    onStatusChange,
+    onStatusChange: enhancedStatusChange,
   });
 
   useEffect(() => {

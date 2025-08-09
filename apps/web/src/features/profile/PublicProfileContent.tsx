@@ -3,13 +3,14 @@
 import { ProfileStats } from "@/features/profile/ProfileStats";
 import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { FollowButton } from "@/components/FollowButton";
-import { FollowStats } from "@/components/FollowStats";
+import { FollowStats, FollowStatsRef } from "@/components/FollowStats";
 import { PostsList } from "@/features/posts/PostsList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserRole } from "@/types";
 import { Calendar, User } from "lucide-react";
+import { useRef } from "react";
 
 interface PublicProfileContentProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -17,6 +18,8 @@ interface PublicProfileContentProps {
 }
 
 export function PublicProfileContent({ user }: PublicProfileContentProps) {
+  const followStatsRef = useRef<FollowStatsRef>(null);
+
   const getRoleDisplayName = (role: UserRole) => {
     switch (role) {
       case "ADMIN":
@@ -43,6 +46,11 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
     }
   };
 
+  const handleFollowStatsChange = () => {
+    // Trigger a refresh of follow stats when follow actions occur
+    followStatsRef.current?.refresh();
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -66,8 +74,11 @@ export function PublicProfileContent({ user }: PublicProfileContentProps) {
               </div>
             </div>
             <div className="mt-4 flex items-center gap-4">
-              <FollowButton targetUserId={user.id} />
-              <FollowStats targetUserId={user.id} />
+              <FollowButton
+                targetUserId={user.id}
+                onFollowStatsChange={handleFollowStatsChange}
+              />
+              <FollowStats ref={followStatsRef} targetUserId={user.id} />
             </div>
           </div>
         </div>

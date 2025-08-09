@@ -6,15 +6,19 @@ import { ProfileActivity } from "@/features/profile/ProfileActivity";
 import { UserComments } from "@/components/UserComments";
 import { Notifications } from "@/components/Notifications";
 import { FollowRequests } from "@/components/FollowRequests";
-import { FollowStats } from "@/components/FollowStats";
+import { FollowStats, FollowStatsRef } from "@/components/FollowStats";
 import { PostsList } from "@/features/posts/PostsList";
 import { CreatePostDialog } from "@/features/posts/CreatePostDialog";
+import { useRef } from "react";
+
 interface ProfileContentProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   user: any; // Simplified for now to avoid complex type issues
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
+  const followStatsRef = useRef<FollowStatsRef>(null);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -23,7 +27,7 @@ export function ProfileContent({ user }: ProfileContentProps) {
           Manage your account settings and view your activity
         </p>
         <div className="mt-4">
-          <FollowStats targetUserId={user.id} />
+          <FollowStats ref={followStatsRef} targetUserId={user.id} />
         </div>
       </div>
 
