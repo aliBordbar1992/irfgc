@@ -53,7 +53,7 @@ export function FollowListModal({
   const mutualQuery = useFollowList({
     userId: targetUserId,
     type: "mutual",
-    enabled: isOpen && activeTab === "mutual" && !!session?.user?.id,
+    enabled: isOpen && !!session?.user?.id, // Always enable when authenticated and modal is open
   });
 
   // Get the current query based on active tab

@@ -5,6 +5,7 @@ export interface FollowListUser {
   name: string;
   username: string;
   avatar: string | null;
+  isCurrentUser?: boolean;
 }
 
 export interface FollowListPagination {

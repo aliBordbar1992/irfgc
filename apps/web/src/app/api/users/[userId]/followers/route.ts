@@ -31,6 +31,7 @@ export async function GET(
       name: string;
       username: string;
       avatar: string | null;
+      isCurrentUser?: boolean;
     }> = [];
     let totalCount = 0;
 
@@ -59,7 +60,20 @@ export async function GET(
         }),
       ]);
 
-      users = followersData.map((follow) => follow.follower);
+      users = followersData.map((follow) => ({
+        ...follow.follower,
+        isCurrentUser: session?.user?.id === follow.follower.id,
+      }));
+
+      // If current user is in the list and this is page 1, move them to the top
+      if (page === 1 && session?.user?.id) {
+        const currentUserIndex = users.findIndex((user) => user.isCurrentUser);
+        if (currentUserIndex > 0) {
+          const currentUser = users.splice(currentUserIndex, 1)[0];
+          users.unshift(currentUser);
+        }
+      }
+
       totalCount = count;
     } else if (type === "following") {
       // Get users this user is following
@@ -79,7 +93,20 @@ export async function GET(
         }),
       ]);
 
-      users = followingData.map((follow) => follow.following);
+      users = followingData.map((follow) => ({
+        ...follow.following,
+        isCurrentUser: session?.user?.id === follow.following.id,
+      }));
+
+      // If current user is in the list and this is page 1, move them to the top
+      if (page === 1 && session?.user?.id) {
+        const currentUserIndex = users.findIndex((user) => user.isCurrentUser);
+        if (currentUserIndex > 0) {
+          const currentUser = users.splice(currentUserIndex, 1)[0];
+          users.unshift(currentUser);
+        }
+      }
+
       totalCount = count;
     } else if (type === "mutual") {
       // Get mutual connections (users who follow each other)
@@ -94,10 +121,12 @@ export async function GET(
       const currentUserId = session.user.id;
 
       // Find users who both follow the target user and are followed by the current user
+      // Exclude the current user from mutual connections
       const [mutualData, count] = await Promise.all([
         prisma.follow.findMany({
           where: {
             followingId: userId,
+            followerId: { not: currentUserId }, // Exclude current user
             follower: {
               followers: {
                 some: {
@@ -117,6 +146,7 @@ export async function GET(
         prisma.follow.count({
           where: {
             followingId: userId,
+            followerId: { not: currentUserId }, // Exclude current user
             follower: {
               followers: {
                 some: {
@@ -128,7 +158,11 @@ export async function GET(
         }),
       ]);
 
-      users = mutualData.map((follow) => follow.follower);
+      users = mutualData.map((follow) => ({
+        ...follow.follower,
+        isCurrentUser: false, // Mutual connections should never include current user
+      }));
+
       totalCount = count;
     }
 

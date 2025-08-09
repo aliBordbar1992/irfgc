@@ -12,9 +12,12 @@ interface UserListItemProps {
 
 export function UserListItem({ user, onFollowStatsChange }: UserListItemProps) {
   const router = useRouter();
+  const isCurrentUser = user.isCurrentUser;
 
   const handleUserClick = () => {
-    router.push(`/@${user.username}`);
+    if (!isCurrentUser) {
+      router.push(`/@${user.username}`);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -29,7 +32,10 @@ export function UserListItem({ user, onFollowStatsChange }: UserListItemProps) {
   return (
     <div className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
       <div className="flex items-center space-x-3 flex-1 min-w-0">
-        <Avatar className="h-10 w-10 cursor-pointer" onClick={handleUserClick}>
+        <Avatar
+          className={`h-10 w-10 ${isCurrentUser ? "" : "cursor-pointer"}`}
+          onClick={isCurrentUser ? undefined : handleUserClick}
+        >
           <AvatarImage src={user.avatar || undefined} alt={user.name} />
           <AvatarFallback className="bg-blue-100 text-blue-700 font-medium">
             {getInitials(user.name)}
@@ -38,15 +44,17 @@ export function UserListItem({ user, onFollowStatsChange }: UserListItemProps) {
 
         <div className="flex-1 min-w-0">
           <div
-            className="flex flex-col cursor-pointer"
-            onClick={handleUserClick}
+            className={`flex flex-col ${isCurrentUser ? "" : "cursor-pointer"}`}
+            onClick={isCurrentUser ? undefined : handleUserClick}
           >
             <span className="font-medium text-gray-900 truncate">
-              {user.name}
+              {isCurrentUser ? "You" : user.name}
             </span>
-            <span className="text-sm text-gray-500 truncate">
-              @{user.username}
-            </span>
+            {!isCurrentUser && (
+              <span className="text-sm text-gray-500 truncate">
+                @{user.username}
+              </span>
+            )}
           </div>
         </div>
       </div>
