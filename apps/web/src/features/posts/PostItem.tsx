@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, MessageCircle, Share2 } from "lucide-react";
+import { MoreHorizontal, MessageCircle, Share2, Play } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +19,7 @@ import { usePosts } from "@/hooks/usePosts";
 import { useSession } from "next-auth/react";
 import { ContentType } from "@/types";
 import Image from "next/image";
+import { VideoPlayer } from "@/components/ui/video-player";
 
 interface PostItemProps {
   post: {
@@ -55,6 +56,7 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
   });
 
   const [showComments, setShowComments] = useState(false);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
 
   const isAuthor = session?.user?.id === post.authorId;
 
@@ -141,16 +143,15 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
         {/* Videos */}
         {post.videos.length > 0 && (
           <div className="mb-4">
-            <div className="grid grid-cols-1 gap-2">
+            <div className="flex flex-row gap-2 overflow-x-auto">
               {post.videos.map((video, index) => (
-                <video
-                  key={index}
-                  src={video}
-                  controls
-                  className="rounded-lg max-w-full h-auto"
-                >
-                  Your browser does not support the video tag.
-                </video>
+                <div key={index} className="relative">
+                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
+                    <div className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
+                      <Play className="w-4 h-4 text-gray-800 ml-0.5" />
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -197,6 +198,14 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
           </div>
         )}
       </CardContent>
+
+      {/* Video Player Modal */}
+      {selectedVideo && (
+        <VideoPlayer
+          src={selectedVideo}
+          onClose={() => setSelectedVideo(null)}
+        />
+      )}
     </Card>
   );
 }

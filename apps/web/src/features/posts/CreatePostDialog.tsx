@@ -14,6 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { CropImagePicker } from "@/components/ui/crop-image-picker";
+import { VideoPicker } from "@/components/ui/video-picker";
 import { Plus } from "lucide-react";
 import { usePosts } from "@/hooks/usePosts";
 
@@ -29,15 +30,15 @@ export function CreatePostDialog({
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
   const [images, setImages] = useState<string[]>([""]);
-  const [videos, setVideos] = useState<string[]>([]);
+  const [videos, setVideos] = useState<string[]>([""]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { createPost } = usePosts({
     onSuccess: () => {
       setOpen(false);
       setContent("");
-      setImages([]);
-      setVideos([]);
+      setImages([""]);
+      setVideos([""]);
       onSuccess?.();
     },
     onError: (error) => {
@@ -56,7 +57,8 @@ export function CreatePostDialog({
     setIsSubmitting(true);
     try {
       const filteredImages = images.filter((img) => img.trim() !== "");
-      await createPost(content.trim(), filteredImages, videos);
+      const filteredVideos = videos.filter((vid) => vid.trim() !== "");
+      await createPost(content.trim(), filteredImages, filteredVideos);
       alert("Post created successfully!");
     } catch {
       alert("Failed to create post. Please try again.");
@@ -69,7 +71,7 @@ export function CreatePostDialog({
     if (!newOpen) {
       setContent("");
       setImages([""]);
-      setVideos([]);
+      setVideos([""]);
     }
     setOpen(newOpen);
   };
@@ -145,9 +147,30 @@ export function CreatePostDialog({
           {/* Videos Section */}
           <div className="space-y-2">
             <Label>Videos</Label>
-            <div className="text-sm text-gray-500">
-              Video upload functionality coming soon. For now, you can add video
-              URLs.
+            <div className="space-y-3">
+              {videos.map((video, index) => (
+                <div key={index} className="relative">
+                  <VideoPicker
+                    label={`Video ${index + 1}`}
+                    value={video}
+                    onChange={(value) => {
+                      const newVideos = [...videos];
+                      newVideos[index] = value;
+                      setVideos(newVideos.filter(Boolean));
+                    }}
+                    maxSize={50}
+                  />
+                </div>
+              ))}
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setVideos([...videos, ""])}
+                className="w-full"
+              >
+                Add Another Video
+              </Button>
             </div>
           </div>
 
