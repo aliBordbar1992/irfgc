@@ -123,3 +123,43 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Embla Carousel base styles - simplified approach */
+.embla {
+  overflow: hidden;
+}
+.embla__viewport {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+  flex-direction: row;
+  touch-action: pan-y pinch-zoom;
+}
+/*
+  Ensure every slide always has an explicit width.  
+  When only `flex: 0 0 100%` is set, the flex-basis is resolved against an
+  "auto" container size.  In many browsers this causes the first slide to get
+  the expected space but every subsequent slide collapses to 0 px – they exist
+  in the DOM, Embla can still scroll to them, yet nothing is actually visible.
+
+  Giving the element a real width (or min-width) forces the browser to lay out
+  each slide at the correct size and all images become visible when scrolling
+  or programmatically calling `scrollNext / scrollPrev`.
+*/
+.embla__slide {
+  /* Each slide takes exactly 100% of the viewport as its flex-basis */
+  flex: 0 0 100%;
+
+  /* Let flexbox compute the final width – prevents unexpected over-expansion */
+  min-width: 0;
+
+  /* Make padding/borders part of the declared width (smoother math) */
+  box-sizing: border-box;
+
+  /* Needed so the `next/image` component that uses `fill` works reliably */
+  position: relative;
+
+  /* GPU accelerate to avoid 0-width calculation glitches */
+  transform: translate3d(0, 0, 0);
+}

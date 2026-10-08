@@ -3,12 +3,15 @@
 import React, { useEffect, useRef } from "react";
 import videojs from "video.js";
 import "video.js/dist/video-js.css";
+import { X } from "lucide-react";
 
 interface VideoPlayerProps {
   src: string;
   poster?: string;
   onClose?: () => void;
   className?: string;
+  inline?: boolean;
+  onPlayerReady?: (player: ReturnType<typeof videojs>) => void;
 }
 
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({
@@ -16,6 +19,8 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   poster,
   onClose,
   className = "",
+  inline = false,
+  onPlayerReady,
 }) => {
   const videoRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<ReturnType<typeof videojs> | null>(null);
@@ -32,7 +37,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
       const player = (playerRef.current = videojs(
         videoElement,
         {
-          autoplay: true,
+          autoplay: inline ? false : true,
           controls: true,
           responsive: true,
           fluid: true,
@@ -46,13 +51,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         },
         () => {
           videojs.log("player is ready");
+          // Call the onPlayerReady callback when player is ready
+          onPlayerReady?.(player);
         }
       ));
 
       // Handle player events
-      player.on("ended", () => {
-        onClose?.();
-      });
+      if (!inline) {
+        player.on("ended", () => {
+          onClose?.();
+        });
+      }
 
       player.on("error", () => {
         console.error("Video player error");
@@ -66,7 +75,43 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         playerRef.current = null;
       }
     };
-  }, [src, poster, onClose]);
+  }, [src, poster, onClose, inline, onPlayerReady]);
+
+  if (inline) {
+    return (
+      <div className={`w-full ${className}`}>
+        <style jsx>{`
+          .vjs-big-play-button {
+            background-color: rgba(255, 255, 255, 0.9) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 80px !important;
+            height: 80px !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+          }
+          .vjs-big-play-button:hover {
+            background-color: rgba(255, 255, 255, 1) !important;
+            transform: translate(-50%, -50%) scale(1.1) !important;
+            transition: all 0.2s ease !important;
+          }
+          .vjs-big-play-button .vjs-icon-placeholder {
+            color: #000 !important;
+            font-size: 2.5em !important;
+            line-height: 80px !important;
+          }
+          .vjs-control-bar {
+            background-color: rgba(0, 0, 0, 0.7) !important;
+          }
+        `}</style>
+        <div data-vjs-player>
+          <div ref={videoRef} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -78,19 +123,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           onClick={onClose}
           className="absolute top-2 right-2 z-10 bg-white bg-opacity-20 hover:bg-opacity-30 text-white rounded-full p-2 transition-all"
         >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <X className="w-6 h-6" />
         </button>
 
         {/* Video player container */}

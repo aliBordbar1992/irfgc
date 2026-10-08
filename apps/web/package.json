@@ -50,6 +50,8 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "discord.js": "^14.21.0",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "emoji-picker-react": "^4.13.2",
     "jotai": "^2.12.5",
     "lucide-react": "^0.525.0",

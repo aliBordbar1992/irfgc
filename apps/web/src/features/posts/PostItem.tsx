@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, MessageCircle, Share2, Play } from "lucide-react";
+import { MoreHorizontal, MessageCircle, Share2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,8 +18,8 @@ import { Reactions } from "@/components/Reactions";
 import { usePosts } from "@/hooks/usePosts";
 import { useSession } from "next-auth/react";
 import { ContentType } from "@/types";
-import Image from "next/image";
-import { VideoPlayer } from "@/components/ui/video-player";
+import { PostImages } from "./PostImages";
+import { PostVideos } from "./PostVideos";
 
 interface PostItemProps {
   post: {
@@ -56,7 +56,7 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
   });
 
   const [showComments, setShowComments] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  // Removed modal video player; videos now play inline or in a carousel
 
   const isAuthor = session?.user?.id === post.authorId;
 
@@ -125,35 +125,14 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
         {/* Images */}
         {post.images.length > 0 && (
           <div className="mb-4">
-            <div className="flex flex-row gap-2 overflow-x-auto">
-              {post.images.map((image, index) => (
-                <Image
-                  key={index}
-                  src={image}
-                  alt={`Post image ${index + 1}`}
-                  className="rounded-lg max-w-full h-auto"
-                  width={100}
-                  height={100}
-                />
-              ))}
-            </div>
+            <PostImages images={post.images} />
           </div>
         )}
 
         {/* Videos */}
         {post.videos.length > 0 && (
           <div className="mb-4">
-            <div className="flex flex-row gap-2 overflow-x-auto">
-              {post.videos.map((video, index) => (
-                <div key={index} className="relative">
-                  <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-lg">
-                    <div className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center">
-                      <Play className="w-4 h-4 text-gray-800 ml-0.5" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PostVideos videos={post.videos} />
           </div>
         )}
 
@@ -199,13 +178,7 @@ export function PostItem({ post, onDelete, onUpdate }: PostItemProps) {
         )}
       </CardContent>
 
-      {/* Video Player Modal */}
-      {selectedVideo && (
-        <VideoPlayer
-          src={selectedVideo}
-          onClose={() => setSelectedVideo(null)}
-        />
-      )}
+      {/* Inline videos only; modal removed */}
     </Card>
   );
 }
