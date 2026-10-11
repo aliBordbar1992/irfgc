@@ -1,101 +1,131 @@
 "use client";
 
-import Link from "next/link";
+import { Users } from "lucide-react";
 import { useGames } from "@/hooks/useGames";
-
-// Colors for game cards
-const gameColors = [
-  "bg-red-600 hover:bg-red-700",
-  "bg-blue-600 hover:bg-blue-700",
-  "bg-purple-600 hover:bg-purple-700",
-  "bg-green-600 hover:bg-green-700",
-  "bg-indigo-600 hover:bg-indigo-700",
-  "bg-pink-600 hover:bg-pink-700",
-];
+import { GameCommunityCard } from "@/components/hub/GameCommunityCard";
+import { HubPillars } from "@/components/hub/HubPillars";
+import { SiteFooter } from "@/components/SiteFooter";
+import { getHubPresentation, sortGamesForHub } from "@/lib/hub-content";
 
 export default function HomePage() {
-  const { games } = useGames({ isActive: true });
+  const { games, loading, error } = useGames({ isActive: true });
+  const ordered = sortGamesForHub(games);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-violet-900">
-      <div className="container mx-auto px-4 py-16">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-6xl font-bold text-white mb-4">IRFGC</h1>
-          <p className="text-xl text-gray-300 mb-8">
-            Iranian Fighting Game Community
-          </p>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-            Unite Iran&apos;s FGC with centralized infrastructure and
-            game-specific communities. Join tournaments, find matches, and
-            connect with fellow players.
-          </p>
-        </div>
-
-        {/* Game Selection */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
-          {games.map((game, index) => (
-            <Link
-              key={game.slug}
-              href={`/${game.slug}`}
-              className={`${
-                gameColors[index % gameColors.length]
-              } rounded-lg p-6 text-white transition-all duration-300 transform hover:scale-105 hover:shadow-2xl`}
+    <div className="flex min-h-[calc(100vh-6rem)] flex-col bg-[var(--irfgc-canvas)] text-[var(--irfgc-text-primary)]">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-5 sm:px-12 lg:px-24">
+        <section className="flex flex-col items-stretch gap-10 pb-9 pt-10 lg:flex-row lg:items-center lg:gap-20">
+          <div className="order-2 flex w-full flex-col gap-2 rounded-xl border border-[var(--irfgc-border)] bg-[var(--irfgc-surface)] p-5 lg:order-1 lg:w-[350px] lg:shrink-0">
+            <div className="flex items-center gap-2.5">
+              <p
+                className="flex-1 text-right text-[15px] font-semibold leading-[1.8]"
+                dir="auto"
+              >
+                یک حساب، همهٔ کامیونیتی‌ها
+              </p>
+              <Users className="size-5 shrink-0 text-[var(--irfgc-accent)]" />
+            </div>
+            <p
+              className="text-right text-[13px] leading-[1.8] text-[var(--irfgc-text-secondary)]"
+              dir="auto"
             >
-              <div className="text-center">
-                <h2 className="text-3xl font-bold mb-2">{game.name}</h2>
-                <h3 className="text-lg font-semibold mb-3">{game.fullName}</h3>
-                <p className="text-gray-200">{game.description}</p>
-                <div className="mt-4 text-sm opacity-80">
-                  Click to enter community →
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Features */}
-        <div className="mt-20 text-center">
-          <h2 className="text-3xl font-bold text-white mb-8">
-            Platform Features
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Tournaments
-              </h3>
-              <p className="text-gray-300">
-                Join online and offline tournaments, track your progress, and
-                compete with the best.
-              </p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Matchmaking
-              </h3>
-              <p className="text-gray-300">
-                Find players in your region, platform, and skill level for
-                casual matches.
-              </p>
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-white mb-3">
-                Community
-              </h3>
-              <p className="text-gray-300">
-                Discuss strategies, share news, and connect with fellow fighting
-                game enthusiasts.
-              </p>
-            </div>
+              با یک حساب در جمع بازیکنان هر بازی حضور داشته باش؛ از تازه‌کار تا
+              حرفه‌ای.
+            </p>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="mt-20 text-center text-gray-400">
-          <p>© 2024 IRFGC - Iranian Fighting Game Community</p>
-          <p className="mt-2 text-sm">Built with ❤️ for Iran&apos;s FGC</p>
-        </div>
+          <div className="order-1 flex flex-1 flex-col items-end gap-3 lg:order-2">
+            <div className="flex items-center gap-2">
+              <p
+                className="text-sm font-medium text-[var(--irfgc-accent)]"
+                dir="auto"
+              >
+                یک پلتفرم برای صحنهٔ بازی‌های مبارزه‌ای ایران
+              </p>
+              <span className="size-1.5 shrink-0 bg-[var(--irfgc-accent)]" />
+            </div>
+            <h1
+              className="w-full text-right text-3xl font-extrabold leading-[1.5] sm:text-[42px]"
+              dir="auto"
+            >
+              بازی‌ات را انتخاب کن.
+              <br />
+              وارد جمع خودت شو.
+            </h1>
+            <p
+              className="w-full text-right text-[15px] leading-[1.8] text-[var(--irfgc-text-secondary)]"
+              dir="auto"
+            >
+              هر بازی، کامیونیتی خودش را دارد؛ محل دورهمی، پیدا کردن هم‌بازی و
+              گفتگو دربارهٔ همان بازی.
+            </p>
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-5">
+          <div className="flex items-center justify-between gap-4">
+            <span className="rounded-full bg-[var(--irfgc-accent-surface)] px-3 py-1 text-xs font-medium text-[var(--irfgc-accent)]" dir="auto">
+              {loading
+                ? "…"
+                : `${ordered.length.toLocaleString("fa-IR")} بازی فعال`}
+            </span>
+            <h2
+              className="text-2xl font-bold text-[var(--irfgc-text-primary)]"
+              dir="auto"
+            >
+              کامیونیتی‌های بازی
+            </h2>
+          </div>
+
+          {error && (
+            <p className="text-right text-sm text-[var(--irfgc-danger)]" dir="auto">
+              دریافت فهرست بازی‌ها ناموفق بود. صفحه را تازه کن یا بعداً تلاش کن.
+            </p>
+          )}
+
+          {loading && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[252px] animate-pulse rounded-xl border border-[var(--irfgc-border)] bg-[var(--irfgc-surface)]"
+                />
+              ))}
+            </div>
+          )}
+
+          {!loading && !error && ordered.length === 0 && (
+            <div className="rounded-xl border border-[var(--irfgc-border)] bg-[var(--irfgc-surface)] p-8 text-center">
+              <p className="text-[var(--irfgc-text-secondary)]" dir="auto">
+                در حال حاضر کامیونیتی فعالی برای نمایش نیست.
+              </p>
+            </div>
+          )}
+
+          {!loading && ordered.length > 0 && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {ordered.map((game) => {
+                const presentation = getHubPresentation(game.slug);
+                return (
+                  <GameCommunityCard
+                    key={game.slug}
+                    href={`/${game.slug}`}
+                    title={presentation.displayTitle || game.fullName}
+                    description={
+                      presentation.blurbFa || game.description
+                    }
+                    imageSrc={presentation.imageSrc || game.imageUrl}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        <HubPillars />
       </div>
+
+      <SiteFooter />
     </div>
   );
 }

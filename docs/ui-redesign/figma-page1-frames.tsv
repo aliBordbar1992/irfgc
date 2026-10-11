@@ -1,0 +1,94 @@
+﻿id	name	width	height
+40:1366	Profile Â· Desktop Â· Arman public guest	1440	3062
+40:1614	Profile Â· Mobile Â· Arman public guest	390	4558
+40:1859	Profile Â· Desktop Â· Arman public outgoing pending	1440	3062
+40:2107	Profile Â· Mobile Â· Arman public outgoing pending	390	4558
+40:2352	Profile Â· Desktop Â· Sara public self view	1440	2721
+40:2571	Profile Â· Mobile Â· Sara public self view	390	4096
+40:2787	Profile Â· Desktop Â· Sara private overview	1440	2816
+40:2960	Profile Â· Mobile Â· Sara private overview	390	3472
+40:3131	Profile Â· Desktop Â· Sara private edit identity	1440	1357
+40:3214	Profile Â· Mobile Â· Sara private edit identity	390	1776
+40:3295	Profile Â· Desktop Â· Sara private My Posts	1440	2374
+40:3423	Profile Â· Mobile Â· Sara private My Posts	390	2501
+40:3549	Profile Â· Desktop Â· Sara private My Comments	1440	1518
+40:3623	Profile Â· Mobile Â· Sara private My Comments	390	1825
+40:3695	Profile Â· Desktop Â· Sara private Notifications All	1440	1736
+40:3790	Profile Â· Mobile Â· Sara private Notifications All	390	1953
+40:3883	Profile Â· Desktop Â· Sara private Received follow requests	1440	1024
+40:3946	Profile Â· Mobile Â· Sara private Received follow requests	390	1199
+40:4007	Profile Â· Desktop Â· Sara private Sent follow requests	1440	1118
+40:4076	Profile Â· Mobile Â· Sara private Sent follow requests	390	1357
+40:4143	Profile Â· Desktop Â· Sara Connections overlay	1440	1100
+40:4249	Profile Â· Mobile Â· Sara Connections sheet	390	1240
+40:4359	Profile Â· Desktop Â· New member public empty activity	1440	1949
+40:4480	Profile Â· Mobile Â· New member public empty activity	390	2337
+40:4598	Profile Â· Desktop Â· Username not found	1440	1024
+40:4627	Profile Â· Mobile Â· Username not found	390	844
+40:4655	Profile Â· Desktop Â· Relationship form and system patterns	1440	3695
+40:4940	Profile Â· Mobile Â· Relationship form and system patterns	780	5668
+40:5225	Profile Â· Persian product and behavior specification	1440	1357
+26:24783	Posts Â· Desktop Â· Global guest feed	1440	3121
+26:24977	Posts Â· Mobile Â· Global guest feed	390	3011
+26:25153	Posts Â· Desktop Â· Global member feed	1440	3229
+26:25355	Posts Â· Mobile Â· Global member feed	390	3095
+26:25536	Posts Â· Desktop Â· Arman public Posts tab	1440	2430
+26:25697	Posts Â· Mobile Â· Arman public Posts tab	390	2623
+26:25851	Posts Â· Desktop Â· Sara My Posts tab	1440	2278
+26:26001	Posts Â· Mobile Â· Sara My Posts tab	390	2455
+26:26141	Posts Â· Desktop Â· Create mixed-media post	1440	1827
+26:26235	Posts Â· Mobile Â· Create mixed-media post	390	1920
+26:26322	Posts Â· Desktop Â· Edit Sara post	1440	1582
+26:26402	Posts Â· Mobile Â· Edit Sara post	390	1581
+26:26475	Posts Â· Desktop Â· Guest expanded comments	1440	1510
+26:26565	Posts Â· Mobile Â· Guest expanded comments	390	1618
+26:26653	Posts Â· Desktop Â· Member expanded comments and reactions	1440	1798
+26:26764	Posts Â· Mobile Â· Member expanded comments and reactions	390	1906
+26:26872	Posts Â· Desktop Â· Image lightbox	1440	1024
+26:26967	Posts Â· Mobile Â· Image lightbox	390	844
+26:27059	Posts Â· Desktop Â· Delete confirmation	1440	2154
+26:27218	Posts Â· Mobile Â· Delete confirmation	390	2331
+26:27367	Posts Â· Desktop Â· Global empty guest feed	1440	1024
+26:27403	Posts Â· Mobile Â· Global empty guest feed	390	848
+26:27437	Posts Â· Desktop Â· Global feed loading error	1440	1024
+26:27474	Posts Â· Mobile Â· Global feed loading error	390	848
+26:27509	Posts Â· Desktop Â· Media and interaction patterns	1440	5047
+26:27949	Posts Â· Mobile Â· Media and interaction patterns	780	6279
+26:28389	Posts Â· Persian specification and rationale	1440	1809
+22:18781	News Â· Persian behavior and specification	1440	2481
+22:18750	Article detail Â· Mobile Â· Not found	390	844
+22:18717	Article detail Â· Desktop Â· Not found	1440	1254
+22:18674	News feed Â· Mobile Â· Loading error	390	976
+22:18615	News feed Â· Desktop Â· Loading error	1440	1063
+22:18572	News feed Â· Mobile Â· Mortal Kombat empty	390	1003
+22:18513	News feed Â· Desktop Â· Mortal Kombat empty	1440	1063
+22:18470	News feed Â· Mobile Â· All empty	390	976
+22:18411	News feed Â· Desktop Â· All empty	1440	1063
+22:18341	News feed Â· Mobile Â· Initial loading	390	2052
+22:18255	News feed Â· Desktop Â· Initial loading	1440	1649
+22:18133	Article detail Â· Mobile Â· Signed-in populated	390	5371
+22:17998	Article detail Â· Desktop Â· Signed-in populated	1440	4006
+22:17882	Article detail Â· Mobile Â· Guest populated	390	5225
+22:17754	Article detail Â· Desktop Â· Guest populated	1440	3834
+22:17636	Mortal Kombat News Â· Mobile Â· Guest populated	390	2461
+22:17502	Mortal Kombat News Â· Desktop Â· Guest populated	1440	1947
+22:17263	All News Â· Mobile Â· Guest populated	390	4728
+22:17008	All News Â· Desktop Â· Guest populated	1440	3092
+15:13163	Scope 4 Â· Persian rationale and assumptions	740	704
+15:13073	IRFGC Â· Mobile Â· Unavailable community	390	844
+15:13040	IRFGC Â· Desktop Â· Unavailable community	1440	1024
+15:12884	Mortal Kombat Â· Mobile Â· Quiet guest	390	3085
+15:12724	Mortal Kombat Â· Desktop Â· Quiet guest	1440	2031
+15:12501	Mortal Kombat Â· Mobile Â· Signed-in populated	390	3760
+15:12272	Mortal Kombat Â· Desktop Â· Signed-in populated	1440	2296
+15:12046	Mortal Kombat Â· Mobile Â· Guest populated	390	3830
+15:11815	Mortal Kombat Â· Desktop Â· Guest populated	1440	2343
+3:9253	Game entry Â· Persian handoff	740	535
+3:9122	IRFGC Â· Mobile Â· Loading guest	390	2697
+3:9002	IRFGC Â· Desktop Â· Loading guest	1440	1303
+3:8942	IRFGC Â· Mobile Â· Empty guest	390	1430
+3:8880	IRFGC Â· Desktop Â· Empty guest	1440	1083
+3:8741	IRFGC Â· Mobile Â· Default signed-in	390	2697
+3:8597	IRFGC Â· Desktop Â· Default signed-in	1440	1303
+3:8458	IRFGC Â· Mobile Â· Default guest	390	2697
+3:8315	IRFGC Â· Desktop Â· Default guest	1440	1303

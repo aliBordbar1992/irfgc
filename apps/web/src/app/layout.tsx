@@ -1,9 +1,22 @@
 import type { Metadata } from "next";
+import { Inter, Vazirmatn } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/features/games/GameContext";
 import { SessionProvider } from "@/components/providers/SessionProvider";
 import { JotaiProvider } from "@/components/providers/JotaiProvider";
 import { MainNav } from "@/components/MainNav";
+
+const vazirmatn = Vazirmatn({
+  subsets: ["arabic", "latin"],
+  variable: "--font-vazirmatn",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "IRFGC - Iranian Fighting Game Community",
@@ -27,8 +40,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fa" dir="rtl">
-      <body className="font-sans">
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${inter.variable}`}>
+      <body className="min-h-screen bg-[var(--irfgc-canvas)] font-sans text-[var(--irfgc-text-primary)] antialiased">
         <JotaiProvider>
           <SessionProvider>
             <GameProvider>

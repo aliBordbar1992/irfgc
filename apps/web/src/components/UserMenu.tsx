@@ -21,23 +21,29 @@ export function UserMenu() {
 
   if (status === "loading") {
     return (
-      <div className="flex items-center space-x-2">
-        <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
-        <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
+      <div className="flex items-center gap-2">
+        <div className="h-8 w-8 animate-pulse rounded-full bg-[var(--irfgc-surface)]" />
+        <div className="h-4 w-16 animate-pulse rounded bg-[var(--irfgc-surface)]" />
       </div>
     );
   }
 
   if (!session) {
     return (
-      <div className="flex items-center space-x-2">
-        <Link href="/auth/signin">
-          <Button variant="ghost" size="sm">
-            Sign In
-          </Button>
+      <div className="flex items-center gap-4">
+        <Link
+          href="/auth/signup"
+          className="rounded-lg border border-[var(--irfgc-border)] px-5 py-[7px] text-sm font-semibold text-[var(--irfgc-text-primary)] transition-colors hover:bg-[var(--irfgc-surface)]"
+          dir="auto"
+        >
+          ثبت‌نام
         </Link>
-        <Link href="/auth/signup">
-          <Button size="sm">Sign Up</Button>
+        <Link
+          href="/auth/signin"
+          className="text-sm text-[var(--irfgc-text-secondary)] transition-colors hover:text-[var(--irfgc-text-primary)]"
+          dir="auto"
+        >
+          ورود
         </Link>
       </div>
     );
@@ -78,8 +84,8 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/profile" className="flex items-center">
-            <User className="mr-2 h-4 w-4" />
-            <span>Profile</span>
+            <User className="ms-0 me-2 h-4 w-4" />
+            <span dir="auto">پروفایل من</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
@@ -87,23 +93,23 @@ export function UserMenu() {
             href={getPublicProfileUrl(session.user.username)}
             className="flex items-center"
           >
-            <ExternalLink className="mr-2 h-4 w-4" />
-            <span>Public Profile</span>
+            <ExternalLink className="ms-0 me-2 h-4 w-4" />
+            <span dir="auto">پروفایل عمومی</span>
           </Link>
         </DropdownMenuItem>
         {(session.user.role === "ADMIN" ||
           session.user.role === "MODERATOR") && (
           <DropdownMenuItem asChild>
             <Link href="/dashboard" className="flex items-center">
-              <Shield className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+              <Shield className="ms-0 me-2 h-4 w-4" />
+              <span dir="auto">داشبورد</span>
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
           <Link href="/dashboard/settings" className="flex items-center">
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
+            <Settings className="ms-0 me-2 h-4 w-4" />
+            <span dir="auto">تنظیمات</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -111,8 +117,8 @@ export function UserMenu() {
           className="flex items-center text-red-600 focus:text-red-600"
           onClick={() => signOut({ callbackUrl: "/" })}
         >
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Sign out</span>
+          <LogOut className="ms-0 me-2 h-4 w-4" />
+          <span dir="auto">خروج</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
